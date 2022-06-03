@@ -19,6 +19,7 @@ yarn-debug.log*
 yarn-error.log*
 
 /dir
+**/emulator-data/*
 
 # Created by https://www.toptal.com/developers/gitignore/api/react,firebase,webstorm+iml,windows,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=react,firebase,webstorm+iml,windows,macos
@@ -189,6 +190,8 @@ $RECYCLE.BIN/
 
 # TypeScript v1 declaration files
 typings/
+
+tsconfig.json
 
 tsconfig.tsbuildinfo
 
