@@ -6,22 +6,35 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^14.2.0",
-    "@types/jest": "^28.1.0",
-    "@types/node": "^16.11.38",
-    "@types/react": "^17.0.45",
-    "@types/react-dom": "^17.0.17",
     "d3": "^7.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "^5.0.1",
-    "typescript": "^4.7.2",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "echo 'Loading.... This will take a few minutes.' && npm run tsc && npm-run-all --parallel dev:emulators dev:react tsc:watch",
+    "start:export": "npm-run-all --parallel dev:emulators:export dev:react tsc:watch",
+    "dev:react": "react-scripts start",
+    "dev:emulators": "firebase emulators:start --import=./emulator-data",
+    "dev:emulators:export": "firebase emulators:start --import=./emulator-data --export-on-exit",
+    "tsc": "npm-run-all --parallel tsc: tsc:functions",
+    "tsc:": "tsc --project ./",
+    "tsc:functions": "tsc --project ./functions",
+    "tsc:watch": "npm-run-all --parallel tsc:watch: tsc:watch:functions",
+    "tsc:watch:": "tsc --watch --project ./",
+    "tsc:watch:functions": "tsc --watch --project ./functions",
+    "postinstall": "run-script-os",
+    "postinstall:linux": "if test \"$CI\" = true ; then npm ci --no-audit --prefix ./functions; else npm install --no-audit --prefix ./functions; fi",
+    "postinstall:default": "npm install --no-audit --prefix ./functions",
     "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "test": "firebase emulators:exec --import=../emulator-data \"react-scripts test\"",
+    "test:noemulators": "react-scripts test",
+    "prettier": "prettier --check .",
+    "prettier:fix": "prettier --write .",
+    "eslint": "eslint .",
+    "eslint:fix": "eslint --fix .",
+    "deploy": "firebase deploy"
   },
   "eslintConfig": {
     "extends": [
@@ -42,16 +55,25 @@
     ]
   },
   "devDependencies": {
+    "@types/jest": "^28.1.0",
+    "@types/node": "^17.0.39",
+    "@types/react": "^18.0.10",
+    "@types/react-dom": "^18.0.5",
+    "@typescript-eslint/parser": "^5.27.0",
     "eslint": "^8.16.0",
     "eslint-config-airbnb": "^19.0.4",
+    "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-config-prettier": "^8.5.0",
-    "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.4.6",
+    "eslint-plugin-jest-dom": "^4.0.2",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.30.0",
     "eslint-plugin-react-hooks": "^4.5.0",
     "firebase-tools": "^11.0.1",
-    "prettier": "^2.6.2"
+    "npm-run-all": "^4.1.5",
+    "prettier": "^2.6.2",
+    "run-script-os": "^1.1.6",
+    "typescript": "^4.7.2"
   }
 }
