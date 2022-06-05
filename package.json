@@ -55,6 +55,7 @@
     ]
   },
   "devDependencies": {
+    "@types/d3": "^7.4.0",
     "@types/jest": "^28.1.0",
     "@types/node": "^17.0.39",
     "@types/react": "^18.0.10",
