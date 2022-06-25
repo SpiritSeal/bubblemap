@@ -1,45 +1,29 @@
+/* eslint-disable no-underscore-dangle */
 /* eslint-disable no-param-reassign */
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import * as d3 from 'd3-force';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import './MindMap.css';
 import Bubble from './Bubble';
+import BubbleLink from './BubbleLink';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-function getData() {
-  const data: {
-    nodes: {
-      text: string;
-      id: number;
-      parent: number;
-      root: boolean;
-    }[];
-    links: {
-      source: number;
-      target: number;
-    }[];
-  } = {
-    nodes: Array.from({ length: 10 }, (_, i) => ({
-      text: `Text in bubble ${i}!`,
-      id: i,
-      parent: Math.floor(Math.random() * i),
-      root: i === 0,
-    })),
-    links: [],
-  };
-
-  data.links = data.nodes.map((node, i) => ({
-    source: node.parent,
-    target: i,
-  }));
-
-  return data;
+interface dataType {
+  nodes: {
+    text: string;
+    id: number;
+    parent: number;
+    root: boolean;
+  }[];
+  links: {
+    source: number;
+    target: number;
+  }[];
 }
 
-export const useD3 = (forceUpdate: any) => {
-  const data = getData();
-
+export const useD3 = (forceUpdate: any, data: dataType) => {
   const [simulation, setSimulation] = React.useState<d3.Simulation<
     d3.SimulationNodeDatum,
     undefined
@@ -49,10 +33,9 @@ export const useD3 = (forceUpdate: any) => {
     setSimulation(
       d3
         .forceSimulation(data.nodes as any)
+        .force('link', d3.forceLink(data.links))
         .force('charge', d3.forceManyBody())
         .force('center', d3.forceCenter(width / 2, height / 2))
-        .force('x', d3.forceX())
-        .force('y', d3.forceY())
     );
   }, []);
 
@@ -61,25 +44,47 @@ export const useD3 = (forceUpdate: any) => {
       forceUpdate();
     });
 
-    simulation.alphaTarget(0.9);
+    simulation.alpha(1);
   }
   return { simulation };
 };
 
 // eslint-disable-next-line react/prop-types
-const MindMap = () => {
+const MindMap = ({ data }: { data: dataType }) => {
   const [, updateState] = React.useState({});
   const forceUpdate = React.useCallback(() => updateState({}), []);
+  const { links: dataLinks } = data;
 
-  const { simulation } = useD3(forceUpdate);
+  const { simulation } = useD3(forceUpdate, JSON.parse(JSON.stringify(data)));
   if (!simulation) return null;
 
+  const nodes = simulation.nodes();
+
   return (
-    <div>
-      {simulation.nodes().map((node) => (
-        <Bubble key={node.index} node={node} simulation={simulation} />
-      ))}
-    </div>
+    <TransformWrapper
+      initialScale={1}
+      initialPositionX={200}
+      initialPositionY={100}
+      maxScale={10}
+    >
+      <TransformComponent>
+        {nodes.length > 0 && (
+          <svg width={width} height={height}>
+            {dataLinks.map((link) => (
+              <BubbleLink
+                key={link.target}
+                link={link}
+                sourceNode={nodes[link.source]}
+                targetNode={nodes[link.target]}
+              />
+            ))}
+            {nodes.map((node) => (
+              <Bubble key={node.index} node={node} simulation={simulation} />
+            ))}
+          </svg>
+        )}
+      </TransformComponent>
+    </TransformWrapper>
   );
 };
 

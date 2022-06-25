@@ -11,22 +11,40 @@ const Bubble = ({
 }) => {
   const a = 1;
   return (
-    <div
-      style={{
-        transform: `translate(${node?.x || 0}px, ${node?.y || 0}px)`,
-      }}
-    >
-      <button
-        type="button"
-        onClick={() => {
-          node.fx = (node?.x || 0) + 10;
-          node.x = node.fx;
-          node.fx = null;
-        }}
+    <>
+      <circle
+        cx={node.x ?? 0}
+        cy={node.y ?? 0}
+        r="5"
+        stroke="green"
+        fill="yellow"
+      />
+      <text
+        x={(node.x ?? 0) - 2.5}
+        y={(node.y ?? 0) + 5}
+        textLength={5}
+        lengthAdjust="spacingAndGlyphs"
       >
-        {node.index}
-      </button>
-    </div>
+        Bubble!
+      </text>
+    </>
+
+    //   {/* // <div
+    // //   style={{
+    // //     transform: `translate(${(node?.x || 0) - 500}px, ${node?.y || 0}px)`,
+    // //   }}
+    // // > */}
+    //   {/* Hi!
+    //   <button
+    //     type="button"
+    //     onClick={() => {
+    //       node.fx = (node?.x || 0) + 10;
+    //       node.x = node.fx;
+    //       node.fx = null;
+    //     }}
+    //   >
+    //     {node.index} HI!!!
+    //   </button> */}
   );
 };
 
