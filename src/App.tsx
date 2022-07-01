@@ -1,18 +1,6 @@
 import React from 'react';
 import MindMap from './MindMap';
-
-interface dataType {
-  nodes: {
-    text: string;
-    id: number;
-    parent: number;
-    root: boolean;
-  }[];
-  links: {
-    source: number;
-    target: number;
-  }[];
-}
+import { dataType } from './types';
 
 function getData() {
   const data: dataType = {

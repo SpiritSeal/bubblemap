@@ -24,3 +24,7 @@ body::-webkit-scrollbar {
 .node.fixed {
   fill: #f00;
 }
+
+.react-transform-wrapper {
+  cursor: move;
+}
