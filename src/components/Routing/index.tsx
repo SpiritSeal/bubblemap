@@ -1,4 +1,7 @@
+import { Button } from '@mui/material';
+import { httpsCallable } from 'firebase/functions';
 import React from 'react';
+import { useFunctions } from 'reactfire';
 import MindMap from '../../MindMap';
 import { dataType } from '../../types';
 
@@ -128,10 +131,31 @@ const data = {
   ],
 };
 
-const Routing = () => (
-  <div style={{ margin: 0, padding: 0 }}>
-    <MindMap data={data} />
-  </div>
-);
+const Routing = () => {
+  const functions = useFunctions();
+  const testAI = () => {
+    // Call the function
+    httpsCallable(
+      functions,
+      'ai'
+    )({ data: 'yes' }).then((result) => {
+      console.log(result);
+    });
+  };
+
+  return (
+    <div style={{ margin: 0, padding: 0 }}>
+      <Button
+        variant="contained"
+        onClick={() => {
+          testAI();
+        }}
+      >
+        Test AI!
+      </Button>
+      <MindMap data={data} />
+    </div>
+  );
+};
 
 export default Routing;
