@@ -52,6 +52,10 @@ export const useD3 = (forceUpdate: () => void, data: dataType) => {
 
 // eslint-disable-next-line react/prop-types
 const MindMap = ({ data }: { data: dataType }) => {
+  const [newData, setNewData] = useState(data);
+
+  // Timeout function that runs after 5 seconds
+
   const [, updateState] = useState({});
   const forceUpdate = useCallback(() => updateState({}), []);
   const { links: dataLinks } = data;
@@ -63,6 +67,106 @@ const MindMap = ({ data }: { data: dataType }) => {
   const nodes: (SimulationNodeDatum & nodesType)[] =
     simulation.nodes() as (SimulationNodeDatum & nodesType)[];
 
+  const timeout = setTimeout(() => {
+    // console.log('Timeout function');
+    setNewData({
+      nodes: [
+        {
+          text: 'Text in bubble 0!',
+          id: 0,
+          parent: 0,
+          root: true,
+        },
+        {
+          text: 'Text in bubble 1!',
+          id: 1,
+          parent: 0,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 2!',
+          id: 2,
+          parent: 1,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 3!',
+          id: 3,
+          parent: 0,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 4!',
+          id: 4,
+          parent: 3,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 5!',
+          id: 5,
+          parent: 0,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 6!',
+          id: 6,
+          parent: 2,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 7!',
+          id: 7,
+          parent: 1,
+          root: false,
+        },
+        {
+          text: 'Text in bubble 8!',
+          id: 8,
+          parent: 4,
+          root: false,
+        },
+      ],
+      links: [
+        {
+          source: 0,
+          target: 0,
+        },
+        {
+          source: 0,
+          target: 1,
+        },
+        {
+          source: 1,
+          target: 2,
+        },
+        {
+          source: 0,
+          target: 3,
+        },
+        {
+          source: 3,
+          target: 4,
+        },
+        {
+          source: 0,
+          target: 5,
+        },
+        {
+          source: 2,
+          target: 6,
+        },
+        {
+          source: 1,
+          target: 7,
+        },
+        {
+          source: 4,
+          target: 8,
+        },
+      ],
+    });
+    simulation.restart();
+  }, 5000);
   return (
     <TransformWrapper
       initialScale={1}

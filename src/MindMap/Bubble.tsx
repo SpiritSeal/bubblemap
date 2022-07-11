@@ -98,14 +98,14 @@ const Bubble = ({
         fill="white"
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
-          // console.log('clicked', node.index, e.isPropagationStopped());
+          console.log('clicked', node.index, e.isPropagationStopped());
           e.stopPropagation();
         }}
       />
       <path
         d="M11 2C11 2 18.8225 2.00058 19 2M11 3.02521C11 3.02521 18.8225 3.02579 19 3.02521M11 4C11 4 18.8225 4.00058 19 4"
         stroke="black"
-        strokeWidth="0.1"
+        strokeWidth="0.2"
         strokeLinecap="round"
       />
     </g>
