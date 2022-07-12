@@ -193,3 +193,5 @@ typings/
 tsconfig.tsbuildinfo
 
 .vscode/
+
+*.secret
