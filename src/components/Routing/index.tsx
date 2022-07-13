@@ -138,7 +138,7 @@ const Routing = () => {
     httpsCallable(
       functions,
       'ai'
-    )({ data: 'yes' }).then((result) => {
+    )({ data: 'trees' }).then((result) => {
       console.log(result);
     });
   };
