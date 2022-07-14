@@ -193,3 +193,8 @@ typings/
 tsconfig.tsbuildinfo
 
 .vscode/
+
+*.secret
+
+.env
+.runtimeconfig.json
