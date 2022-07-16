@@ -6,6 +6,7 @@ import {
   forceCollide,
   Simulation,
   SimulationNodeDatum,
+  SimulationLinkDatum,
 } from 'd3-force';
 import {
   TransformWrapper,
@@ -14,21 +15,25 @@ import {
 import './MindMap.css';
 import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
-import { dataType, nodesType } from '../types';
+import { MindMap, node } from '../../types';
 
 const width = window.innerWidth;
 const height = window.innerHeight;
 
-export const useD3 = (forceUpdate: () => void, data: dataType) => {
+export const useD3 = (
+  forceUpdate: () => void,
+  nodes: (SimulationNodeDatum & node)[],
+  links: SimulationLinkDatum<SimulationNodeDatum & node>[]
+) => {
   const [simulation, setSimulation] = useState<Simulation<
-    SimulationNodeDatum,
+    SimulationNodeDatum & node,
     undefined
   > | null>(null);
 
   useEffect(() => {
-    const newSim = forceSimulation(data.nodes as any)
+    const newSim = forceSimulation(nodes)
       .force('collide', forceCollide(15))
-      .force('link', forceLink(data.links))
+      .force('link', forceLink(links))
       .force('charge', forceManyBody().strength(-100));
 
     newSim.nodes()[0].fx = width / 2;
@@ -36,16 +41,6 @@ export const useD3 = (forceUpdate: () => void, data: dataType) => {
 
     setSimulation(newSim);
   }, []);
-
-  // useEffect(() => {
-  //   if (simulation) {
-  //     simulation
-  //       .nodes(data.nodes as any)
-  //       .force('collide', forceCollide(15))
-  //       .force('link', forceLink(data.links))
-  //       .force('charge', forceManyBody().strength(-100));
-  //   }
-  // }, [data]);
 
   if (simulation) {
     simulation.on('tick', () => {
@@ -61,21 +56,33 @@ export const useD3 = (forceUpdate: () => void, data: dataType) => {
 };
 
 // eslint-disable-next-line react/prop-types
-const MindMap = ({ data }: { data: dataType }) => {
-  const [newData, setNewData] = useState(data);
-
-  // Timeout function that runs after 5 seconds
-
+const MindMapSimulation = ({
+  data,
+  addNode,
+  deleteNode,
+  updateNode,
+}: {
+  data: MindMap;
+  addNode: (node: node) => void;
+  deleteNode: (node: node) => void;
+  updateNode: (oldNode: node, newNode: node) => void;
+}) => {
   const [, updateState] = useState({});
   const forceUpdate = useCallback(() => updateState({}), []);
-  const { links: dataLinks } = data;
 
-  const { simulation } = useD3(forceUpdate, JSON.parse(JSON.stringify(data)));
+  const links: { source: number; target: number }[] = data.nodes.map(
+    (dataNode, i) => ({
+      source: dataNode.parent,
+      target: i,
+    })
+  );
+
+  const { simulation } = useD3(forceUpdate, data.nodes, links);
 
   if (!simulation) return null;
 
-  const nodes: (SimulationNodeDatum & nodesType)[] =
-    simulation.nodes() as (SimulationNodeDatum & nodesType)[];
+  const nodes: (SimulationNodeDatum & node)[] =
+    simulation.nodes() as (SimulationNodeDatum & node)[];
   return (
     <TransformWrapper
       initialScale={1}
@@ -83,18 +90,28 @@ const MindMap = ({ data }: { data: dataType }) => {
       maxScale={25}
       centerZoomedOut
     >
-      <TransformComponent>
+      <TransformComponent
+        wrapperStyle={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
         {nodes.length > 0 && (
           <svg width={width} height={height}>
-            {dataLinks.map((link) => (
+            {links.map((link) => (
               <BubbleLink
                 key={link.target}
                 sourceNode={nodes[link.source]}
                 targetNode={nodes[link.target]}
               />
             ))}
-            {nodes.map((node) => (
-              <Bubble key={node.index} node={node} simulation={simulation} />
+            {nodes.map((nodeData) => (
+              <Bubble
+                key={nodeData.index}
+                node={nodeData}
+                simulation={simulation}
+              />
             ))}
           </svg>
         )}
@@ -103,4 +120,4 @@ const MindMap = ({ data }: { data: dataType }) => {
   );
 };
 
-export default MindMap;
+export default MindMapSimulation;

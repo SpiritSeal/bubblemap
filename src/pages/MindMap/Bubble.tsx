@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import { Simulation, SimulationNodeDatum } from 'd3-force';
 import { useTransformContext } from '@kokarn/react-zoom-pan-pinch';
-import { nodesType } from '../types';
+import { node as nodeType } from '../../types';
 
 const Bubble = ({
   node,
   simulation,
 }: {
-  node: SimulationNodeDatum & nodesType;
-  simulation: Simulation<SimulationNodeDatum, undefined>;
+  node: SimulationNodeDatum & nodeType;
+  simulation: Simulation<SimulationNodeDatum & nodeType, undefined>;
 }) => {
   const [panDisabled, setPanDisabled] = useState(false);
   const [mouseDelta] = useState({ x: 0, y: 0 });
@@ -34,17 +34,17 @@ const Bubble = ({
         cx="15"
         cy="15"
         r="15"
-        fill={node.root ? 'lightblue' : 'grey'}
+        fill={!node.parent ? 'lightblue' : 'grey'}
         stroke="black"
         strokeWidth="0.5"
         style={
-          !node.root
+          node.parent
             ? { cursor: panDisabled ? 'grabbing' : 'grab' }
             : { cursor: 'no-drop' }
         }
         onMouseDown={(e) => {
           // console.log(e);
-          if (!node.root) {
+          if (node.parent) {
             setPanDisabled(true);
             // setMouseDelta({
             //   x:
@@ -98,7 +98,6 @@ const Bubble = ({
         fill="white"
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
-          console.log('clicked', node.index, e.isPropagationStopped());
           e.stopPropagation();
         }}
       />
