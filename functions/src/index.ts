@@ -1,11 +1,9 @@
-import * as functions from 'firebase-functions';
+import { initializeApp } from 'firebase-admin/app';
+
+initializeApp();
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
-//
-const helloWorld = functions.https.onRequest((request, response) => {
-  functions.logger.info('Hello logs!', { structuredData: true });
-  response.send('Hello from Firebase!');
-});
 
-export default helloWorld;
+// eslint-disable-next-line import/prefer-default-export
+export { default as ai } from './ai/ai.js';
