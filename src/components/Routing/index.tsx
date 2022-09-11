@@ -18,6 +18,7 @@ const Routing = () => {
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
+      <MindMap />
       <Button
         variant="contained"
         onClick={() => {
@@ -26,7 +27,6 @@ const Routing = () => {
       >
         Test AI!
       </Button>
-      <MindMap />
     </div>
   );
 };
