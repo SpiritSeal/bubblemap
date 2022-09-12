@@ -75,7 +75,7 @@ jobs:
 
   test:
     name: Tests
-    if: github.repository_owner == 'epodol'
+    if: github.repository_owner == 'SpiritSeal'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
