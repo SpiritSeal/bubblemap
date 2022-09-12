@@ -1,0 +1,54 @@
+name: Firebase Preview Channel
+
+on:
+  pull_request:
+    paths:
+      - 'react/**'
+
+jobs:
+  build:
+    name: Build
+    if: github.repository_owner == 'SpiritSeal' && github.event.pull_request.user.login != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install ./ Dependencies
+        run: npm ci --prefer-offline --no-audit --no-optional
+
+      - name: Install ./functions Dependencies
+        run: cd ./functions && npm ci --prefer-offline --no-audit --no-optional && cd ./functions
+
+      - name: TSC
+        run: npm run tsc
+
+      - name: Build React
+        run: npm run build
+
+      - name: Deploy to Preview Channel
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}
+          projectId: mindmap-testing
+          target: preview
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels

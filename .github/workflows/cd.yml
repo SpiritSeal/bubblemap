@@ -1,0 +1,84 @@
+name: CD
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Upload Build and Deploy to Firebase
+    if: github.repository_owner == 'SpritSeal'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: Install ./ Dependencies
+        run: npm ci --prefer-offline --no-audit --no-optional
+
+      - name: Install ./functions Dependencies
+        run: cd ./functions && npm ci --prefer-offline --no-audit --no-optional && cd ./functions
+
+      - name: TSC
+        run: npm run tsc
+
+      - name: Build React
+        run: npm run build
+
+      - name: Create Build Assets
+        run: |
+          zip -r build.zip react/build
+          tar -czf build.tar.gz react/build
+
+      - name: Upload .zip Build Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build.zip
+          asset_name: build.zip
+          asset_content_type: application/zip
+
+      - name: Upload .tar.gz Build Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build.tar.gz
+          asset_name: build.tar.gz
+          asset_content_type: application/gzip
+
+      - name: Deploy to Firebase
+        if: 'github.event.release.prerelease'
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy --only hosting:preview
+        env:
+          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
+
+      - name: Deploy to Firebase
+        if: '!github.event.release.prerelease'
+        uses: w9jds/firebase-action@master
+        with:
+          args: deploy
+        env:
+          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
