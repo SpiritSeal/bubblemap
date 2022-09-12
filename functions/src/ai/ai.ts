@@ -2,7 +2,7 @@ import * as functions from 'firebase-functions';
 
 import { Configuration, OpenAIApi } from 'openai';
 // // Read API key from ./secrets/openai_key.secret file and save it to a variable
-const openai_key = functions?.config()?.openai?.key;
+const openai_key = process.env.OPENAI_SECRET;
 
 // Refactor const { Configuration, OpenAIApi } = require('openai');
 
@@ -31,7 +31,7 @@ const ai = functions
 .region('us-west2')
 .https
 .onCall(async (data) => {
-  console.log(process.env.OPENAI_SECRET);
+  // console.log(openai_key);
   const result = await genIdeaOAI(data.data);
   console.log(result);
   if (!result.choices) {
