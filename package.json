@@ -17,6 +17,12 @@
     "react-zoom-pan-pinch": "^2.1.3",
     "reactfire": "^4.2.2"
   },
+  "overrides": {
+    "@kokarn/react-zoom-pan-pinch": {
+      "react": "^18.2.0",
+      "react-dom": "^18.2.0"
+    }
+  },
   "scripts": {
     "start": "echo 'Loading.... This will take a few minutes.' && npm run tsc && npm-run-all --parallel dev:emulators dev:react tsc:watch",
     "start:export": "npm-run-all --parallel dev:emulators:export dev:react tsc:watch",
