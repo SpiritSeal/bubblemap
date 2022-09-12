@@ -1,13 +1,13 @@
 import * as functions from 'firebase-functions';
 
 import { Configuration, OpenAIApi } from 'openai';
-// // Read API key from ./secrets/openAPI_key.secret file and save it to a variable
-const openAPI_key = functions?.config()?.openai?.key;
+// // Read API key from ./secrets/openai_key.secret file and save it to a variable
+const openai_key = functions?.config()?.openai?.key;
 
 // Refactor const { Configuration, OpenAIApi } = require('openai');
 
 const configuration = new Configuration({
-  apiKey: openAPI_key,
+  apiKey: openai_key,
 });
 const openai = new OpenAIApi(configuration);
 
@@ -26,7 +26,12 @@ async function genIdeaOAI(text: string) {
   return response.data;
 }
 
-const ai = functions.region('us-west2').https.onCall(async (data) => {
+const ai = functions
+.runWith({ secrets: ["OPENAI_SECRET"] })
+.region('us-west2')
+.https
+.onCall(async (data) => {
+  console.log(process.env.OPENAI_SECRET);
   const result = await genIdeaOAI(data.data);
   console.log(result);
   if (!result.choices) {
