@@ -183,6 +183,7 @@ const MindMapSimulation = ({
       initialScale={1}
       minScale={0.1}
       maxScale={25}
+      limitToBounds={false}
       centerZoomedOut
       panning={{
         disabled: !!nodeSelected,

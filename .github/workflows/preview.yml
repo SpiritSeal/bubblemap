@@ -2,8 +2,6 @@ name: Firebase Preview Channel
 
 on:
   pull_request:
-    paths:
-      - 'react/**'
 
 jobs:
   build:
