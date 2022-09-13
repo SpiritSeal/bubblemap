@@ -40,7 +40,7 @@
     "tsc:watch:": "tsc --watch --project ./",
     "tsc:watch:functions": "tsc --watch --project ./functions",
     "build": "react-scripts build",
-    "test": "firebase emulators:exec --import=./emulator-data \"react-scripts test\"",
+    "test": "firebase emulators:exec --import=./emulator-data \"react-scripts test --passWithNoTests\"",
     "test:noemulators": "react-scripts test",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
