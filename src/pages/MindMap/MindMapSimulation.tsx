@@ -67,8 +67,12 @@ const MindMapSimulationWithTransform = ({
   data,
   nodeSelected,
   setNodeSelected,
+  // TODO: Impliment the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
+  // eslint-disable-next-line
   addNode,
+  // eslint-disable-next-line
   deleteNode,
+  // eslint-disable-next-line
   updateNode,
 }: {
   data: MindMap;
