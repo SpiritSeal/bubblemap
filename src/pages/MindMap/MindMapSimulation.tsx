@@ -102,7 +102,7 @@ const MindMapSimulationWithTransform = ({
 
   const releaseBubble = () => {
     if (nodeSelected) {
-      if (nodeSelected.id!==0) {
+      if (nodeSelected.id===0) {
         setNodeSelected(undefined);
       } else {
         nodeSelected.x = nodeSelected?.fx ?? 0;
