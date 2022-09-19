@@ -106,12 +106,16 @@ const MindMapSimulationWithTransform = ({
 
   const releaseBubble = () => {
     if (nodeSelected) {
-      nodeSelected.x = nodeSelected?.fx ?? 0;
-      nodeSelected.y = nodeSelected?.fy ?? 0;
-      nodeSelected.fx = null;
-      nodeSelected.fy = null;
-      setNodeSelected(undefined);
-      simulation.alpha(1).restart();
+      if (nodeSelected.id === 0) {
+        setNodeSelected(undefined);
+      } else {
+        nodeSelected.x = nodeSelected?.fx ?? 0;
+        nodeSelected.y = nodeSelected?.fy ?? 0;
+        nodeSelected.fx = null;
+        nodeSelected.fy = null;
+        setNodeSelected(undefined);
+        simulation.alpha(1).restart();
+      }
     }
   };
 
@@ -135,7 +139,7 @@ const MindMapSimulationWithTransform = ({
           setNodeSelected(nodeClicked);
         }}
         onMouseMove={(e) => {
-          if (nodeSelected) {
+          if (nodeSelected && nodeSelected.id !== 0) {
             nodeSelected.fx =
               (e.clientX - context.state.positionX + mouseDelta.x) /
               context.state.scale;
