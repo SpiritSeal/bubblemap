@@ -12,6 +12,7 @@ const Routing = () => {
       functions,
       'ai'
     )({ data: 'trees' }).then((result) => {
+      // eslint-disable-next-line no-console
       console.log(result);
     });
   };
