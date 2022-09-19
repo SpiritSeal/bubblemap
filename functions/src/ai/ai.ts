@@ -1,5 +1,6 @@
 import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
+import fetch from 'node-fetch';
 
 // // Read API key from ./secrets/openai_key.secret file and save it to a variable
 const openai_key = process.env.OPENAI_SECRET;
@@ -20,17 +21,32 @@ async function genIdeaOAI(text: string) {
   return response.data;
 }
 
+async function genIdeaDM(text: string) {
+  const response = await fetch('https://api.datamuse.com/words?rel_trg=cow')
+    .then((response) => response.json())
+    .then((data) => console.log(data));
+  console.log(response);
+  return response;
+}
+
 const ai = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
     const result = await genIdeaOAI(data.data);
-    if (!result.choices) {
-      throw new functions.https.HttpsError('internal', 'No idea found');
-    }
+    console.log("OpenAI: \n"+result);
+    const resultDM = await genIdeaDM(data.data);
+    console.log("Datamuse: \n"+resultDM);
     return {
-      idea: result.choices[0].text,
-    };
+      idea: resultDM,
+    }
+    // const result = await genIdeaOAI(data.data);
+    // if (!result.choices) {
+    //   throw new functions.https.HttpsError('internal', 'No idea found');
+    // }
+    // return {
+    //   idea: result.choices[0].text,
+    // };
   });
 
 export default ai;
