@@ -46,7 +46,7 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}
-          projectId: mind-map-testing
+          projectId: mindmap-testing
           target: preview
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels

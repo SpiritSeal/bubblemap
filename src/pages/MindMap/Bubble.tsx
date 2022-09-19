@@ -17,13 +17,13 @@ const Bubble = ({
       cx="15"
       cy="15"
       r="15"
-      fill={node.id === 0 ? 'lightblue' : 'grey'}
+      fill={!node.parent ? 'lightblue' : 'grey'}
       stroke="black"
       strokeWidth="0.5"
       style={
-        node.id === 0
-          ? { cursor: 'no-drop' }
-          : { cursor: selected ? 'grabbing' : 'grab' }
+        node.parent
+          ? { cursor: selected ? 'grabbing' : 'grab' }
+          : { cursor: 'no-drop' }
       }
     />
     <path
