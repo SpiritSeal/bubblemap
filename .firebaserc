@@ -1,5 +1,17 @@
 {
   "projects": {
     "default": "mind-map-testing"
+  },
+  "targets": {
+    "mind-map-testing": {
+      "hosting": {
+        "preview": [
+          "mind-map-testing-preview"
+        ],
+        "prod": [
+          "mind-map-testing"
+        ]
+      }
+    }
   }
 }
