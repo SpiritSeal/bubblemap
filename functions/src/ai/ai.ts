@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
-import fetch from 'node-fetch';
+const https = require('https');
 
 // // Read API key from ./secrets/openai_key.secret file and save it to a variable
 const openai_key = process.env.OPENAI_SECRET;
@@ -21,12 +21,27 @@ async function genIdeaOAI(text: string) {
   return response.data;
 }
 
+// Request https://api.datamuse.com/words?rel_trg=cow
 async function genIdeaDM(text: string) {
-  const response = await fetch('https://api.datamuse.com/words?rel_trg=cow')
-    .then((response) => response.json())
-    .then((data) => console.log(data));
+  
+  const url = `https://api.datamuse.com/words?rel_trg=${text}`;
+  const response = await new Promise((resolve, reject) => {
+    https.get(url, (res: any) => {
+      let data = '';
+      res.on('data', (chunk: string) => {
+        data += chunk;
+      });
+      res.on('end', () => {
+        resolve(JSON.parse(data));
+      });
+    }).on('error', (err: any) => {
+      reject(err);
+    });
+  });
   console.log(response);
   return response;
+  // console.log(data);
+  // return "test";
 }
 
 const ai = functions
