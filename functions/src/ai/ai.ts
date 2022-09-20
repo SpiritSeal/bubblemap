@@ -13,18 +13,18 @@ const openai = new OpenAIApi(configuration);
 async function genIdeaOAI(text: string) {
   const response = await openai.createCompletion({
     model: 'text-davinci-002',
-    prompt: `Single word related to ${text}`,
+    prompt: `Single word or phrase related to ${text}`,
     temperature: 0.5,
     max_tokens: 6,
-    n: 1,
+    n: 3,
   });
-  return response.data;
+  return formatIdeaOAI(response.data);
 }
 
 // Request https://api.datamuse.com/words?rel_trg=cow
 async function genIdeaDM(text: string) {
   
-  const url = `https://api.datamuse.com/words?rel_trg=${text}`;
+  const url = `https://api.datamuse.com/words?rel_trg=${text}&max=3`;
   const response = await new Promise((resolve, reject) => {
     https.get(url, (res: any) => {
       let data = '';
@@ -39,9 +39,22 @@ async function genIdeaDM(text: string) {
     });
   });
   console.log(response);
-  return response;
+  return formatIdeaDM(response);
   // console.log(data);
   // return "test";
+}
+
+function formatIdeaDM(idea: any) {
+  // builds an array of strings from the Datamuse response
+  const ideas = idea.map((item: any) => item.word);
+  return ideas;
+}
+
+function formatIdeaOAI(idea: any) {
+  // builds an array of strings from the OpenAI response
+  // trim the whitespace and lowercase all the strings
+  const ideas = idea.choices.map((item: any) => item.text.trim().toLowerCase());
+  return ideas;
 }
 
 const ai = functions
@@ -53,7 +66,10 @@ const ai = functions
     const resultDM = await genIdeaDM(data.data);
     console.log("Datamuse: \n"+resultDM);
     return {
-      idea: resultDM,
+      idea: {
+        openai: result,
+        datamuse: resultDM,
+      },
     }
     // const result = await genIdeaOAI(data.data);
     // if (!result.choices) {
