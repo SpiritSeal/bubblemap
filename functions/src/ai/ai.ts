@@ -38,7 +38,7 @@ async function genIdeaDM(text: string) {
       reject(err);
     });
   });
-  console.log(response);
+  // console.log(response);
   return formatIdeaDM(response);
   // console.log(data);
   // return "test";
@@ -62,9 +62,9 @@ const ai = functions
   .region('us-west2')
   .https.onCall(async (data) => {
     const result = await genIdeaOAI(data.data);
-    console.log("OpenAI: \n"+result);
+    // console.log("OpenAI: \n"+result);
     const resultDM = await genIdeaDM(data.data);
-    console.log("Datamuse: \n"+resultDM);
+    // console.log("Datamuse: \n"+resultDM);
     return {
       idea: {
         openai: result,
