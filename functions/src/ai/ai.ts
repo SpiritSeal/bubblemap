@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
+
+// eslint-disable-next-line
 const https = require('https');
 
 // // Read API key from ./secrets/openai_key.secret file and save it to a variable
@@ -10,6 +12,7 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function genIdeaOAI(text: string) {
   const response = await openai.createCompletion({
     model: 'text-davinci-002',
@@ -21,40 +24,43 @@ async function genIdeaOAI(text: string) {
   return response.data;
 }
 
+// eslint-disable no-explicit-any
 // Request https://api.datamuse.com/words?rel_trg=cow
 async function genIdeaDM(text: string) {
-  
   const url = `https://api.datamuse.com/words?rel_trg=${text}`;
   const response = await new Promise((resolve, reject) => {
-    https.get(url, (res: any) => {
-      let data = '';
-      res.on('data', (chunk: string) => {
-        data += chunk;
+    https
+      .get(url, (res: any) => {
+        let data = '';
+        res.on('data', (chunk: string) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          resolve(JSON.parse(data));
+        });
+      })
+      .on('error', (err: any) => {
+        reject(err);
       });
-      res.on('end', () => {
-        resolve(JSON.parse(data));
-      });
-    }).on('error', (err: any) => {
-      reject(err);
-    });
   });
-  console.log(response);
+  // console.log(response);
   return response;
   // console.log(data);
   // return "test";
 }
+// eslint-enable no-explicit-any
 
 const ai = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
-    const result = await genIdeaOAI(data.data);
-    console.log("OpenAI: \n"+result);
+    // const result = await genIdeaOAI(data.data);
+    // console.log(`OpenAI: \n${  result}`);
     const resultDM = await genIdeaDM(data.data);
-    console.log("Datamuse: \n"+resultDM);
+    // console.log('Datamuse: \n' + resultDM);
     return {
       idea: resultDM,
-    }
+    };
     // const result = await genIdeaOAI(data.data);
     // if (!result.choices) {
     //   throw new functions.https.HttpsError('internal', 'No idea found');
