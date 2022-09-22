@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
-const https = require('https');
+
+import * as https from 'https';
 
 // // Read API key from ./secrets/openai_key.secret file and save it to a variable
 const openai_key = process.env.OPENAI_SECRET;
@@ -23,20 +25,21 @@ async function genIdeaOAI(text: string) {
 
 // Request https://api.datamuse.com/words?rel_trg=cow
 async function genIdeaDM(text: string) {
-  
   const url = `https://api.datamuse.com/words?rel_trg=${text}&max=3`;
   const response = await new Promise((resolve, reject) => {
-    https.get(url, (res: any) => {
-      let data = '';
-      res.on('data', (chunk: string) => {
-        data += chunk;
+    https
+      .get(url, (res: any) => {
+        let data = '';
+        res.on('data', (chunk: string) => {
+          data += chunk;
+        });
+        res.on('end', () => {
+          resolve(JSON.parse(data));
+        });
+      })
+      .on('error', (err: any) => {
+        reject(err);
       });
-      res.on('end', () => {
-        resolve(JSON.parse(data));
-      });
-    }).on('error', (err: any) => {
-      reject(err);
-    });
   });
   // console.log(response);
   return formatIdeaDM(response);
@@ -70,7 +73,7 @@ const ai = functions
         openai: result,
         datamuse: resultDM,
       },
-    }
+    };
     // const result = await genIdeaOAI(data.data);
     // if (!result.choices) {
     //   throw new functions.https.HttpsError('internal', 'No idea found');
