@@ -1,3 +1,4 @@
+/*eslint-disable*/
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
@@ -8,33 +9,43 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import InboxIcon from '@mui/icons-material/MoveToInbox';
-import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
-import { Lightbulb } from '@mui/icons-material';
+import Lightbulb from '@mui/icons-material/Lightbulb';
+import MapIcon from '@mui/icons-material/Map';
+import HomeIcon from '@mui/icons-material/Home';
+import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
+import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
+import InfoIcon from '@mui/icons-material/Info';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import HelpIcon from '@mui/icons-material/Help';
+
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
-/*eslint-disable*/
 
-type Anchor = 'top' | 'left' | 'bottom' | 'right';
+// Import css file
+import './TemporaryDrawer.css';
 
 export default function TemporaryDrawer() {
   const functions = useFunctions();
+
   const testAI = () => {
     httpsCallable(
-      functions, 'ai'
-    )({ data: 'red cherries' }).then((result) => {
+      functions,
+      'ai'
+    )({ data: 'trees' }).then((result) => {
       // eslint-disable-next-line no-console
       console.log(result);
     });
   };
+
   const [state, setState] = React.useState({
     left: false,
   });
 
   const toggleDrawer =
-    (anchor: Anchor, open: boolean) =>
-    (event: React.KeyboardEvent | React.MouseEvent) => {
+    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -43,76 +54,60 @@ export default function TemporaryDrawer() {
         return;
       }
 
-      setState({ ...state, [anchor]: open });
+      setState({ ...state, left: open });
     };
 
-  const list = (anchor: Anchor) => (
+  const generateListElement = (text: string, icon: any, onClick: any) => (
+    <ListItem key={text} disablePadding>
+      <ListItemButton onClick={onClick}>
+        <ListItemIcon>{icon}</ListItemIcon>
+        <ListItemText primary={text} />
+      </ListItemButton>
+    </ListItem>
+  );
+  const list = () => (
     <Box
-      sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 250 }}
       role="presentation"
-      onClick={toggleDrawer(anchor, false)}
-      onKeyDown={toggleDrawer(anchor, false)}
+      onClick={toggleDrawer(false)}
+      onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {/* This below is going to need some serious refactoring */}
-        {/* I have not seen spaghettier spaghetti code in the last five years */}
-        {/* For proof of my point, please delete the comment on line 17 */}
-        {['My Maps', 'Recents', 'Test AI', 'Trash'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton
-              onClick={() => {
-                if (text === 'Test AI') {
-                  testAI();
-                }
-              }}
-            >
-              <ListItemIcon>
-                {/* <InboxIcon /><MailIcon /> */}
-                {index === 0 ? (
-                  <InboxIcon />
-                ) : index === 1 ? (
-                  <InboxIcon />
-                ) : index === 2 ? (
-                  <Lightbulb />
-                ) : index === 3 ? (
-                  <MailIcon />
-                ) : (
-                  <MailIcon />
-                )}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {generateListElement('Home', <HomeIcon />, () => {})}
+        {generateListElement('My Mind Maps', <MapIcon />, () => {})}
+        {generateListElement('Recents', <BrowseGalleryIcon />, () => {})}
+        {generateListElement('Trash', <DeleteSweepIcon />, () => {})}
       </List>
       <Divider />
       <List>
-        {['All mail', 'Trash', 'Spam'].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        {generateListElement('Test AI', <Lightbulb />, testAI)}
+        {generateListElement('Cool Stats', <QueryStatsIcon />, () => {})}
+      </List>
+      <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
+        {/* Move Help to Main Screen, in it's own separate button */}
+        {/* {generateListElement('Help', <HelpIcon />, () => {})} */}
+        {generateListElement('About', <InfoIcon />, () => {})}
+        {generateListElement('Settings', <SettingsIcon />, () => {})}
+        {generateListElement('Profile', <AccountCircleIcon />, () => {})}
       </List>
     </Box>
   );
 
   return (
     <div>
-      <React.Fragment key={'left'}>
-        <Button onClick={toggleDrawer('left', true)}>
-          <MenuIcon />
+      <React.Fragment key="left">
+        <Button onClick={toggleDrawer(true)}>
+          <MenuIcon className='menu_icon'/>
         </Button>
         <Drawer
-          anchor={'left'}
-          open={state['left']}
-          onClose={toggleDrawer('left', false)}
+          PaperProps={
+            {
+              // sx: { width: "15%" },
+            }
+          }
+          open={state.left}
+          onClose={toggleDrawer(false)}
         >
-          {list('left')}
+          {list()}
         </Drawer>
       </React.Fragment>
     </div>
