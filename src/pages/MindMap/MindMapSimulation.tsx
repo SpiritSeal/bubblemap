@@ -5,6 +5,9 @@ import React, {
   useCallback,
   Dispatch,
   SetStateAction,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
 } from 'react';
 import {
   forceSimulation,
@@ -63,113 +66,127 @@ export const useD3 = (
   return { simulation };
 };
 
-const MindMapSimulationWithTransform = ({
-  data,
-  nodeSelected,
-  setNodeSelected,
-  // TODO: Impliment the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
-  // eslint-disable-next-line
-  addNode,
-  // eslint-disable-next-line
-  deleteNode,
-  // eslint-disable-next-line
-  updateNode,
-}: {
-  data: MindMap;
-  nodeSelected: (SimulationNodeDatum & node) | undefined;
-  setNodeSelected: Dispatch<
-    SetStateAction<(SimulationNodeDatum & node) | undefined>
-  >;
-  addNode: (node: node) => void;
-  deleteNode: (node: node) => void;
-  updateNode: (oldNode: node, newNode: node) => void;
-}) => {
-  const [, updateState] = useState({});
-  const forceUpdate = useCallback(() => updateState({}), []);
-  const [mouseDelta] = useState({ x: 0, y: 0 });
+const MindMapSimulationWithTransform = forwardRef(
+  (
+    {
+      data,
+      nodeSelected,
+      setNodeSelected,
+      // TODO: Impliment the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
+      // eslint-disable-next-line
+      addNode,
+      // eslint-disable-next-line
+      deleteNode,
+      // eslint-disable-next-line
+      updateNode,
+    }: {
+      data: MindMap;
+      nodeSelected: (SimulationNodeDatum & node) | undefined;
+      setNodeSelected: Dispatch<
+        SetStateAction<(SimulationNodeDatum & node) | undefined>
+      >;
+      addNode: (node: node) => void;
+      deleteNode: (node: node) => void;
+      updateNode: (oldNode: node, newNode: node) => void;
+    },
+    ref
+  ) => {
+    const [, updateState] = useState({});
+    const forceUpdate = useCallback(() => updateState({}), []);
+    const [mouseDelta] = useState({ x: 0, y: 0 });
 
-  const context = useTransformContext();
+    const context = useTransformContext();
 
-  const links: { source: number; target: number }[] = data.nodes.map(
-    (dataNode, i) => ({
-      source: dataNode.parent,
-      target: i,
-    })
-  );
+    const links: { source: number; target: number }[] = data.nodes.map(
+      (dataNode, i) => ({
+        source: dataNode.parent,
+        target: i,
+      })
+    );
 
-  const { simulation } = useD3(forceUpdate, data.nodes, links);
+    const { simulation } = useD3(forceUpdate, data.nodes, links);
 
-  if (!simulation) return null;
-
-  const nodes: (SimulationNodeDatum & node)[] =
-    simulation.nodes() as (SimulationNodeDatum & node)[];
-
-  const releaseBubble = () => {
-    if (nodeSelected) {
-      if (nodeSelected.id === 0) {
-        setNodeSelected(undefined);
-      } else {
-        nodeSelected.x = nodeSelected?.fx ?? 0;
-        nodeSelected.y = nodeSelected?.fy ?? 0;
-        nodeSelected.fx = null;
-        nodeSelected.fy = null;
-        setNodeSelected(undefined);
-        simulation.alpha(1).restart();
+    const releaseBubble = () => {
+      if (nodeSelected) {
+        if (nodeSelected.id === 0) {
+          setNodeSelected(undefined);
+        } else {
+          nodeSelected.x = nodeSelected?.fx ?? 0;
+          nodeSelected.y = nodeSelected?.fy ?? 0;
+          nodeSelected.fx = null;
+          nodeSelected.fy = null;
+          setNodeSelected(undefined);
+          simulation?.alpha(1).restart();
+        }
       }
-    }
-  };
+    };
 
-  if (nodes.length > 0)
-    return (
-      <svg
-        width={width}
-        height={height}
-        onMouseDown={(e) => {
-          const x =
-            (e.clientX - context.state.positionX + mouseDelta.x) /
-            context.state.scale;
-          const y =
-            (e.clientY - context.state.positionY + mouseDelta.y) /
-            context.state.scale;
-          const nodeClicked: (SimulationNodeDatum & node) | undefined =
-            simulation.find(x, y, 15);
-          if (!nodeClicked) return;
-          nodeClicked.fx = nodeClicked.x;
-          nodeClicked.fy = nodeClicked.y;
-          setNodeSelected(nodeClicked);
-        }}
-        onMouseMove={(e) => {
-          if (nodeSelected && nodeSelected.id !== 0) {
-            nodeSelected.fx =
+    useImperativeHandle(ref, () => ({
+      releaseBubble() {
+        releaseBubble();
+      },
+    }));
+
+    if (!simulation) return null;
+
+    const nodes: (SimulationNodeDatum & node)[] =
+      simulation.nodes() as (SimulationNodeDatum & node)[];
+
+    if (nodes.length > 0)
+      return (
+        <svg
+          height="100%"
+          width="100%"
+          style={{
+            overflow: 'visible',
+          }}
+          onMouseDown={(e) => {
+            const x =
               (e.clientX - context.state.positionX + mouseDelta.x) /
               context.state.scale;
-            nodeSelected.fy =
+            const y =
               (e.clientY - context.state.positionY + mouseDelta.y) /
               context.state.scale;
-            simulation.alpha(1).restart();
-          }
-        }}
-        onMouseUp={() => releaseBubble()}
-        onMouseLeave={() => releaseBubble()}
-      >
-        {links.map((link) => (
-          <BubbleLink
-            key={link.target}
-            sourceNode={nodes[link.source]}
-            targetNode={nodes[link.target]}
-          />
-        ))}
-        {nodes.map((nodeData) => (
-          <Bubble
-            key={nodeData.id}
-            node={nodeData}
-            selected={nodeSelected === nodeData}
-          />
-        ))}
-      </svg>
-    );
-  return null;
-};
+            const nodeClicked: (SimulationNodeDatum & node) | undefined =
+              simulation.find(x, y, 15);
+            if (!nodeClicked) return;
+            nodeClicked.fx = nodeClicked.x;
+            nodeClicked.fy = nodeClicked.y;
+            setNodeSelected(nodeClicked);
+            e.stopPropagation();
+          }}
+          onMouseMove={(e) => {
+            if (nodeSelected && nodeSelected.id !== 0) {
+              nodeSelected.fx =
+                (e.clientX - context.state.positionX + mouseDelta.x) /
+                context.state.scale;
+              nodeSelected.fy =
+                (e.clientY - context.state.positionY + mouseDelta.y) /
+                context.state.scale;
+              simulation.alpha(1).restart();
+            }
+          }}
+          onMouseUp={() => releaseBubble()}
+        >
+          {links.map((link) => (
+            <BubbleLink
+              key={link.target}
+              sourceNode={nodes[link.source]}
+              targetNode={nodes[link.target]}
+            />
+          ))}
+          {nodes.map((nodeData) => (
+            <Bubble
+              key={nodeData.id}
+              node={nodeData}
+              selected={nodeSelected === nodeData}
+            />
+          ))}
+        </svg>
+      );
+    return null;
+  }
+);
 
 const MindMapSimulation = ({
   data,
@@ -186,34 +203,46 @@ const MindMapSimulation = ({
     (SimulationNodeDatum & node) | undefined
   >(undefined);
 
+  const childRef: any = useRef();
+
   return (
-    <TransformWrapper
-      initialScale={1}
-      minScale={0.1}
-      maxScale={25}
-      limitToBounds={false}
-      // centerZoomedOut
-      panning={{
-        disabled: !!nodeSelected,
-      }}
-    >
-      <TransformComponent
-        wrapperStyle={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
+    <div onMouseLeave={() => childRef?.current?.releaseBubble()}>
+      <TransformWrapper
+        initialScale={1}
+        minScale={0.1}
+        maxScale={25}
+        limitToBounds={false}
+        // centerZoomedOut
+        panning={{
+          disabled: !!nodeSelected,
         }}
       >
-        <MindMapSimulationWithTransform
-          data={data}
-          nodeSelected={nodeSelected}
-          setNodeSelected={setNodeSelected}
-          addNode={addNode}
-          deleteNode={deleteNode}
-          updateNode={updateNode}
-        />
-      </TransformComponent>
-    </TransformWrapper>
+        <TransformComponent
+          wrapperStyle={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+          }}
+          contentStyle={{
+            width: '100%',
+            height: '100%',
+          }}
+          // contentClass="no-translate"
+        >
+          <MindMapSimulationWithTransform
+            ref={childRef}
+            data={data}
+            nodeSelected={nodeSelected}
+            setNodeSelected={setNodeSelected}
+            addNode={addNode}
+            deleteNode={deleteNode}
+            updateNode={updateNode}
+          />
+        </TransformComponent>
+      </TransformWrapper>
+    </div>
   );
 };
 
