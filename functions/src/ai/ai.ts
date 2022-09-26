@@ -4,7 +4,10 @@ import { Configuration, OpenAIApi } from 'openai';
 
 import * as https from 'https';
 
-// // Read API key from ./secrets/openai_key.secret file and save it to a variable
+/* eslint-disable @typescript-eslint/no-var-requires */
+const nlp = require('compromise/two');
+const cowsay = require('cowsay');
+
 const openai_key = process.env.OPENAI_SECRET;
 
 const configuration = new Configuration({
@@ -23,9 +26,35 @@ async function genIdeaOAI(text: string) {
   return formatIdeaOAI(response.data);
 }
 
-// Request https://api.datamuse.com/words?rel_trg=cow
+// This method attempts to extract the greatest possible value keywords from the text
+function extractKeywords(text: string) {
+  // If the text is empty, return an empty array
+  if (text === '') {
+    return [];
+  }
+  // If the text is a single word, return an array with that word
+  if (text.split(' ').length === 1) {
+    return [text];
+  }
+  // If there are multiple words, use compromise to extract the keywords
+  const doc = nlp(text);
+
+  const nouns = doc.match('#Noun').out('array');
+  if (nouns.length > 0) return nouns;
+  const verbs = doc.match('#Verb').out('array');
+  if (verbs.length > 0) return verbs;
+  const adjectives = doc.match('#Adjective').out('array');
+  if (adjectives.length > 0) return adjectives;
+  const adverbs = doc.match('#Adverb').out('array');
+  if (adverbs.length > 0) return adverbs;
+
+  // If no keywords are found, return all the words, sorted by length descending
+  return text.split(' ').sort((a, b) => b.length - a.length);
+}
+
 async function genIdeaDM(text: string) {
-  const url = `https://api.datamuse.com/words?rel_trg=${text}&max=3`;
+  const keywords = extractKeywords(text);
+  const url = `https://api.datamuse.com/words?rel_trg=${keywords[0]}&max=3`;
   const response = await new Promise((resolve, reject) => {
     https
       .get(url, (res: any) => {
@@ -41,10 +70,7 @@ async function genIdeaDM(text: string) {
         reject(err);
       });
   });
-  // console.log(response);
   return formatIdeaDM(response);
-  // console.log(data);
-  // return "test";
 }
 
 function formatIdeaDM(idea: any) {
@@ -56,7 +82,9 @@ function formatIdeaDM(idea: any) {
 function formatIdeaOAI(idea: any) {
   // builds an array of strings from the OpenAI response
   // trim the whitespace and lowercase all the strings
-  const ideas = idea.choices.map((item: any) => item.text.trim().toLowerCase());
+  let ideas = idea.choices.map((item: any) => item.text.trim().toLowerCase());
+  // remove duplicates
+  ideas = ideas.filter((item: any, pos: any) => ideas.indexOf(item) === pos);
   return ideas;
 }
 
@@ -68,6 +96,11 @@ const ai = functions
     // console.log("OpenAI: \n"+result);
     const resultDM = await genIdeaDM(data.data);
     // console.log("Datamuse: \n"+resultDM);
+    console.log(cowsay.say({ text: 'Success!' }));
+    // cowthink datamuse
+    console.log(cowsay.say(`Datamuse Thinks: ${{ text: resultDM[0] }}`));
+    // cowthink openai
+    console.log(cowsay.say(`OpenAI Thinks: ${{ text: result[0] }}`));
     return {
       idea: {
         openai: result,
