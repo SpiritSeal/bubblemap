@@ -121,6 +121,7 @@ const MindMapSimulationWithTransform = forwardRef(
       }
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onMouseMove = (e: any) => {
       if (nodeSelected && nodeSelected.id !== 0) {
         nodeSelected.fx =
@@ -137,6 +138,7 @@ const MindMapSimulationWithTransform = forwardRef(
       releaseBubble() {
         releaseBubble();
       },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onMouseMove(e: any) {
         onMouseMove(e);
       },
@@ -207,6 +209,7 @@ const MindMapSimulation = ({
     (SimulationNodeDatum & node) | undefined
   >(undefined);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const childRef: any = useRef();
 
   return (
