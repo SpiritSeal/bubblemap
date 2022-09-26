@@ -121,9 +121,24 @@ const MindMapSimulationWithTransform = forwardRef(
       }
     };
 
+    const onMouseMove = (e: any) => {
+      if (nodeSelected && nodeSelected.id !== 0) {
+        nodeSelected.fx =
+          (e.clientX - context.state.positionX + mouseDelta.x) /
+          context.state.scale;
+        nodeSelected.fy =
+          (e.clientY - context.state.positionY + mouseDelta.y) /
+          context.state.scale;
+        simulation?.alpha(1).restart();
+      }
+    };
+
     useImperativeHandle(ref, () => ({
       releaseBubble() {
         releaseBubble();
+      },
+      onMouseMove(e: any) {
+        onMouseMove(e);
       },
     }));
 
@@ -154,17 +169,6 @@ const MindMapSimulationWithTransform = forwardRef(
             nodeClicked.fy = nodeClicked.y;
             setNodeSelected(nodeClicked);
             e.stopPropagation();
-          }}
-          onMouseMove={(e) => {
-            if (nodeSelected && nodeSelected.id !== 0) {
-              nodeSelected.fx =
-                (e.clientX - context.state.positionX + mouseDelta.x) /
-                context.state.scale;
-              nodeSelected.fy =
-                (e.clientY - context.state.positionY + mouseDelta.y) /
-                context.state.scale;
-              simulation.alpha(1).restart();
-            }
           }}
           onMouseUp={() => releaseBubble()}
         >
@@ -206,7 +210,10 @@ const MindMapSimulation = ({
   const childRef: any = useRef();
 
   return (
-    <div onMouseLeave={() => childRef?.current?.releaseBubble()}>
+    <div
+      onMouseLeave={() => childRef?.current?.releaseBubble()}
+      onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
+    >
       <TransformWrapper
         initialScale={1}
         minScale={0.1}
