@@ -28,3 +28,7 @@ body::-webkit-scrollbar {
 .react-transform-wrapper {
   cursor: move;
 }
+
+.no-translate {
+  transform: none !important;
+}
