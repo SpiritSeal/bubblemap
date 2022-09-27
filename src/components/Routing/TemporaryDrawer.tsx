@@ -11,15 +11,25 @@ import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
+import { Lightbulb } from '@mui/icons-material';
+import { useFunctions } from 'reactfire';
+import { httpsCallable } from 'firebase/functions';
+/*eslint-disable*/
 
 type Anchor = 'top' | 'left' | 'bottom' | 'right';
-/* eslint-disable */
+
 export default function TemporaryDrawer() {
+  const functions = useFunctions();
+  const testAI = () => {
+    httpsCallable(
+      functions, 'ai'
+    )({ data: 'red cherries' }).then((result) => {
+      // eslint-disable-next-line no-console
+      console.log(result);
+    });
+  };
   const [state, setState] = React.useState({
-    top: false,
     left: false,
-    bottom: false,
-    right: false,
   });
 
   const toggleDrawer =
@@ -44,11 +54,31 @@ export default function TemporaryDrawer() {
       onKeyDown={toggleDrawer(anchor, false)}
     >
       <List>
-        {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+        {/* This below is going to need some serious refactoring */}
+        {/* I have not seen spaghettier spaghetti code in the last five years */}
+        {/* For proof of my point, please delete the comment on line 17 */}
+        {['My Maps', 'Recents', 'Test AI', 'Trash'].map((text, index) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton>
+            <ListItemButton
+              onClick={() => {
+                if (text === 'Test AI') {
+                  testAI();
+                }
+              }}
+            >
               <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                {/* <InboxIcon /><MailIcon /> */}
+                {index === 0 ? (
+                  <InboxIcon />
+                ) : index === 1 ? (
+                  <InboxIcon />
+                ) : index === 2 ? (
+                  <Lightbulb />
+                ) : index === 3 ? (
+                  <MailIcon />
+                ) : (
+                  <MailIcon />
+                )}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
@@ -73,20 +103,18 @@ export default function TemporaryDrawer() {
 
   return (
     <div>
-      <React.Fragment key={"left"}>
-          <Button onClick={toggleDrawer("left", true)}>
-            <MenuIcon />
-            {/* {"left"+"help"} */}
-          </Button>
-          <Drawer
-            anchor={"left"}
-            open={state["left"]}
-            onClose={toggleDrawer("left", false)}
-          >
-            {list("left")}
-          </Drawer>
-        </React.Fragment>
-
+      <React.Fragment key={'left'}>
+        <Button onClick={toggleDrawer('left', true)}>
+          <MenuIcon />
+        </Button>
+        <Drawer
+          anchor={'left'}
+          open={state['left']}
+          onClose={toggleDrawer('left', false)}
+        >
+          {list('left')}
+        </Drawer>
+      </React.Fragment>
     </div>
   );
 }
