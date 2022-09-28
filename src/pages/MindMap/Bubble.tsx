@@ -3,6 +3,7 @@ import { SimulationNodeDatum } from 'd3-force';
 import { node as nodeType } from '../../types';
 
 const lineHeight = 12;
+const subLineHeight = 1.4;
 
 // We may have to replace many of these consts below with lets in the future
 
@@ -63,20 +64,14 @@ const Bubble = ({
     }
     return radius;
   };
-  // print the text
-  console.log(lines);
-  // const textObj = lines.map((line, i) => (
-  //   <text
-  //     x={0}
-  //     y={((i - lines.length / 2 + 0.5) * lineHeight) / 2}
-  //     textAnchor="middle"
-  //     fontSize={lineHeight}
-  //   >
-  //     {line.text}
-  //   </text>
-  // ));
-  // eslint-disable-next-line
-  console.log(textRadius());
+  const subLines = (function subLines() {
+    const subLinesTemp = [];
+    const createdBy = 'Saketh';
+    const createdOn = '5 minutes ago';
+    subLinesTemp.push(`${createdBy}: ${createdOn}`);
+    return subLinesTemp;
+  })();
+
   // Return Statement
   return (
     <g
@@ -128,19 +123,28 @@ const Bubble = ({
         />
         <text
           x="15"
-          y="28"
+          y="26"
           textAnchor="middle"
-          dominantBaseline="middle"
+          dominantBaseline="auto"
+          fontStyle="italic"
           // style={{ fontSize: '0.8rem' }}
           // force text to fit in the region
-          style={{ fontSize: '0.8rem', maxWidth: '10px', maxHeight: '5px' }}
+          style={{ fontSize: '0.11rem' }}
         >
-          Created on \help me\
+          {/* Make each line of text on a new line */}
+          {subLines.map((line, i) => (
+            <tspan x="15" dy={i === 0 ? 0 : subLineHeight}>
+              {line}
+            </tspan>
+          ))}
         </text>
       </g>
       <g
+        className="top_region"
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
+          // print the node id
+          console.log(node.id);
           e.stopPropagation();
         }}
       >
