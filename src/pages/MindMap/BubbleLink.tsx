@@ -1,7 +1,7 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
 
-const Bubble = ({
+const BubbleLink = ({
   sourceNode,
   targetNode,
 }: {
@@ -18,4 +18,4 @@ const Bubble = ({
   />
 );
 
-export default Bubble;
+export default BubbleLink;
