@@ -34,14 +34,14 @@ const Bubble = ({
   const { text } = node;
   const words = wordsGenerator(text);
   const targetWidth = Math.sqrt(measureWidth(text.trim()) * lineHeight);
-  const lines = (function lines() {
-    // eslint-disable-next-line
-    let line: any;
+  const getLines = () => {
+    // line has properties { text, width }
+    let line: { text: string; width: number } = { text: '', width: 0 };
     let lineWidth0 = Infinity;
     const linesTemp = [];
     for (let i = 0, n = words.length; i < n; i += 1) {
       // eslint-disable-next-line
-      const lineText1 = (line ? line.text + ' ' : '') + words[i];
+      const lineText1 = `${line.text}${line ? ' ': ''}${words[i]}`;
       const lineWidth1 = measureWidth(lineText1);
       if ((lineWidth0 + lineWidth1) / 2 < targetWidth) {
         // eslint-disable-next-line
@@ -55,7 +55,8 @@ const Bubble = ({
       }
     }
     return linesTemp;
-  })();
+  };
+  const lines = getLines();
   const textRadius = function textRadius() {
     let tradius = 0;
     for (let i = 0, n = lines.length; i < n; i += 1) {
