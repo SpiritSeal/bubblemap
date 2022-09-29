@@ -149,6 +149,7 @@ const Bubble = ({
         style={{ cursor: 'pointer' }}
         onClick={(e) => {
           // print the node id
+          // eslint-disable-next-line no-console
           console.log(node.id);
           e.stopPropagation();
         }}
