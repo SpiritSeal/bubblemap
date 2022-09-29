@@ -5,10 +5,7 @@ import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+
 import MenuIcon from '@mui/icons-material/Menu';
 import Lightbulb from '@mui/icons-material/Lightbulb';
 import MapIcon from '@mui/icons-material/Map';
@@ -17,19 +14,24 @@ import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import InfoIcon from '@mui/icons-material/Info';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpIcon from '@mui/icons-material/Help';
 
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
 
-// Import css file
-import './TemporaryDrawer.css';
+// Import component dependencies
+import DrawerListItem from './DrawerListItem';
+import SettingsButton from './SettingsButton';
 
-export default function TemporaryDrawer() {
+// Import css file
+import './SideMenu.css';
+
+export default function SideMenu() {
   const functions = useFunctions();
 
+  /* Drawer SubFunctions */
+  // Test AI
   const testAI = () => {
     httpsCallable(
       functions,
@@ -40,9 +42,7 @@ export default function TemporaryDrawer() {
     });
   };
 
-  const [state, setState] = React.useState({
-    left: false,
-  });
+  /* End Drawer SubFunctions */
 
   const toggleDrawer =
     (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
@@ -57,14 +57,10 @@ export default function TemporaryDrawer() {
       setState({ ...state, left: open });
     };
 
-  const generateListElement = (text: string, icon: any, onClick: any) => (
-    <ListItem key={text} disablePadding>
-      <ListItemButton onClick={onClick}>
-        <ListItemIcon>{icon}</ListItemIcon>
-        <ListItemText primary={text} />
-      </ListItemButton>
-    </ListItem>
-  );
+  const [state, setState] = React.useState({
+    left: false,
+  });
+
   const list = () => (
     <Box
       role="presentation"
@@ -72,22 +68,48 @@ export default function TemporaryDrawer() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {generateListElement('Home', <HomeIcon />, () => {})}
-        {generateListElement('My Mind Maps', <MapIcon />, () => {})}
-        {generateListElement('Recents', <BrowseGalleryIcon />, () => {})}
-        {generateListElement('Trash', <DeleteSweepIcon />, () => {})}
+        <DrawerListItem text="Home" icon={<HomeIcon />} onClick={() => {}} />
+        <DrawerListItem
+          text="My Mind Maps"
+          icon={<MapIcon />}
+          onClick={() => {}}
+        />
+        <DrawerListItem
+          text="Recents"
+          icon={<BrowseGalleryIcon />}
+          onClick={() => {}}
+        />
+        <DrawerListItem
+          text="Trash"
+          icon={<DeleteSweepIcon />}
+          onClick={() => {}}
+        />
       </List>
       <Divider />
       <List>
-        {generateListElement('Test AI', <Lightbulb />, testAI)}
-        {generateListElement('Cool Stats', <QueryStatsIcon />, () => {})}
+        <DrawerListItem text="Test AI" icon={<Lightbulb />} onClick={testAI} />
+        <DrawerListItem
+          text="Cool Stats"
+          icon={<QueryStatsIcon />}
+          onClick={() => {}}
+        />
       </List>
+
       <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
         {/* Move Help to Main Screen, in it's own separate button */}
-        {/* {generateListElement('Help', <HelpIcon />, () => {})} */}
-        {generateListElement('About', <InfoIcon />, () => {})}
-        {generateListElement('Settings', <SettingsIcon />, () => {})}
-        {generateListElement('Profile', <AccountCircleIcon />, () => {})}
+        {/* <DrawerListItem
+          text="Help"
+          icon={<HelpIcon />}
+          onClick={() => {}}
+        /> */}
+        <DrawerListItem text="About" icon={<InfoIcon />} onClick={() => {}} />
+        {/* {generateListElement('Settings', <SettingsIcon />, () => {})} */}
+        <SettingsButton />
+        <DrawerListItem
+          text="Profile"
+          icon={<AccountCircleIcon />}
+          onClick={() => {}}
+        />
       </List>
     </Box>
   );
