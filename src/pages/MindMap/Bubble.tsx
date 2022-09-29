@@ -3,7 +3,7 @@ import { SimulationNodeDatum } from 'd3-force';
 import { node as nodeType } from '../../types';
 
 const lineHeight = 12;
-const subLineHeight = 1.4;
+const subLineHeight = 1.7;
 
 // We may have to replace many of these consts below with lets in the future
 
@@ -64,11 +64,14 @@ const Bubble = ({
     }
     return radius;
   };
+  // Generate metadata text that will go in the section underneath the main text
   const subLines = (function subLines() {
     const subLinesTemp = [];
-    const createdBy = 'Saketh';
+    const createdBy = 'Saketh Reddy [@spyre]';
     const createdOn = '5 minutes ago';
-    subLinesTemp.push(`${createdBy}: ${createdOn}`);
+    subLinesTemp.push(createdBy);
+    subLinesTemp.push(createdOn);
+    subLinesTemp.push(`Idea #${node.id}`);
     return subLinesTemp;
   })();
 
@@ -123,13 +126,13 @@ const Bubble = ({
         />
         <text
           x="15"
-          y="26"
+          y="25.5"
           textAnchor="middle"
           dominantBaseline="auto"
           fontStyle="italic"
           // style={{ fontSize: '0.8rem' }}
           // force text to fit in the region
-          style={{ fontSize: '0.11rem' }}
+          style={{ fontSize: '0.12rem' }}
         >
           {/* Make each line of text on a new line */}
           {subLines.map((line, i) => (
