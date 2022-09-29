@@ -99,9 +99,9 @@ const Bubble = ({
         <text
           key={line.text}
           x="15"
-          y={15 + (i - lines.length / 2 + 0.5) * 2.8}
+          y={15 + (i - lines.length / 2 + 0.5) * 2.8} // 2.8 is hardcoded for now
           textAnchor="middle"
-          fontSize={2.8}
+          fontSize={2.8} // this 2.8 is (possibly) unrelated to the other 2.8, but is also hardcoded for now
           fill="white"
         >
           {line.text}
