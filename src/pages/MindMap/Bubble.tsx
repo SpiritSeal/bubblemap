@@ -94,6 +94,20 @@ const Bubble = ({
         stroke="black"
         strokeWidth="0.5"
       />
+      {/* print the main text in the bubble */}
+      {lines.map((line, i) => (
+        <text
+          key={line.text}
+          x="15"
+          y={15 + (i - lines.length / 2 + 0.5) * 2.8}
+          textAnchor="middle"
+          fontSize={2.8}
+          fill="white"
+        >
+          {line.text}
+        </text>
+      ))}
+
       {/* main text using https://observablehq.com/@mbostock/fit-text-to-circle */}
       <g
         transform={`translate(15, 15) rotate(${
