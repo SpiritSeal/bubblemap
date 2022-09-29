@@ -10,6 +10,7 @@ import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { MindMap as MindMapType, node } from '../../types';
 
 import MindMapSimulation from './MindMapSimulation';
+import SideMenu from './overlays/SideMenu/SideMenu';
 
 const MindMap = () => {
   const firestore = useFirestore();
@@ -41,12 +42,15 @@ const MindMap = () => {
     batch.commit();
   };
   return (
-    <MindMapSimulation
-      data={mindmap}
-      addNode={addNode}
-      deleteNode={deleteNode}
-      updateNode={updateNode}
-    />
+    <div style={{ margin: 0, padding: 0 }}>
+      <MindMapSimulation
+        data={mindmap}
+        addNode={addNode}
+        deleteNode={deleteNode}
+        updateNode={updateNode}
+      />
+      <SideMenu />
+    </div>
   );
 };
 

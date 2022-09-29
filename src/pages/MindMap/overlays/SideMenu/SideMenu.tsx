@@ -25,9 +25,9 @@ import DrawerListItem from './DrawerListItem';
 import SettingsButton from './SettingsButton';
 
 // Import css file
-import './TemporaryDrawer.css';
+import './SideMenu.css';
 
-export default function TemporaryDrawer() {
+export default function SideMenu() {
   const functions = useFunctions();
   
   
