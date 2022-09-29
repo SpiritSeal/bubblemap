@@ -2,6 +2,7 @@ import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
 import { node as nodeType } from '../../types';
 
+const radius = 15;
 const lineHeight = 12;
 const subLineHeight = 1.7;
 
@@ -56,13 +57,13 @@ const Bubble = ({
     return linesTemp;
   })();
   const textRadius = function textRadius() {
-    let radius = 0;
+    let tradius = 0;
     for (let i = 0, n = lines.length; i < n; i += 1) {
       const dy = (Math.abs(i - n / 2 + 0.5) + 0.5) * lineHeight;
       const dx = lines[i].width / 2;
-      radius = Math.max(radius, Math.sqrt(dx ** 2 + dy ** 2));
+      tradius = Math.max(tradius, Math.sqrt(dx ** 2 + dy ** 2));
     }
-    return radius;
+    return tradius;
   };
   // Generate metadata text that will go in the section underneath the main text
   const subLines = (function subLines() {
@@ -79,7 +80,9 @@ const Bubble = ({
   return (
     <g
       className="bubble"
-      transform={`translate(${(node.x ?? 0) - 15} ${(node.y ?? 0) - 15})`}
+      transform={`translate(${(node.x ?? 0) - radius} ${
+        (node.y ?? 0) - radius
+      })`}
       style={
         node.id === 0
           ? { cursor: 'no-drop' }
@@ -87,30 +90,51 @@ const Bubble = ({
       }
     >
       <circle
-        cx="15"
-        cy="15"
-        r="15"
+        cx={radius}
+        cy={radius}
+        r={radius}
         fill={node.id === 0 ? 'lightblue' : 'grey'}
         stroke="black"
         strokeWidth="0.5"
       />
       {/* print the main text in the bubble */}
-      {lines.map((line, i) => (
+      <text
+        // transform translate(${width / 2},${height / 2}) scale(${radius / textRadius})
+        transform={`translate(${radius},${radius}) scale(${
+          radius / textRadius()
+        })`}
+      >
+        {lines.map((line, i) => (
+          <tspan
+            key={line.text}
+            x="0"
+            // dy={i === 0 ? '0em' : `${lineHeight}em`}
+            y={(i - lines.length / 2 + 0.8) * lineHeight}
+            textAnchor="middle"
+          >
+            {line.text}
+          </tspan>
+        ))}
+      </text>
+
+      {/* {lines.map((line, i) => (
         <text
           key={line.text}
           x="15"
           y={15 + (i - lines.length / 2 + 0.5) * 2.8} // 2.8 is hardcoded for now
           textAnchor="middle"
-          fontSize={2.8} // this 2.8 is (possibly) unrelated to the other 2.8, but is also hardcoded for now
+          // fontSize={2.8} // this 2.8 is (possibly) unrelated to the other 2.8, but is also hardcoded for now
+          fontFamily="sans-serif"
+          fontSize="10px"
           fill="white"
         >
           {line.text}
         </text>
-      ))}
+      ))} */}
 
       {/* main text using https://observablehq.com/@mbostock/fit-text-to-circle */}
       <g
-        transform={`translate(15, 15) rotate(${
+        transform={`translate(${radius}, ${radius}) rotate(${
           node.id === 0 ? 0 : -90
         }) scale(${node.id === 0 ? 1 : 1 / textRadius()})`}
       >
@@ -139,7 +163,7 @@ const Bubble = ({
           strokeWidth="0.5"
         />
         <text
-          x="15"
+          x={radius}
           y="25.5"
           textAnchor="middle"
           dominantBaseline="auto"
