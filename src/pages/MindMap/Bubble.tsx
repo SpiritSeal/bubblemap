@@ -3,10 +3,10 @@ import { SimulationNodeDatum } from 'd3-force';
 import { node as nodeType } from '../../types';
 
 const radius = 15;
-const lineHeight = 12;
+const lineHeight = 15.5;
 const subLineHeight = 1.7;
 
-// We may have to replace many of these consts below with lets in the future
+// We may have to replace many of these consts below with lets in the future (or maybe not)
 
 function measureWidth(text: string) {
   const context = document.createElement('canvas').getContext('2d');
@@ -98,11 +98,13 @@ const Bubble = ({
         strokeWidth="0.5"
       />
       {/* print the main text in the bubble */}
+      {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
       <text
-        // transform translate(${width / 2},${height / 2}) scale(${radius / textRadius})
-        transform={`translate(${radius},${radius}) scale(${
-          radius / textRadius()
-        })`}
+        transform={`translate(${radius},${
+          radius - 0.5 * 0.5 * 0.5 * 0.5 * radius
+        }) scale(${radius / (textRadius() * 1.5)})`}
+        // Green
+        fill={node.id === 0 ? 'black' : 'darkblue'}
       >
         {lines.map((line, i) => (
           <tspan
@@ -116,44 +118,6 @@ const Bubble = ({
           </tspan>
         ))}
       </text>
-
-      {/* {lines.map((line, i) => (
-        <text
-          key={line.text}
-          x="15"
-          y={15 + (i - lines.length / 2 + 0.5) * 2.8} // 2.8 is hardcoded for now
-          textAnchor="middle"
-          // fontSize={2.8} // this 2.8 is (possibly) unrelated to the other 2.8, but is also hardcoded for now
-          fontFamily="sans-serif"
-          fontSize="10px"
-          fill="white"
-        >
-          {line.text}
-        </text>
-      ))} */}
-
-      {/* main text using https://observablehq.com/@mbostock/fit-text-to-circle */}
-      <g
-        transform={`translate(${radius}, ${radius}) rotate(${
-          node.id === 0 ? 0 : -90
-        }) scale(${node.id === 0 ? 1 : 1 / textRadius()})`}
-      >
-        {/* {textObj} */}
-      </g>
-
-      {/* <text
-        x="15"
-        y="15"
-        textAnchor="middle"
-        dominantBaseline="middle"
-        style={{
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          fill: 'white',
-        }}
-      >
-        Help me
-      </text> */}
 
       <g className="bottom_region">
         <path
@@ -174,7 +138,7 @@ const Bubble = ({
         >
           {/* Make each line of text on a new line */}
           {subLines.map((line, i) => (
-            <tspan x="15" dy={i === 0 ? 0 : subLineHeight}>
+            <tspan x={radius} dy={i === 0 ? 0 : subLineHeight}>
               {line}
             </tspan>
           ))}
