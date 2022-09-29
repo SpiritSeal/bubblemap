@@ -5,11 +5,6 @@ import Drawer from '@mui/material/Drawer';
 import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import Dialog from '@mui/material/Dialog';
 
 import MenuIcon from '@mui/icons-material/Menu';
 import Lightbulb from '@mui/icons-material/Lightbulb';
@@ -19,7 +14,6 @@ import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 import InfoIcon from '@mui/icons-material/Info';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import SettingsIcon from '@mui/icons-material/Settings';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpIcon from '@mui/icons-material/Help';
 
@@ -47,19 +41,6 @@ export default function TemporaryDrawer() {
       // eslint-disable-next-line no-console
       console.log(result);
     });
-  };
-
-  // Settings Dialog Modal
-  const [open, setOpen] = React.useState(false);
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const settingsPanel = () => {
-    
   };
 
   /* End Drawer SubFunctions */
