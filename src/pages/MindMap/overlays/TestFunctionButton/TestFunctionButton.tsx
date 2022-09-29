@@ -11,6 +11,7 @@ const TestFunctionButton = ({
 }: {
   // eslint-disable-next-line @typescript-eslint/ban-types
   functionToTest: Function;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parameters: any;
   // icon is a JSX element
   icon: JSX.Element;
