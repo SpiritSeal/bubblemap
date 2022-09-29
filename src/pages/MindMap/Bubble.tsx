@@ -41,7 +41,7 @@ const Bubble = ({
     const linesTemp = [];
     for (let i = 0, n = words.length; i < n; i += 1) {
       // eslint-disable-next-line
-      const lineText1 = (line ? line.text + " " : "") + words[i];
+      const lineText1 = (line ? line.text + ' ' : '') + words[i];
       const lineWidth1 = measureWidth(lineText1);
       if ((lineWidth0 + lineWidth1) / 2 < targetWidth) {
         // eslint-disable-next-line
