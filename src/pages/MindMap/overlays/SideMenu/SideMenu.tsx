@@ -29,8 +29,7 @@ import './SideMenu.css';
 
 export default function SideMenu() {
   const functions = useFunctions();
-  
-  
+
   /* Drawer SubFunctions */
   // Test AI
   const testAI = () => {
@@ -57,7 +56,7 @@ export default function SideMenu() {
 
       setState({ ...state, left: open });
     };
-  
+
   const [state, setState] = React.useState({
     left: false,
   });
@@ -69,11 +68,7 @@ export default function SideMenu() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <DrawerListItem 
-          text="Home" 
-          icon={<HomeIcon />} 
-          onClick={() => {}} 
-        />
+        <DrawerListItem text="Home" icon={<HomeIcon />} onClick={() => {}} />
         <DrawerListItem
           text="My Mind Maps"
           icon={<MapIcon />}
@@ -92,11 +87,7 @@ export default function SideMenu() {
       </List>
       <Divider />
       <List>
-        <DrawerListItem
-          text="Test AI"
-          icon={<Lightbulb />}
-          onClick={testAI}
-        />
+        <DrawerListItem text="Test AI" icon={<Lightbulb />} onClick={testAI} />
         <DrawerListItem
           text="Cool Stats"
           icon={<QueryStatsIcon />}
@@ -111,11 +102,7 @@ export default function SideMenu() {
           icon={<HelpIcon />}
           onClick={() => {}}
         /> */}
-        <DrawerListItem
-          text="About"
-          icon={<InfoIcon />}
-          onClick={() => {}}
-        />
+        <DrawerListItem text="About" icon={<InfoIcon />} onClick={() => {}} />
         {/* {generateListElement('Settings', <SettingsIcon />, () => {})} */}
         <SettingsButton />
         <DrawerListItem
