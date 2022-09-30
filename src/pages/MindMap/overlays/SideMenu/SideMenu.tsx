@@ -43,8 +43,6 @@ export default function SideMenu() {
     });
   };
 
-
-
   /* End Drawer SubFunctions */
 
   const toggleDrawer =
@@ -116,8 +114,12 @@ export default function SideMenu() {
           onClick={() => {}}
         /> */}
         <DrawerListItem text="About" icon={<InfoIcon />} onClick={() => {}} />
-        <DrawerListItem text="Preferences" icon={<SettingsIcon />} onClick={handleClickOpen} />
-        
+        <DrawerListItem
+          text="Preferences"
+          icon={<SettingsIcon />}
+          onClick={handleClickOpen}
+        />
+
         <DrawerListItem
           text="Profile"
           icon={<AccountCircleIcon />}
@@ -133,16 +135,10 @@ export default function SideMenu() {
         <Button onClick={toggleDrawer(true)}>
           <MenuIcon className="menu_icon" />
         </Button>
-        <Drawer
-          open={state.left}
-          onClose={toggleDrawer(false)}
-        >
+        <Drawer open={state.left} onClose={toggleDrawer(false)}>
           {list()}
         </Drawer>
-        <SettingsDialog
-          open={open}
-          setOpen={setOpen}
-        />
+        <SettingsDialog open={open} setOpen={setOpen} />
       </React.Fragment>
     </div>
   );
