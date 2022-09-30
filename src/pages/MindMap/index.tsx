@@ -50,8 +50,13 @@ const MindMap = () => {
       <SideMenu />
       <TestFunctionButton
         // eslint-disable-next-line
-        functionToTest={console.log}
-        parameters="test"
+        onClick={() =>
+          addNode({
+            id: Math.max(...mindmap.nodes.map((o) => o.id)) + 1,
+            parent: 0,
+            text: 'Hello world!',
+          })
+        }
         icon={<AddCircleOutlineIcon />}
       />
     </div>

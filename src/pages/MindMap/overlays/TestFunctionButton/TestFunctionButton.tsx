@@ -1,21 +1,17 @@
-import { Button } from '@mui/material';
 import * as React from 'react';
+import { Button } from '@mui/material';
 
 // Create a component that takes a function, parameters for the function, and an icon as a parameter and creates a test button for the function
 // The button should be a material ui button with the icon as the icon and the function as the onClick
 
 const TestFunctionButton = ({
-  functionToTest,
-  parameters,
+  onClick,
   icon,
 }: {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  functionToTest: Function;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parameters: any;
+  onClick: () => void;
   // icon is a JSX element
   icon: JSX.Element;
-}) => <Button onClick={() => functionToTest(parameters)}>{icon}</Button>;
+}) => <Button onClick={onClick}>{icon}</Button>;
 
 export default TestFunctionButton;
 
