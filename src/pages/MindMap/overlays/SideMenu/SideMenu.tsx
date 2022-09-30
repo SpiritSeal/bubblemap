@@ -16,16 +16,17 @@ import InfoIcon from '@mui/icons-material/Info';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import HelpIcon from '@mui/icons-material/Help';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
 
 // Import component dependencies
 import DrawerListItem from './DrawerListItem';
-import SettingsButton from './SettingsButton';
 
 // Import css file
 import './SideMenu.css';
+import SettingsDialog from './SettingsDialog';
 
 export default function SideMenu() {
   const functions = useFunctions();
@@ -41,6 +42,8 @@ export default function SideMenu() {
       console.log(result);
     });
   };
+
+
 
   /* End Drawer SubFunctions */
 
@@ -60,6 +63,16 @@ export default function SideMenu() {
   const [state, setState] = React.useState({
     left: false,
   });
+
+  // Pref Dialog Functions
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const list = () => (
     <Box
@@ -103,8 +116,8 @@ export default function SideMenu() {
           onClick={() => {}}
         /> */}
         <DrawerListItem text="About" icon={<InfoIcon />} onClick={() => {}} />
-        {/* {generateListElement('Settings', <SettingsIcon />, () => {})} */}
-        <SettingsButton />
+        <DrawerListItem text="Preferences" icon={<SettingsIcon />} onClick={handleClickOpen} />
+        
         <DrawerListItem
           text="Profile"
           icon={<AccountCircleIcon />}
@@ -121,16 +134,15 @@ export default function SideMenu() {
           <MenuIcon className="menu_icon" />
         </Button>
         <Drawer
-          PaperProps={
-            {
-              // sx: { width: "15%" },
-            }
-          }
           open={state.left}
           onClose={toggleDrawer(false)}
         >
           {list()}
         </Drawer>
+        <SettingsDialog
+          open={open}
+          setOpen={setOpen}
+        />
       </React.Fragment>
     </div>
   );
