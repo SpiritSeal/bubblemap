@@ -1,21 +1,18 @@
 /*eslint-disable*/
 import * as React from 'react';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
+import { Box, Drawer, Button, List, Divider } from '@mui/material';
 
-import MenuIcon from '@mui/icons-material/Menu';
-import Lightbulb from '@mui/icons-material/Lightbulb';
-import MapIcon from '@mui/icons-material/Map';
-import HomeIcon from '@mui/icons-material/Home';
-import BrowseGalleryIcon from '@mui/icons-material/BrowseGallery';
-import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
-import InfoIcon from '@mui/icons-material/Info';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import HelpIcon from '@mui/icons-material/Help';
+import {
+  Menu,
+  Lightbulb,
+  Map,
+  Home,
+  BrowseGallery,
+  DeleteSweep,
+  Info,
+  QueryStats,
+  AccountCircle,
+} from '@mui/icons-material';
 
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
@@ -68,20 +65,16 @@ export default function SideMenu() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <DrawerListItem text="Home" icon={<HomeIcon />} onClick={() => {}} />
-        <DrawerListItem
-          text="My Mind Maps"
-          icon={<MapIcon />}
-          onClick={() => {}}
-        />
+        <DrawerListItem text="Home" icon={<Home />} onClick={() => {}} />
+        <DrawerListItem text="My Mind Maps" icon={<Map />} onClick={() => {}} />
         <DrawerListItem
           text="Recents"
-          icon={<BrowseGalleryIcon />}
+          icon={<BrowseGallery />}
           onClick={() => {}}
         />
         <DrawerListItem
           text="Trash"
-          icon={<DeleteSweepIcon />}
+          icon={<DeleteSweep />}
           onClick={() => {}}
         />
       </List>
@@ -90,7 +83,7 @@ export default function SideMenu() {
         <DrawerListItem text="Test AI" icon={<Lightbulb />} onClick={testAI} />
         <DrawerListItem
           text="Cool Stats"
-          icon={<QueryStatsIcon />}
+          icon={<QueryStats />}
           onClick={() => {}}
         />
       </List>
@@ -99,15 +92,15 @@ export default function SideMenu() {
         {/* Move Help to Main Screen, in it's own separate button */}
         {/* <DrawerListItem
           text="Help"
-          icon={<HelpIcon />}
+          icon={<Help/>}
           onClick={() => {}}
         /> */}
-        <DrawerListItem text="About" icon={<InfoIcon />} onClick={() => {}} />
-        {/* {generateListElement('Settings', <SettingsIcon />, () => {})} */}
+        <DrawerListItem text="About" icon={<Info />} onClick={() => {}} />
+        {/* {generateListElement('Settings', <Settings/>, () => {})} */}
         <SettingsButton />
         <DrawerListItem
           text="Profile"
-          icon={<AccountCircleIcon />}
+          icon={<AccountCircle />}
           onClick={() => {}}
         />
       </List>
@@ -118,7 +111,7 @@ export default function SideMenu() {
     <div>
       <React.Fragment key="left">
         <Button onClick={toggleDrawer(true)}>
-          <MenuIcon className="menu_icon" />
+          <Menu className="menu_icon" />
         </Button>
         <Drawer
           PaperProps={
