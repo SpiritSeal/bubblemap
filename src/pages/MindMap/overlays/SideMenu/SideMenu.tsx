@@ -12,6 +12,7 @@ import {
   Info,
   QueryStats,
   AccountCircle,
+  Settings,
 } from '@mui/icons-material';
 
 import { useFunctions } from 'reactfire';
@@ -19,10 +20,10 @@ import { httpsCallable } from 'firebase/functions';
 
 // Import component dependencies
 import DrawerListItem from './DrawerListItem';
-import SettingsButton from './SettingsButton';
 
 // Import css file
 import './SideMenu.css';
+import SettingsDialog from './SettingsDialog';
 
 export default function SideMenu() {
   const functions = useFunctions();
@@ -57,6 +58,16 @@ export default function SideMenu() {
   const [state, setState] = React.useState({
     left: false,
   });
+
+  // Pref Dialog Functions
+  const [open, setOpen] = React.useState(false);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   const list = () => (
     <Box
@@ -96,8 +107,12 @@ export default function SideMenu() {
           onClick={() => {}}
         /> */}
         <DrawerListItem text="About" icon={<Info />} onClick={() => {}} />
-        {/* {generateListElement('Settings', <Settings/>, () => {})} */}
-        <SettingsButton />
+        <DrawerListItem
+          text="Preferences"
+          icon={<Settings />}
+          onClick={handleClickOpen}
+        />
+
         <DrawerListItem
           text="Profile"
           icon={<AccountCircle />}
@@ -113,17 +128,10 @@ export default function SideMenu() {
         <Button onClick={toggleDrawer(true)}>
           <Menu className="menu_icon" />
         </Button>
-        <Drawer
-          PaperProps={
-            {
-              // sx: { width: "15%" },
-            }
-          }
-          open={state.left}
-          onClose={toggleDrawer(false)}
-        >
+        <Drawer open={state.left} onClose={toggleDrawer(false)}>
           {list()}
         </Drawer>
+        <SettingsDialog open={open} setOpen={setOpen} />
       </React.Fragment>
     </div>
   );
