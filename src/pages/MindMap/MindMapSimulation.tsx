@@ -56,6 +56,7 @@ const MindMapSimulationWithTransform = forwardRef(
       SimulationNodeDatum & node,
       undefined
     > | null>(null);
+    const [priorDataNodes, setPriorDataNodes] = useState<node[]>();
 
     const [nodes, setNodes] = useState<(SimulationNodeDatum & node)[]>([]);
     const [links, setLinks] = useState<{ source: number; target: number }[]>(
@@ -67,62 +68,84 @@ const MindMapSimulationWithTransform = forwardRef(
     const context = useTransformContext();
 
     useEffect(() => {
-      const newLinks: { source: number; target: number }[] = data.nodes.map(
-        (nodeForLink, nodeIndex) => ({
-          source: nodeForLink.parent,
-          target: nodeIndex,
-        })
-      );
+      if (JSON.stringify(data.nodes) !== JSON.stringify(priorDataNodes)) {
+        const newNodesRaw = JSON.parse(JSON.stringify(data.nodes)) as node[];
 
-      const newSimulation: Simulation<SimulationNodeDatum & node, undefined> =
-        forceSimulation()
-          .force('collide', forceCollide(15))
-          .force(
-            'charge',
-            forceManyBody().strength(-50)
-          ) as unknown as Simulation<SimulationNodeDatum & node, undefined>;
+        const newNodes: (SimulationNodeDatum & node)[] = [];
 
-      // update state on every frame
-      newSimulation.on('tick', () => {
-        setNodes([
-          ...(newSimulation.nodes() as (SimulationNodeDatum & node)[]),
-        ]);
-      });
-
-      const newNodes = JSON.parse(
-        JSON.stringify(data.nodes)
-      ) as (SimulationNodeDatum & node)[];
-
-      const newNodesToAdd: (SimulationNodeDatum & node)[] = [];
-
-      newNodes.forEach((newNode) => {
-        const oldNode = nodes.find((o) => o.id === newNode.id);
-        newNodesToAdd.push({
-          ...oldNode,
-          ...newNode,
+        newNodesRaw.forEach((newNode) => {
+          console.log(newNode);
+          if (
+            typeof newNode.id === 'number' &&
+            typeof newNode.parent === 'number' &&
+            typeof newNode.text === 'string'
+          ) {
+            const oldNode =
+              priorDataNodes?.find((o) => o.id === newNode.id) || [];
+            if (newNode.id === 0) {
+              newNodes.push({
+                ...oldNode,
+                ...newNode,
+                fx: 0,
+                fy: 0,
+              });
+            } else {
+              newNodes.push({
+                ...oldNode,
+                ...newNode,
+              });
+            }
+          }
         });
-      });
 
-      // copy nodes into simulation
-      newSimulation.nodes(newNodesToAdd);
+        const newLinks: { source: number; target: number }[] = newNodes.map(
+          (nodeForLink, nodeForLinkIndex) => ({
+            source: newNodes.findIndex(
+              (item) => item.id === nodeForLink.parent
+            ),
+            target: nodeForLinkIndex,
+          })
+        );
 
-      newSimulation.force(
-        'link',
-        forceLink(JSON.parse(JSON.stringify(newLinks)))
-      );
+        const newSimulation: Simulation<SimulationNodeDatum & node, undefined> =
+          forceSimulation()
+            .force('collide', forceCollide(15))
+            .force(
+              'charge',
+              forceManyBody().strength(-100)
+            ) as unknown as Simulation<SimulationNodeDatum & node, undefined>;
 
-      newSimulation.alphaTarget(0);
-      newSimulation.alphaDecay(0.005);
-      newSimulation.alphaMin(0.01);
-      newSimulation.tick(1);
-      newSimulation.restart();
+        newSimulation.on('tick', () => {
+          setNodes([
+            ...(newSimulation.nodes() as (SimulationNodeDatum & node)[]),
+          ]);
+        });
 
-      setLinks(newLinks);
-      setSimulation(newSimulation);
+        console.log(newNodes);
 
-      return () => {
-        newSimulation.stop();
-      };
+        setPriorDataNodes(newNodes);
+
+        newSimulation.nodes(newNodes);
+
+        newSimulation.force(
+          'link',
+          forceLink(JSON.parse(JSON.stringify(newLinks)))
+        );
+
+        newSimulation.alphaTarget(0);
+        newSimulation.alphaDecay(0.005);
+        newSimulation.alphaMin(0.01);
+        newSimulation.tick(1);
+
+        setLinks(newLinks);
+        setSimulation(newSimulation);
+        newSimulation.restart();
+
+        return () => {
+          newSimulation.stop();
+        };
+      }
+      return () => {};
     }, [data.nodes]);
 
     const releaseBubble = () => {
@@ -179,7 +202,7 @@ const MindMapSimulationWithTransform = forwardRef(
               (e.clientY - context.state.positionY + mouseDelta.y) /
               context.state.scale;
             const nodeClicked: (SimulationNodeDatum & node) | undefined =
-              simulation.find(x, y, 15);
+              simulation?.find(x, y, 15);
             if (!nodeClicked) return;
             nodeClicked.fx = nodeClicked.x;
             nodeClicked.fy = nodeClicked.y;
