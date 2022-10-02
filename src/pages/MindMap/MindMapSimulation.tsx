@@ -79,8 +79,7 @@ const MindMapSimulationWithTransform = forwardRef(
             typeof newNode.parent === 'number' &&
             typeof newNode.text === 'string'
           ) {
-            const oldNode =
-              priorDataNodes?.find((o) => o.id === newNode.id) || [];
+            const oldNode = nodes?.find((o) => o.id === newNode.id) || [];
             if (newNode.id === 0) {
               newNodes.push({
                 ...oldNode,
@@ -120,7 +119,7 @@ const MindMapSimulationWithTransform = forwardRef(
           ]);
         });
 
-        setPriorDataNodes(newNodes);
+        setPriorDataNodes(data.nodes);
 
         newSimulation.nodes(newNodes);
 
@@ -137,12 +136,7 @@ const MindMapSimulationWithTransform = forwardRef(
         setLinks(newLinks);
         setSimulation(newSimulation);
         newSimulation.restart();
-
-        return () => {
-          newSimulation.stop();
-        };
       }
-      return () => {};
     }, [data.nodes]);
 
     const releaseBubble = () => {
