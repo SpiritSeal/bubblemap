@@ -74,7 +74,6 @@ const MindMapSimulationWithTransform = forwardRef(
         const newNodes: (SimulationNodeDatum & node)[] = [];
 
         newNodesRaw.forEach((newNode) => {
-          console.log(newNode);
           if (
             typeof newNode.id === 'number' &&
             typeof newNode.parent === 'number' &&
@@ -120,8 +119,6 @@ const MindMapSimulationWithTransform = forwardRef(
             ...(newSimulation.nodes() as (SimulationNodeDatum & node)[]),
           ]);
         });
-
-        console.log(newNodes);
 
         setPriorDataNodes(newNodes);
 

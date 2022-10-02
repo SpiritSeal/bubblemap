@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   doc,
   arrayRemove,
@@ -15,9 +15,9 @@ import SideMenu from './overlays/SideMenu/SideMenu';
 import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
 import Loading from '../../components/Loading';
 
-const MindMap = () => {
+const MindMap = ({ mindmapID }: { mindmapID: string }) => {
   const firestore = useFirestore();
-  const mindMapRef = doc(firestore, 'mindmaps/PxICnzGAskSEQXxkCIL4');
+  const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
   const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
@@ -51,19 +51,7 @@ const MindMap = () => {
     batch.commit();
   };
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      addNode({
-        parent: 11,
-        text: 'Howday!',
-      });
-    }, 2500);
-    return () => clearTimeout(timer);
-  }, []);
-
   if (!mindmap) return <Loading />;
-
-  console.log('New Data Inbound!');
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
