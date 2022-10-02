@@ -11,8 +11,8 @@ const BubbleLink = ({
   <line
     x1={sourceNode.x}
     y1={sourceNode.y}
-    x2={targetNode.x}
-    y2={targetNode.y}
+    x2={targetNode?.x || 0}
+    y2={targetNode?.y || 0}
     stroke="black"
     fontSize={100}
   />

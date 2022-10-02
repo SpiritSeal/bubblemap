@@ -4,7 +4,6 @@ export interface node {
   id: number;
   text: string;
   parent: number;
-  children: number[];
 }
 
 export interface MindMap {

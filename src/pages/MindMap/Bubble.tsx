@@ -109,7 +109,8 @@ const Bubble = ({
       >
         {lines.map((line, i) => (
           <tspan
-            key={line.text}
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${i}: ${line.text}`}
             x="0"
             // dy={i === 0 ? '0em' : `${lineHeight}em`}
             y={(i - lines.length / 2 + 0.8) * lineHeight}
@@ -139,7 +140,12 @@ const Bubble = ({
         >
           {/* Make each line of text on a new line */}
           {subLines.map((line, i) => (
-            <tspan x={radius} dy={i === 0 ? 0 : subLineHeight}>
+            <tspan
+              // eslint-disable-next-line react/no-array-index-key
+              key={i}
+              x={radius}
+              dy={i === 0 ? 0 : subLineHeight}
+            >
               {line}
             </tspan>
           ))}

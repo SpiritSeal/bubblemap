@@ -2,7 +2,6 @@
 import React, {
   useState,
   useEffect,
-  useCallback,
   Dispatch,
   SetStateAction,
   useRef,
@@ -16,7 +15,6 @@ import {
   forceCollide,
   Simulation,
   SimulationNodeDatum,
-  SimulationLinkDatum,
 } from 'd3-force';
 import {
   TransformWrapper,
@@ -27,44 +25,7 @@ import './MindMap.css';
 import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
 import { MindMap, node } from '../../types';
-
-const width = window.innerWidth;
-const height = window.innerHeight;
-
-export const useD3 = (
-  forceUpdate: () => void,
-  nodes: (SimulationNodeDatum & node)[],
-  links: SimulationLinkDatum<SimulationNodeDatum & node>[]
-) => {
-  const [simulation, setSimulation] = useState<Simulation<
-    SimulationNodeDatum & node,
-    undefined
-  > | null>(null);
-
-  useEffect(() => {
-    const newSim = forceSimulation(nodes)
-      .force('collide', forceCollide(15))
-      .force('link', forceLink(links))
-      .force('charge', forceManyBody().strength(-100));
-
-    newSim.nodes()[0].fx = width / 2;
-    newSim.nodes()[0].fy = height / 2;
-
-    setSimulation(newSim);
-  }, []);
-
-  if (simulation) {
-    simulation.on('tick', () => {
-      forceUpdate();
-    });
-
-    simulation.alphaTarget(0);
-    simulation.alphaDecay(0.005);
-    simulation.alphaMin(0.01);
-    simulation.tick(0);
-  }
-  return { simulation };
-};
+import Loading from '../../components/Loading';
 
 const MindMapSimulationWithTransform = forwardRef(
   (
@@ -72,7 +33,7 @@ const MindMapSimulationWithTransform = forwardRef(
       data,
       nodeSelected,
       setNodeSelected,
-      // TODO: Impliment the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
+      // TODO: Implement the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
       // eslint-disable-next-line
       addNode,
       // eslint-disable-next-line
@@ -91,20 +52,92 @@ const MindMapSimulationWithTransform = forwardRef(
     },
     ref
   ) => {
-    const [, updateState] = useState({});
-    const forceUpdate = useCallback(() => updateState({}), []);
+    const [simulation, setSimulation] = useState<Simulation<
+      SimulationNodeDatum & node,
+      undefined
+    > | null>(null);
+    const [priorDataNodes, setPriorDataNodes] = useState<node[]>();
+
+    const [nodes, setNodes] = useState<(SimulationNodeDatum & node)[]>([]);
+    const [links, setLinks] = useState<{ source: number; target: number }[]>(
+      []
+    );
+
     const [mouseDelta] = useState({ x: 0, y: 0 });
 
     const context = useTransformContext();
 
-    const links: { source: number; target: number }[] = data.nodes.map(
-      (dataNode, i) => ({
-        source: dataNode.parent,
-        target: i,
-      })
-    );
+    useEffect(() => {
+      if (JSON.stringify(data.nodes) !== JSON.stringify(priorDataNodes)) {
+        const newNodesRaw = JSON.parse(JSON.stringify(data.nodes)) as node[];
 
-    const { simulation } = useD3(forceUpdate, data.nodes, links);
+        const newNodes: (SimulationNodeDatum & node)[] = [];
+
+        newNodesRaw.forEach((newNode) => {
+          if (
+            typeof newNode.id === 'number' &&
+            typeof newNode.parent === 'number' &&
+            typeof newNode.text === 'string'
+          ) {
+            const oldNode = nodes?.find((o) => o.id === newNode.id) || [];
+            if (newNode.id === 0) {
+              newNodes.push({
+                ...oldNode,
+                ...newNode,
+                fx: 0,
+                fy: 0,
+              });
+            } else {
+              newNodes.push({
+                ...oldNode,
+                ...newNode,
+              });
+            }
+          }
+        });
+
+        const newLinks: { source: number; target: number }[] = newNodes.map(
+          (nodeForLink, nodeForLinkIndex) => ({
+            source: newNodes.findIndex(
+              (item) => item.id === nodeForLink.parent
+            ),
+            target: nodeForLinkIndex,
+          })
+        );
+
+        const newSimulation: Simulation<SimulationNodeDatum & node, undefined> =
+          forceSimulation()
+            .force('collide', forceCollide(15))
+            .force(
+              'charge',
+              forceManyBody().strength(-100)
+            ) as unknown as Simulation<SimulationNodeDatum & node, undefined>;
+
+        newSimulation.on('tick', () => {
+          setNodes([
+            ...(newSimulation.nodes() as (SimulationNodeDatum & node)[]),
+          ]);
+        });
+
+        setPriorDataNodes(data.nodes);
+
+        newSimulation.nodes(newNodes);
+
+        newSimulation.force(
+          'link',
+          forceLink(JSON.parse(JSON.stringify(newLinks)))
+        );
+
+        newSimulation.alphaTarget(0);
+        newSimulation.alphaDecay(0.005);
+        newSimulation.alphaMin(0.01);
+        newSimulation.tick(1);
+
+        setLinks(newLinks);
+        setSimulation(newSimulation);
+        newSimulation.restart();
+      }
+    }, [data.nodes]);
 
     const releaseBubble = () => {
       if (nodeSelected) {
@@ -144,16 +177,11 @@ const MindMapSimulationWithTransform = forwardRef(
       },
     }));
 
-    if (!simulation) return null;
-
-    const nodes: (SimulationNodeDatum & node)[] =
-      simulation.nodes() as (SimulationNodeDatum & node)[];
+    if (simulation === null) return <Loading />;
 
     if (nodes.length > 0)
       return (
         <svg
-          height="100%"
-          width="100%"
           style={{
             overflow: 'visible',
           }}
@@ -165,7 +193,7 @@ const MindMapSimulationWithTransform = forwardRef(
               (e.clientY - context.state.positionY + mouseDelta.y) /
               context.state.scale;
             const nodeClicked: (SimulationNodeDatum & node) | undefined =
-              simulation.find(x, y, 15);
+              simulation?.find(x, y, 15);
             if (!nodeClicked) return;
             nodeClicked.fx = nodeClicked.x;
             nodeClicked.fy = nodeClicked.y;
@@ -223,6 +251,7 @@ const MindMapSimulation = ({
         maxScale={25}
         limitToBounds={false}
         // centerZoomedOut
+        centerOnInit
         panning={{
           disabled: !!nodeSelected,
         }}
@@ -232,10 +261,6 @@ const MindMapSimulation = ({
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
-          }}
-          contentStyle={{
             width: '100%',
             height: '100%',
           }}
