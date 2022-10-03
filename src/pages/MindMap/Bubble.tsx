@@ -4,7 +4,7 @@ import { node as nodeType } from '../../types';
 
 const radius = 15;
 const lineHeight = 15.5;
-const subLineHeight = 1.7;
+// const subLineHeight = 1.7;
 
 // We may have to replace many of these consts below with lets in the future (or maybe not)
 
