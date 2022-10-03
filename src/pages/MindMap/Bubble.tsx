@@ -67,15 +67,15 @@ const Bubble = ({
     return tradius;
   };
   // Generate metadata text that will go in the section underneath the main text
-  const subLines = (function subLines() {
-    const subLinesTemp = [];
-    const createdBy = 'Saketh Reddy [@spyre]';
-    const createdOn = '5 minutes ago';
-    subLinesTemp.push(createdBy);
-    subLinesTemp.push(createdOn);
-    subLinesTemp.push(`Idea #${node.id}`);
-    return subLinesTemp;
-  })();
+  // const subLines = (function subLines() {
+  //   const subLinesTemp = [];
+  //   const createdBy = 'Saketh Reddy [@spyre]';
+  //   const createdOn = '5 minutes ago';
+  //   subLinesTemp.push(createdBy);
+  //   subLinesTemp.push(createdOn);
+  //   subLinesTemp.push(`Idea #${node.id}`);
+  //   return subLinesTemp;
+  // })();
 
   // Return Statement
   return (
@@ -94,7 +94,7 @@ const Bubble = ({
         cx={radius}
         cy={radius}
         r={radius}
-        fill={node.id === 0 ? 'lightblue' : 'grey'}
+        fill={node.id === 0 ? 'lightblue' : '#e3eeff'}
         stroke="black"
         strokeWidth="0.5"
       />
@@ -102,7 +102,7 @@ const Bubble = ({
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
       <text
         transform={`translate(${radius},${
-          radius - 0.5 * 0.5 * 0.5 * 0.5 * radius
+          radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
         }) scale(${radius / (textRadius() * 1.5)})`}
         // Green
         fill={node.id === 0 ? 'red' : 'darkblue'}
@@ -113,7 +113,7 @@ const Bubble = ({
             key={`${i}: ${line.text}`}
             x="0"
             // dy={i === 0 ? '0em' : `${lineHeight}em`}
-            y={(i - lines.length / 2 + 0.8) * lineHeight}
+            y={(i - lines.length / 2 + 1) * lineHeight}
             textAnchor="middle"
           >
             {line.text}
@@ -121,7 +121,7 @@ const Bubble = ({
         ))}
       </text>
 
-      <g className="bottom_region">
+      {/* <g className="bottom_region">
         <path
           d="M27 24C27 24 23 30 15 30C7 30 3 24 3 24C3 24 7.1318 23 15.0478 23C22.9638 23 27 24 27 24Z"
           fill="white"
@@ -138,7 +138,6 @@ const Bubble = ({
           // force text to fit in the region
           style={{ fontSize: '0.12rem' }}
         >
-          {/* Make each line of text on a new line */}
           {subLines.map((line, i) => (
             <tspan
               // eslint-disable-next-line react/no-array-index-key
@@ -171,7 +170,7 @@ const Bubble = ({
           strokeWidth="0.2"
           strokeLinecap="round"
         />
-      </g>
+      </g> */}
     </g>
   );
 };
