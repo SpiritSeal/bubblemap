@@ -40,6 +40,8 @@ const MindMapSimulationWithTransform = forwardRef(
       deleteNode,
       // eslint-disable-next-line
       updateNode,
+      selectedNode,
+      setSelectedNode,
     }: {
       data: MindMap;
       dragNodeSelected: (SimulationNodeDatum & node) | undefined;
@@ -49,6 +51,8 @@ const MindMapSimulationWithTransform = forwardRef(
       addNode: (node: node) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
+      selectedNode: (SimulationNodeDatum & node) | undefined;
+      setSelectedNode: (node: SimulationNodeDatum & node) => void;
     },
     ref
   ) => {
@@ -62,10 +66,6 @@ const MindMapSimulationWithTransform = forwardRef(
     const [links, setLinks] = useState<{ source: number; target: number }[]>(
       []
     );
-
-    const [selectedNode, setSelectedNode] = useState<
-      SimulationNodeDatum & node
-    >();
 
     const [mouseDown, setMouseDown] = useState(false);
     const [downMouseCoords, setDownMouseCoords] = useState({ x: 0, y: 0 });
@@ -244,11 +244,15 @@ const MindMapSimulation = ({
   addNode,
   deleteNode,
   updateNode,
+  selectedNode,
+  setSelectedNode,
 }: {
   data: MindMap;
   addNode: (node: node) => void;
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
+  selectedNode: (SimulationNodeDatum & node) | undefined;
+  setSelectedNode: (node: SimulationNodeDatum & node) => void;
 }) => {
   const [dragNodeSelected, setDragNodeSelected] = useState<
     (SimulationNodeDatum & node) | undefined
@@ -291,6 +295,8 @@ const MindMapSimulation = ({
             addNode={addNode}
             deleteNode={deleteNode}
             updateNode={updateNode}
+            selectedNode={selectedNode}
+            setSelectedNode={setSelectedNode}
           />
         </TransformComponent>
       </TransformWrapper>
