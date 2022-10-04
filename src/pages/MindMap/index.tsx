@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   doc,
   arrayRemove,
@@ -8,6 +8,7 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import { SimulationNodeDatum } from 'd3-force';
 import { MindMap as MindMapType, node } from '../../types';
 
 import MindMapSimulation from './MindMapSimulation';
@@ -59,6 +60,10 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
       </div>
     );
 
+  const [selectedNode, setSelectedNode] = useState<
+    SimulationNodeDatum & node
+  >();
+
   return (
     <div style={{ margin: 0, padding: 0 }}>
       <MindMapSimulation
@@ -66,6 +71,8 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
         addNode={addNode}
         deleteNode={deleteNode}
         updateNode={updateNode}
+        selectedNode={selectedNode}
+        setSelectedNode={setSelectedNode}
       />
       <SideMenu />
       <TestFunctionButton
