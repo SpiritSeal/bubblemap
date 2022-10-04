@@ -31,8 +31,8 @@ const MindMapSimulationWithTransform = forwardRef(
   (
     {
       data,
-      nodeSelected,
-      setNodeSelected,
+      dragNodeSelected,
+      setDragNodeSelected,
       // TODO: Implement the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
       // eslint-disable-next-line
       addNode,
@@ -42,8 +42,8 @@ const MindMapSimulationWithTransform = forwardRef(
       updateNode,
     }: {
       data: MindMap;
-      nodeSelected: (SimulationNodeDatum & node) | undefined;
-      setNodeSelected: Dispatch<
+      dragNodeSelected: (SimulationNodeDatum & node) | undefined;
+      setDragNodeSelected: Dispatch<
         SetStateAction<(SimulationNodeDatum & node) | undefined>
       >;
       addNode: (node: node) => void;
@@ -62,6 +62,13 @@ const MindMapSimulationWithTransform = forwardRef(
     const [links, setLinks] = useState<{ source: number; target: number }[]>(
       []
     );
+
+    const [selectedNode, setSelectedNode] = useState<
+      SimulationNodeDatum & node
+    >();
+
+    const [mouseDown, setMouseDown] = useState(false);
+    const [downMouseCoords, setDownMouseCoords] = useState({ x: 0, y: 0 });
 
     const [mouseDelta] = useState({ x: 0, y: 0 });
 
@@ -140,15 +147,15 @@ const MindMapSimulationWithTransform = forwardRef(
     }, [data.nodes]);
 
     const releaseBubble = () => {
-      if (nodeSelected) {
-        if (nodeSelected.id === 0) {
-          setNodeSelected(undefined);
+      if (dragNodeSelected) {
+        if (dragNodeSelected.id === 0) {
+          setDragNodeSelected(undefined);
         } else {
-          nodeSelected.x = nodeSelected?.fx ?? 0;
-          nodeSelected.y = nodeSelected?.fy ?? 0;
-          nodeSelected.fx = null;
-          nodeSelected.fy = null;
-          setNodeSelected(undefined);
+          dragNodeSelected.x = dragNodeSelected?.fx ?? 0;
+          dragNodeSelected.y = dragNodeSelected?.fy ?? 0;
+          dragNodeSelected.fx = null;
+          dragNodeSelected.fy = null;
+          setDragNodeSelected(undefined);
           simulation?.alpha(1).restart();
         }
       }
@@ -156,11 +163,11 @@ const MindMapSimulationWithTransform = forwardRef(
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const onMouseMove = (e: any) => {
-      if (nodeSelected && nodeSelected.id !== 0) {
-        nodeSelected.fx =
+      if (dragNodeSelected && dragNodeSelected.id !== 0) {
+        dragNodeSelected.fx =
           (e.clientX - context.state.positionX + mouseDelta.x) /
           context.state.scale;
-        nodeSelected.fy =
+        dragNodeSelected.fy =
           (e.clientY - context.state.positionY + mouseDelta.y) /
           context.state.scale;
         simulation?.alpha(1).restart();
@@ -179,6 +186,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
     if (simulation === null) return <Loading />;
 
+    let nodeClicked: (SimulationNodeDatum & node) | undefined;
     if (nodes.length > 0)
       return (
         <svg
@@ -192,15 +200,19 @@ const MindMapSimulationWithTransform = forwardRef(
             const y =
               (e.clientY - context.state.positionY + mouseDelta.y) /
               context.state.scale;
-            const nodeClicked: (SimulationNodeDatum & node) | undefined =
-              simulation?.find(x, y, 15);
+            nodeClicked = simulation?.find(x, y, 15);
             if (!nodeClicked) return;
             nodeClicked.fx = nodeClicked.x;
             nodeClicked.fy = nodeClicked.y;
-            setNodeSelected(nodeClicked);
+            setDragNodeSelected(nodeClicked);
+            setMouseDown(true);
+            setDownMouseCoords({ x: e.clientX, y: e.clientY });
             e.stopPropagation();
           }}
-          onMouseUp={() => releaseBubble()}
+          onMouseUp={() => {
+            // I'll be relying on the fact that the mouseDown state will be reset in Bubble.tsx's onClick events
+            releaseBubble();
+          }}
         >
           {links.map((link) => (
             <BubbleLink
@@ -213,7 +225,12 @@ const MindMapSimulationWithTransform = forwardRef(
             <Bubble
               key={nodeData.id}
               node={nodeData}
-              selected={nodeSelected === nodeData}
+              dragging={dragNodeSelected === nodeData}
+              selected={selectedNode === nodeData}
+              setSelectedNode={setSelectedNode}
+              mouseDown={mouseDown}
+              setMouseDown={setMouseDown}
+              downMouseCoords={downMouseCoords}
             />
           ))}
         </svg>
@@ -233,7 +250,7 @@ const MindMapSimulation = ({
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
 }) => {
-  const [nodeSelected, setNodeSelected] = useState<
+  const [dragNodeSelected, setDragNodeSelected] = useState<
     (SimulationNodeDatum & node) | undefined
   >(undefined);
 
@@ -253,7 +270,7 @@ const MindMapSimulation = ({
         // centerZoomedOut
         centerOnInit
         panning={{
-          disabled: !!nodeSelected,
+          disabled: !!dragNodeSelected,
         }}
       >
         <TransformComponent
@@ -269,8 +286,8 @@ const MindMapSimulation = ({
           <MindMapSimulationWithTransform
             ref={childRef}
             data={data}
-            nodeSelected={nodeSelected}
-            setNodeSelected={setNodeSelected}
+            dragNodeSelected={dragNodeSelected}
+            setDragNodeSelected={setDragNodeSelected}
             addNode={addNode}
             deleteNode={deleteNode}
             updateNode={updateNode}
