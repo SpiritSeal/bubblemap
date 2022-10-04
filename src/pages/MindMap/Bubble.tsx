@@ -101,9 +101,6 @@ const Bubble = ({
             setSelectedNode(node);
           }
         }
-        // console.log(e);
-        // setSelectedNode(node);
-        // prevent the click from propagating to the svg
         e.stopPropagation();
       }}
     >
@@ -112,6 +109,8 @@ const Bubble = ({
         cy={radius}
         r={radius}
         fill={node.id === 0 ? 'lightblue' : '#e3eeff'}
+        stroke={selected ? 'pink' : 'black'}
+        strokeWidth={selected ? '7' : '.5'}
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
