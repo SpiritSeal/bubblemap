@@ -77,12 +77,19 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
       <SideMenu />
       <TestFunctionButton
         // eslint-disable-next-line
-        onClick={() =>
+        onClick={() =>{
           addNode({
-            parent: 0,
-            text: 'Hello world!',
-          })
-        }
+            parent: selectedNode?.id || 0,
+            text: `Hello world! ${selectedNode?.id}`,
+          });
+          console.log('Selected: ', selectedNode);
+          // setSelectedNode(selectedNode);
+          // Get the node with the highest ID
+          const maxID = Math.max(...mindmap.nodes.map((o) => o.id), 0);
+          console.log('Max ID: ', maxID);
+          setSelectedNode(mindmap.nodes.find((o) => o.id === maxID));
+          setSelectedNode(mindmap.nodes[0]);
+        }}
         icon={<AddCircleOutlineIcon />}
       />
     </div>
