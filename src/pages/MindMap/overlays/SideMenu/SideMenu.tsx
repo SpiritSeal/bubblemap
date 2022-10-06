@@ -24,6 +24,9 @@ import DrawerListItem from './DrawerListItem';
 // Import css file
 import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
+import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
 
 export default function SideMenu() {
   const functions = useFunctions();
@@ -80,14 +83,14 @@ export default function SideMenu() {
           text="Home"
           icon={<Home />}
           onClick={() => {
-            location.href = '/';
+            navigate('/');
           }}
         />
         <DrawerListItem
           text="My Mind Maps"
           icon={<Map />}
           onClick={() => {
-            location.href = '/mindmap';
+            navigate('/mindmap');
           }}
         />
         <DrawerListItem
