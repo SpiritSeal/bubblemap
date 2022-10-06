@@ -24,6 +24,9 @@ import DrawerListItem from './DrawerListItem';
 // Import css file
 import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
+import { useNavigate } from 'react-router-dom';
+
+const navigate = useNavigate();
 
 export default function SideMenu() {
   const functions = useFunctions();
@@ -76,8 +79,20 @@ export default function SideMenu() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <DrawerListItem text="Home" icon={<Home />} onClick={() => {}} />
-        <DrawerListItem text="My Mind Maps" icon={<Map />} onClick={() => {}} />
+        <DrawerListItem
+          text="Home"
+          icon={<Home />}
+          onClick={() => {
+            navigate('/');
+          }}
+        />
+        <DrawerListItem
+          text="My Mind Maps"
+          icon={<Map />}
+          onClick={() => {
+            navigate('/mindmap');
+          }}
+        />
         <DrawerListItem
           text="Recents"
           icon={<BrowseGallery />}

@@ -51,7 +51,13 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     batch.commit();
   };
 
-  if (!mindmap) return <Loading />;
+  if (!mindmap)
+    return (
+      <div>
+        <h1>{mindmapID}</h1>
+        <Loading />
+      </div>
+    );
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
