@@ -8,6 +8,10 @@ const HomePage = () => {
   return (
     <div>
       <h1>Home Page</h1>
+      {/* Button that takes you to the mindmap page at /mindmap */}
+      <a href="/mindmap">
+        <button type="button">Go to Mindmap Selector</button>
+      </a>
     </div>
   );
 };

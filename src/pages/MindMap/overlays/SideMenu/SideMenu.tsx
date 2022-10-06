@@ -76,8 +76,20 @@ export default function SideMenu() {
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <DrawerListItem text="Home" icon={<Home />} onClick={() => {}} />
-        <DrawerListItem text="My Mind Maps" icon={<Map />} onClick={() => {}} />
+        <DrawerListItem
+          text="Home"
+          icon={<Home />}
+          onClick={() => {
+            location.href = '/';
+          }}
+        />
+        <DrawerListItem
+          text="My Mind Maps"
+          icon={<Map />}
+          onClick={() => {
+            location.href = '/mindmap';
+          }}
+        />
         <DrawerListItem
           text="Recents"
           icon={<BrowseGallery />}

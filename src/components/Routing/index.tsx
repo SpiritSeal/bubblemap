@@ -1,19 +1,25 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MindMap from '../../pages/MindMap';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useParams,
+} from 'react-router-dom';
 import HomePage from '../../pages/HomePage';
+import ManageMindMaps from '../../pages/ManageMindMaps';
+import MindMapRouter from './mindmapRouter';
 
 // Create a new component which we can use to route pages
 const Routing = () => (
-  // /mindmap takes you to the mindmap page
-  // / takes you to the homepage
   <Router>
     <Routes>
-      <Route
-        path="/mindmap"
-        element={<MindMap mindmapID="PxICnzGAskSEQXxkCIL4" />}
-      />
-      <Route path="/" element={<HomePage />} />
+      <Route path="/">
+        <Route index element={<HomePage />} />
+        <Route path="/mindmap">
+          <Route index element={<ManageMindMaps />} />
+          <Route path=":mindmapID" element={<MindMapRouter />} />
+        </Route>
+      </Route>
     </Routes>
   </Router>
 );
