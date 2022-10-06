@@ -84,7 +84,6 @@ export default function SideMenu() {
           text="Home"
           icon={<Home />}
           onClick={() => {
-            // Navigate to home page
             navigate('/');
           }}
         />
@@ -92,7 +91,6 @@ export default function SideMenu() {
           text="My Mind Maps"
           icon={<Map />}
           onClick={() => {
-            // Navigate to mindmap selector
             navigate('/mindmap');
           }}
         />
