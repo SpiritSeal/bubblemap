@@ -3,13 +3,11 @@ import React from 'react';
 const ManageMindMaps = () => (
   <div>
     <ul>
-      {/* Go home */}
       <li>
         <a href="/">
           <h1>Home</h1>
         </a>
       </li>
-      {/* button to /mindmap/test01 */}
       <li>
         <a href="/mindmap/test01">
           <button type="button">
@@ -18,7 +16,6 @@ const ManageMindMaps = () => (
           </button>
         </a>
       </li>
-      {/* button to /mindmap/PxICnzGAskSEQXxkCIL4 */}
       <li>
         <a href="/mindmap/PxICnzGAskSEQXxkCIL4">
           <button type="button">
