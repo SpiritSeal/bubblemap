@@ -64,10 +64,11 @@ const About = () => (
       trying to see how the scrolling works when the page is zoomed in.
     </p>
     <h1>
-      DISCLAIMER: I may or may not have had copilot write this page for me.
+      DISCLAIMER: I may or may not have had Github Copilot write this page for
+      me.
     </h1>
     <h1>
-      I don&spos;t really know what I expected, but this will do for now ig. It
+      I don&apos;t really know what I expected, but this will do for now ig. It
       feels more like an FAQ page than anything.
     </h1>
     <a href="/">
