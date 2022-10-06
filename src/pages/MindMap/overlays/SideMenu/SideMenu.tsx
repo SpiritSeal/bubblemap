@@ -19,7 +19,7 @@ import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
 
 // Navigation
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 // Import component dependencies
 import DrawerListItem from './DrawerListItem';
