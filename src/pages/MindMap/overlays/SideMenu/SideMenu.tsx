@@ -18,16 +18,19 @@ import {
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
 
+// Navigation
+import {useNavigate} from 'react-router-dom';
+
 // Import component dependencies
 import DrawerListItem from './DrawerListItem';
 
 // Import css file
 import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
-import { redirect } from 'react-router-dom';
 
 export default function SideMenu() {
   const functions = useFunctions();
+  const navigate = useNavigate();
 
   /* Drawer SubFunctions */
   // Test AI
@@ -81,14 +84,16 @@ export default function SideMenu() {
           text="Home"
           icon={<Home />}
           onClick={() => {
-            redirect('/');
+            // Navigate to home page
+            navigate('/');
           }}
         />
         <DrawerListItem
           text="My Mind Maps"
           icon={<Map />}
           onClick={() => {
-            redirect('/mindmap');
+            // Navigate to mindmap selector
+            navigate('/mindmap');
           }}
         />
         <DrawerListItem
