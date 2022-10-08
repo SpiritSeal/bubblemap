@@ -65,6 +65,7 @@ const Bubble = ({
   };
 
   const printOptionAndClose = (e: React.MouseEvent, option: string) => {
+    // eslint-disable-next-line no-console
     console.log(option);
     handleContextMenuClose();
     e.preventDefault();
