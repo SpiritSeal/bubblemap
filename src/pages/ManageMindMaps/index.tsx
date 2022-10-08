@@ -1,31 +1,38 @@
 import React from 'react';
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-const ManageMindMaps = () => (
-  <div>
-    <ul>
-      <li>
-        <a href="/">
-          <h1>Home</h1>
-        </a>
-      </li>
-      <li>
-        <a href="/mindmap/test01">
-          <button type="button">
-            Go to Mindmap <code>test01</code>{' '}
-            <em>(shows off the new loading screen)</em>
-          </button>
-        </a>
-      </li>
-      <li>
-        <a href="/mindmap/PxICnzGAskSEQXxkCIL4">
-          <button type="button">
-            Go to Mindmap <code>PxICnzGAskSEQXxkCIL4</code>{' '}
-            <em>(the one we&apos;ve been using for testing)</em>
-          </button>
-        </a>
-      </li>
-    </ul>
-  </div>
-);
+const ManageMindMaps = () => {
+  const navigate = useNavigate();
+  return (
+    <div>
+      <Button
+        onClick={() => {
+          navigate('/');
+        }}
+      >
+        <h1>Home</h1>
+      </Button>
+      <Button
+        variant="contained"
+        style={{ textTransform: 'none' }}
+        onClick={() => {
+          navigate(`test01`);
+        }}
+      >
+        test01
+      </Button>
+      <Button
+        variant="contained"
+        style={{ textTransform: 'none' }}
+        onClick={() => {
+          navigate(`PxICnzGAskSEQXxkCIL4`);
+        }}
+      >
+        PxICnzGAskSEQXxkCIL4
+      </Button>
+    </div>
+  );
+};
 
 export default ManageMindMaps;

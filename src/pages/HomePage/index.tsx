@@ -1,16 +1,32 @@
 import React from 'react';
+import { Button } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
-const HomePage = () => (
-  <div>
-    {/* about page */}
-    <a href="/about">
-      <button type="button">About</button>
-    </a>
-    <a href="/mindmap">
-      <button type="button">Go to Mindmap Selector</button>
-    </a>
-    <h1>Home Page</h1>
-  </div>
-);
+const HomePage = () => {
+  const navigate = useNavigate();
+  return (
+    <div>
+      <Button
+        variant="contained"
+        style={{ textTransform: 'none' }}
+        onClick={() => {
+          navigate('/about');
+        }}
+      >
+        About
+      </Button>
+      <Button
+        variant="contained"
+        style={{ textTransform: 'none' }}
+        onClick={() => {
+          navigate('/mindmap');
+        }}
+      >
+        Go to Mindmap Selector
+      </Button>
+      <h1>Home Page</h1>
+    </div>
+  );
+};
 
 export default HomePage;

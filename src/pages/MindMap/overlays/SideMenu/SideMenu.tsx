@@ -18,18 +18,19 @@ import {
 import { useFunctions } from 'reactfire';
 import { httpsCallable } from 'firebase/functions';
 
+// Navigation
+import { useNavigate } from 'react-router-dom';
+
 // Import component dependencies
 import DrawerListItem from './DrawerListItem';
 
 // Import css file
 import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
-import { useNavigate } from 'react-router-dom';
-
-const navigate = useNavigate();
 
 export default function SideMenu() {
   const functions = useFunctions();
+  const navigate = useNavigate();
 
   /* Drawer SubFunctions */
   // Test AI
