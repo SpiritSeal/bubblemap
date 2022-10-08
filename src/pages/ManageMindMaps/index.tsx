@@ -17,7 +17,7 @@ const ManageMindMaps = () => {
         variant="contained"
         style={{ textTransform: 'none' }}
         onClick={() => {
-          navigate(`${process.env.REACT_APP_MINDMAP_URL}/test01`);
+          navigate(`test01`);
         }}
       >
         test01
@@ -26,7 +26,7 @@ const ManageMindMaps = () => {
         variant="contained"
         style={{ textTransform: 'none' }}
         onClick={() => {
-          navigate(`${process.env.REACT_APP_MINDMAP_URL}/PxICnzGAskSEQXxkCIL4`);
+          navigate(`PxICnzGAskSEQXxkCIL4`);
         }}
       >
         PxICnzGAskSEQXxkCIL4
