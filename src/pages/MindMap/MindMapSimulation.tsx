@@ -194,6 +194,10 @@ const MindMapSimulationWithTransform = forwardRef(
             overflow: 'visible',
           }}
           onMouseDown={(e) => {
+            // if right click
+            if (e.button === 2) {
+              return;
+            }
             const x =
               (e.clientX - context.state.positionX + mouseDelta.x) /
               context.state.scale;
