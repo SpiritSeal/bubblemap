@@ -1,13 +1,12 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
+import { Menu, MenuItem } from '@mui/material';
 import { localNode as nodeType } from '../../types';
 // import './Bubble.css';
 
 const radius = 15;
 const lineHeight = 15.5;
 // const subLineHeight = 1.7;
-
-// We may have to replace many of these consts below with lets in the future (or maybe not)
 
 function measureWidth(text: string) {
   const context = document.createElement('canvas').getContext('2d');
@@ -41,6 +40,37 @@ const Bubble = ({
   setMouseDown: (mouseDown: boolean) => void;
   downMouseCoords: { x: number; y: number };
 }) => {
+  const [contextMenu, setContextMenu] = React.useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+          // Other native context menus might behave different.
+          // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+          null
+    );
+  };
+
+  const handleContextMenuClose = () => {
+    setContextMenu(null);
+  };
+
+  const printOptionAndClose = (e: React.MouseEvent, option: string) => {
+    // eslint-disable-next-line no-console
+    console.log(option);
+    handleContextMenuClose();
+    e.preventDefault();
+  };
+
   // Prepare the text
   const { text } = node;
   const words = wordsGenerator(text);
@@ -80,6 +110,8 @@ const Bubble = ({
 
   return (
     <g
+      onContextMenu={handleContextMenu}
+      // style={{ cursor: 'context-menu' }}
       className="bubble"
       transform={`translate(${(node.x ?? 0) - radius} ${
         (node.y ?? 0) - radius
@@ -91,6 +123,10 @@ const Bubble = ({
       }
       // onClick set selectedNode and console.log the node
       onClick={(e) => {
+        // prevent duplicate onClick when context menu is open
+        if (contextMenu) {
+          return;
+        }
         if (mouseDown) {
           setMouseDown(false);
 
@@ -98,12 +134,30 @@ const Bubble = ({
             downMouseCoords.x === e.clientX &&
             downMouseCoords.y === e.clientY
           ) {
+            // If the menu is open, return
             setSelectedNode(node);
           }
         }
         e.stopPropagation();
       }}
     >
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleContextMenuClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+      >
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
+          Add Node
+        </MenuItem>
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
+          Delete Node
+        </MenuItem>
+      </Menu>
       <circle
         cx={radius}
         cy={radius}
