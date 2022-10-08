@@ -64,14 +64,6 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     SimulationNodeDatum & node
   >();
 
-  const [selectedNode, setSelectedNode] = useState<
-    SimulationNodeDatum & node
-  >();
-
-  const [selectedNode, setSelectedNode] = useState<
-    SimulationNodeDatum & node
-  >();
-
   return (
     <div style={{ margin: 0, padding: 0 }}>
       <MindMapSimulation
