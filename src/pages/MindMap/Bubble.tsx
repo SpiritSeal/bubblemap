@@ -123,6 +123,8 @@ const Bubble = ({
       }
       // onClick set selectedNode and console.log the node
       onClick={(e) => {
+        e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
         // prevent duplicate onClick when context menu is open
         if (contextMenu) {
           return;
@@ -138,7 +140,15 @@ const Bubble = ({
             setSelectedNode(node);
           }
         }
+      }}
+      onDoubleClick={(e) => {
+        // prevent duplicate onClick when context menu is open
         e.stopPropagation();
+        e.nativeEvent.stopImmediatePropagation();
+        if (contextMenu) {
+          return;
+        }
+        console.log(node);
       }}
     >
       <Menu

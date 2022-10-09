@@ -280,6 +280,9 @@ const MindMapSimulation = ({
         panning={{
           disabled: !!dragNodeSelected,
         }}
+        doubleClick={{
+          disabled: true,
+        }}
       >
         <TransformComponent
           wrapperStyle={{
