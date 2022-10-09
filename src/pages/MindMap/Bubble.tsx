@@ -148,9 +148,11 @@ const Bubble = ({
         if (contextMenu) {
           return;
         }
+        // eslint-disable-next-line no-console
         console.log(node);
         e.stopPropagation();
         // Edit the node text
+        // eslint-disable-next-line no-alert
         const newText = prompt('Enter new text', node.text);
         if (newText) {
           updateNode(node, { ...node, text: newText });
