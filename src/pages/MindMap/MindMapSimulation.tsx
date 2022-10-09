@@ -235,6 +235,7 @@ const MindMapSimulationWithTransform = forwardRef(
               mouseDown={mouseDown}
               setMouseDown={setMouseDown}
               downMouseCoords={downMouseCoords}
+              updateNode={updateNode}
             />
           ))}
         </svg>
@@ -275,6 +276,9 @@ const MindMapSimulation = ({
         centerOnInit
         panning={{
           disabled: !!dragNodeSelected,
+        }}
+        doubleClick={{
+          disabled: true,
         }}
       >
         <TransformComponent

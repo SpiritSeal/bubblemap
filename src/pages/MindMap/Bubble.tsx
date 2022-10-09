@@ -1,6 +1,6 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
-import { Menu, MenuItem } from '@mui/material';
+import { Divider, Menu, MenuItem } from '@mui/material';
 import { localNode as nodeType } from '../../types';
 // import './Bubble.css';
 
@@ -31,6 +31,7 @@ const Bubble = ({
   mouseDown,
   setMouseDown,
   downMouseCoords,
+  updateNode,
 }: {
   node: SimulationNodeDatum & nodeType;
   dragging: boolean;
@@ -39,6 +40,7 @@ const Bubble = ({
   mouseDown: boolean;
   setMouseDown: (mouseDown: boolean) => void;
   downMouseCoords: { x: number; y: number };
+  updateNode: (oldNode: nodeType, newNode: nodeType) => void;
 }) => {
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -67,6 +69,7 @@ const Bubble = ({
   const printOptionAndClose = (e: React.MouseEvent, option: string) => {
     // eslint-disable-next-line no-console
     console.log(option);
+    // console.log("node", node.fx, node.fy);
     handleContextMenuClose();
     e.preventDefault();
   };
@@ -140,6 +143,19 @@ const Bubble = ({
         }
         e.stopPropagation();
       }}
+      onDoubleClick={(e) => {
+        // prevent duplicate onClick when context menu is open
+        if (contextMenu) {
+          return;
+        }
+        console.log(node);
+        e.stopPropagation();
+        // Edit the node text
+        const newText = prompt('Enter new text', node.text);
+        if (newText) {
+          updateNode(node, { ...node, text: newText });
+        }
+      }}
     >
       <Menu
         open={contextMenu !== null}
@@ -151,11 +167,19 @@ const Bubble = ({
             : undefined
         }
       >
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'Lock Node')}>
+          {/* ${node.fx !== undefined ? `Lock Node` : `Unlock Node`} */}
+          Lock Node
+        </MenuItem>
+        <Divider />
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'Add Node')}>
           Add Node
         </MenuItem>
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'Delete Node')}>
           Delete Node
+        </MenuItem>
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'Edit Node')}>
+          Edit Node
         </MenuItem>
       </Menu>
       <circle
