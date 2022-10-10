@@ -169,9 +169,13 @@ const Bubble = ({
             downMouseCoords.x === e.clientX &&
             downMouseCoords.y === e.clientY
           ) {
-            // If the menu is open, return
-            setSelectedNode(node);
-            // console.log('Selected', node);
+            if (e.ctrlKey || e.metaKey) {
+              handleAddNode(e);
+            } else if (e.altKey) {
+              handleDeleteNode(e);
+            } else {
+              setSelectedNode(node);
+            }
           }
         }
         e.stopPropagation();
@@ -181,8 +185,9 @@ const Bubble = ({
         if (contextMenu) {
           return;
         }
-        // eslint-disable-next-line no-console
-        console.log(node);
+        if (e.ctrlKey || e.metaKey || e.altKey) {
+          return;
+        }
         e.stopPropagation();
         // Edit the node text
         // eslint-disable-next-line no-alert
