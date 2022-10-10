@@ -77,7 +77,7 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
       <SideMenu />
       <TestFunctionButton
         // eslint-disable-next-line
-        onClick={() =>{
+        onClick={() => {
           addNode({
             parent: selectedNode?.id || 0,
             text: `Hello world! ${selectedNode?.id}`,
