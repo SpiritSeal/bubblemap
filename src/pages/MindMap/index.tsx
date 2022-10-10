@@ -66,53 +66,23 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
      * list of children for each node.
      */
 
-    // Find all nodes that have this node as a parent
     const children = getAllChildren(nodeToDelete);
-
-    // Create a batch to update the database
     const batch = writeBatch(firestore);
-
-    // Delete the node
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(nodeToDelete)),
     });
-
-    // Delete all children
     children.forEach((child) => {
       batch.update(mindMapRef, {
         nodes: arrayRemove(stripInputNodeProperties(child)),
       });
     });
-
-    // Commit the batch
     batch.commit();
 
-    // if (nodeToDelete.children) {
-    //   nodeToDelete.children.forEach((child) => {
-    //     // Get the child node
-    //     const childNode = mindmap.nodes.find(
-    //       (nodeFound) => nodeFound.id === child
-    //     );
-    //     if (childNode) {
-    //       deleteNode(childNode);
-    //     }
-    //   });
-    // }
-
     const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
-    console.log('Deleting node', strippedNodeToDelete);
 
     updateDoc(mindMapRef, {
       nodes: arrayRemove(strippedNodeToDelete),
     });
-    // Remove node from parent's children
-    // const parent = mindmap.nodes.find(
-    //   (o) => o.id === nodeToDelete.parent
-    // ) as localNode;
-    // updateNode(parent, {
-    //   ...parent,
-    //   children: parent.children?.filter((o) => o !== nodeToDelete.id) ?? [],
-    // });
   };
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);

@@ -86,6 +86,7 @@ const Bubble = ({
       text: newText || '',
     });
     handleContextMenuClose();
+    e.preventDefault();
   };
   const handleDeleteNode = (e: React.MouseEvent) => {
     deleteNode(node);
@@ -166,7 +167,7 @@ const Bubble = ({
           ) {
             // If the menu is open, return
             setSelectedNode(node);
-            console.log(node);
+            console.log('Selected', node);
           }
         }
         e.stopPropagation();
