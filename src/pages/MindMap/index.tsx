@@ -7,9 +7,9 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
-import { localNode, MindMap as MindMapType, node } from '../../types';
 import { AddCircleOutline } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
+import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
 import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
