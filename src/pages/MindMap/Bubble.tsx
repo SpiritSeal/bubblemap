@@ -79,15 +79,26 @@ const Bubble = ({
   };
 
   const handleAddNode = (e: React.MouseEvent) => {
+    // eslint-disable-next-line no-alert
+    const newText = prompt('Enter new text', '');
     addNode({
       parent: node.id,
-      text: '',
+      text: newText || '',
     });
     handleContextMenuClose();
   };
   const handleDeleteNode = (e: React.MouseEvent) => {
     deleteNode(node);
     handleContextMenuClose();
+    e.preventDefault();
+  };
+  const handleEditNode = (e: React.MouseEvent) => {
+    handleContextMenuClose();
+    // eslint-disable-next-line no-alert
+    const newText = prompt('Enter new text', node.text);
+    if (newText) {
+      updateNode(node, { ...node, text: newText });
+    }
     e.preventDefault();
   };
   // Prepare the text
@@ -155,6 +166,7 @@ const Bubble = ({
           ) {
             // If the menu is open, return
             setSelectedNode(node);
+            console.log(node);
           }
         }
         e.stopPropagation();
@@ -192,9 +204,7 @@ const Bubble = ({
         <Divider />
         <MenuItem onClick={(e) => handleAddNode(e)}>Add Node</MenuItem>
         <MenuItem onClick={(e) => handleDeleteNode(e)}>Delete Node</MenuItem>
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'Edit Node')}>
-          Edit Node
-        </MenuItem>
+        <MenuItem onClick={(e) => handleEditNode(e)}>Edit Node</MenuItem>
       </Menu>
       <circle
         cx={radius}
@@ -206,26 +216,29 @@ const Bubble = ({
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
-      <text
-        transform={`translate(${radius},${
-          radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
-        }) scale(${radius / (textRadius() * 1.6)})`}
-        // Green
-        fill={node.id === 0 ? 'red' : 'darkblue'}
-      >
-        {lines.map((line, i) => (
-          <tspan
-            // eslint-disable-next-line react/no-array-index-key
-            key={`${i}: ${line.text}`}
-            x="0"
-            // dy={i === 0 ? '0em' : `${lineHeight}em`}
-            y={(i - lines.length / 2 + 1) * lineHeight}
-            textAnchor="middle"
-          >
-            {line.text}
-          </tspan>
-        ))}
-      </text>
+      {/* If Text has a value */}
+      {text && (
+        <text
+          transform={`translate(${radius},${
+            radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
+          }) scale(${radius / (textRadius() * 1.6)})`}
+          // Green
+          fill={node.id === 0 ? 'red' : 'darkblue'}
+        >
+          {lines.map((line, i) => (
+            <tspan
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${i}: ${line.text}`}
+              x="0"
+              // dy={i === 0 ? '0em' : `${lineHeight}em`}
+              y={(i - lines.length / 2 + 1) * lineHeight}
+              textAnchor="middle"
+            >
+              {line.text}
+            </tspan>
+          ))}
+        </text>
+      )}
     </g>
   );
 };

@@ -28,68 +28,72 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
       throw new Error(`New ID not a number! New ID: ${newID}`);
 
     const newNode: localNode = {
-      children: [],
-      id: newID,
       parent,
+      // children: [],
       text,
+      id: newID,
     };
     updateDoc(mindMapRef, {
       nodes: arrayUnion(newNode),
     });
 
-    // if (parent !== -1) {
-    //   // Get the parent node
-    //   const parentNode = mindmap.nodes.find(
-    //     (o) => o.id === parent
-    //   ) as localNode;
-    //   if (!parentNode) throw new Error('Parent node not found!');
-    //   // Update the parent node
-    //   updateNode(parentNode, {
-    //     ...parentNode,
-    //     children: [...((parentNode as localNode).children ?? []), newID],
-    //   });
-    // }
+    if (parent !== -1) {
+      // Get the parent node
+      const parentNode = mindmap.nodes.find((o) => o.id === parent);
+      if (!parentNode) throw new Error('Parent node not found!');
+      // Update the parent node
+      // const newParentNode = {
+      //   ...parentNode,
+      //   children: [...(parentNode.children ?? []), newID],
+      // };
+      // console.log('Updating parent node', parentNode, newParentNode);
+      // updateNode(parentNode, newParentNode);
+      // updateNode(parentNode, {
+      //   ...parentNode,
+      //   children: [...(parentNode.children ?? []), newID],
+      // });
+    }
   };
 
   const stripInputNodeProperties = (inputNode: localNode) => {
     const strippedNode: localNode = {
-      children: inputNode.children,
-      id: inputNode.id,
       parent: inputNode.parent,
+      // children: inputNode.children,
       text: inputNode.text,
+      id: inputNode.id,
     };
     return strippedNode;
   };
 
   const deleteNode = (nodeToDelete: localNode) => {
     if (nodeToDelete.id === 0) return;
-    // Remove node from parent's children
-    const parent = mindmap.nodes.find(
-      (o) => o.id === nodeToDelete.parent
-    ) as localNode;
-    // updateNode(parent, {
-    //   ...parent,
-    //   // children: parent.children.filter((o) => o !== nodeToDelete.id) ?? [],
-    // });
 
-    if (nodeToDelete.children) {
-      nodeToDelete.children.forEach((child) => {
-        // Get the child node
-        const childNode = mindmap.nodes.find(
-          (nodeFound) => nodeFound.id === child
-        );
-        if (childNode) {
-          deleteNode(childNode);
-        }
-      });
-    }
+    // if (nodeToDelete.children) {
+    //   nodeToDelete.children.forEach((child) => {
+    //     // Get the child node
+    //     const childNode = mindmap.nodes.find(
+    //       (nodeFound) => nodeFound.id === child
+    //     );
+    //     if (childNode) {
+    //       deleteNode(childNode);
+    //     }
+    //   });
+    // }
 
-    console.log('Deleting node', nodeToDelete);
     const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
+    console.log('Deleting node', strippedNodeToDelete);
 
     updateDoc(mindMapRef, {
       nodes: arrayRemove(strippedNodeToDelete),
     });
+    // Remove node from parent's children
+    // const parent = mindmap.nodes.find(
+    //   (o) => o.id === nodeToDelete.parent
+    // ) as localNode;
+    // updateNode(parent, {
+    //   ...parent,
+    //   children: parent.children?.filter((o) => o !== nodeToDelete.id) ?? [],
+    // });
   };
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
