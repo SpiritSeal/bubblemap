@@ -14,7 +14,7 @@ import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
 import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
 import Loading from '../../components/Loading';
-import FormDialog from './overlays/FormDialog';
+// import FormDialog from './overlays/FormDialog';
 
 const MindMap = ({ mindmapID }: { mindmapID: string }) => {
   const firestore = useFirestore();
@@ -94,9 +94,9 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     });
     batch.commit();
   };
-  const updateNodePrompt = (nodeToUpdate: node) => {
-    // Create an MUI dialog box to update the node
-  };
+  // const updateNodePrompt = (nodeToUpdate: node) => {
+  //   // Create an MUI dialog box to update the node
+  // };
 
   if (!mindmap)
     return (

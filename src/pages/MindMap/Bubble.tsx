@@ -167,7 +167,7 @@ const Bubble = ({
           ) {
             // If the menu is open, return
             setSelectedNode(node);
-            console.log('Selected', node);
+            // console.log('Selected', node);
           }
         }
         e.stopPropagation();
