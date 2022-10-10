@@ -26,9 +26,6 @@ import {
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 
-import { ReactComponent as GoogleBtnLight } from './SVGs/btn_google_light_normal.svg';
-import { ReactComponent as GoogleBtnDark } from './SVGs/btn_google_dark_normal.svg';
-
 const SignIn = () => {
   const auth = useAuth();
 
@@ -160,7 +157,6 @@ const SignIn = () => {
             <div style={{ textAlign: 'center' }}>
               <Button
                 onClick={async () => {
-                  console.log(auth);
                   const provider = new GoogleAuthProvider();
                   await signInWithPopup(auth, provider);
                 }}
