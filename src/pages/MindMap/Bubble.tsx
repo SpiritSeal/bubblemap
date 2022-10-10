@@ -89,7 +89,11 @@ const Bubble = ({
     e.preventDefault();
   };
   const handleDeleteNode = (e: React.MouseEvent) => {
-    deleteNode(node);
+    // Ask for confirmation
+    // eslint-disable-next-line no-alert
+    if (window.confirm('Are you sure you want to delete this node?')) {
+      deleteNode(node);
+    }
     handleContextMenuClose();
     e.preventDefault();
   };
