@@ -31,6 +31,8 @@ const Bubble = ({
   mouseDown,
   setMouseDown,
   downMouseCoords,
+  addNode,
+  deleteNode,
   updateNode,
 }: {
   node: SimulationNodeDatum & nodeType;
@@ -40,6 +42,8 @@ const Bubble = ({
   mouseDown: boolean;
   setMouseDown: (mouseDown: boolean) => void;
   downMouseCoords: { x: number; y: number };
+  addNode: (node: { parent: number; text: string }) => void;
+  deleteNode: (node: nodeType) => void;
   updateNode: (oldNode: nodeType, newNode: nodeType) => void;
 }) => {
   const [contextMenu, setContextMenu] = React.useState<{
@@ -74,6 +78,18 @@ const Bubble = ({
     e.preventDefault();
   };
 
+  const handleAddNode = (e: React.MouseEvent) => {
+    addNode({
+      parent: node.id,
+      text: '',
+    });
+    handleContextMenuClose();
+  };
+  const handleDeleteNode = (e: React.MouseEvent) => {
+    deleteNode(node);
+    handleContextMenuClose();
+    e.preventDefault();
+  };
   // Prepare the text
   const { text } = node;
   const words = wordsGenerator(text);
@@ -174,12 +190,8 @@ const Bubble = ({
           Lock Node
         </MenuItem>
         <Divider />
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'Add Node')}>
-          Add Node
-        </MenuItem>
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'Delete Node')}>
-          Delete Node
-        </MenuItem>
+        <MenuItem onClick={(e) => handleAddNode(e)}>Add Node</MenuItem>
+        <MenuItem onClick={(e) => handleDeleteNode(e)}>Delete Node</MenuItem>
         <MenuItem onClick={(e) => printOptionAndClose(e, 'Edit Node')}>
           Edit Node
         </MenuItem>

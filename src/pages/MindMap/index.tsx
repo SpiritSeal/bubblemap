@@ -8,12 +8,13 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { MindMap as MindMapType, node } from '../../types';
+import { localNode, MindMap as MindMapType, node } from '../../types';
 
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
 import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
 import Loading from '../../components/Loading';
+import FormDialog from './overlays/FormDialog';
 
 const MindMap = ({ mindmapID }: { mindmapID: string }) => {
   const firestore = useFirestore();
@@ -26,7 +27,8 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     if (Number.isNaN(newID))
       throw new Error(`New ID not a number! New ID: ${newID}`);
 
-    const newNode: node = {
+    const newNode: localNode = {
+      children: [],
       id: newID,
       parent,
       text,
@@ -34,21 +36,73 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     updateDoc(mindMapRef, {
       nodes: arrayUnion(newNode),
     });
+
+    // if (parent !== -1) {
+    //   // Get the parent node
+    //   const parentNode = mindmap.nodes.find(
+    //     (o) => o.id === parent
+    //   ) as localNode;
+    //   if (!parentNode) throw new Error('Parent node not found!');
+    //   // Update the parent node
+    //   updateNode(parentNode, {
+    //     ...parentNode,
+    //     children: [...((parentNode as localNode).children ?? []), newID],
+    //   });
+    // }
   };
-  const deleteNode = (nodeToDelete: node) => {
+
+  const stripInputNodeProperties = (inputNode: localNode) => {
+    const strippedNode: localNode = {
+      children: inputNode.children,
+      id: inputNode.id,
+      parent: inputNode.parent,
+      text: inputNode.text,
+    };
+    return strippedNode;
+  };
+
+  const deleteNode = (nodeToDelete: localNode) => {
+    if (nodeToDelete.id === 0) return;
+    // Remove node from parent's children
+    const parent = mindmap.nodes.find(
+      (o) => o.id === nodeToDelete.parent
+    ) as localNode;
+    // updateNode(parent, {
+    //   ...parent,
+    //   // children: parent.children.filter((o) => o !== nodeToDelete.id) ?? [],
+    // });
+
+    if (nodeToDelete.children) {
+      nodeToDelete.children.forEach((child) => {
+        // Get the child node
+        const childNode = mindmap.nodes.find(
+          (nodeFound) => nodeFound.id === child
+        );
+        if (childNode) {
+          deleteNode(childNode);
+        }
+      });
+    }
+
+    console.log('Deleting node', nodeToDelete);
+    const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
+
     updateDoc(mindMapRef, {
-      nodes: arrayRemove(nodeToDelete),
+      nodes: arrayRemove(strippedNodeToDelete),
     });
   };
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
     batch.update(mindMapRef, {
-      nodes: arrayRemove(oldNode),
+      nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
     batch.update(mindMapRef, {
-      nodes: arrayUnion(newNode),
+      nodes: arrayUnion(stripInputNodeProperties(newNode)),
     });
     batch.commit();
+  };
+  const updateNodePrompt = (nodeToUpdate: node) => {
+    // Create an MUI dialog box to update the node
   };
 
   if (!mindmap)
@@ -78,6 +132,7 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
         }
         icon={<AddCircleOutlineIcon />}
       />
+      {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );
 };
