@@ -109,7 +109,7 @@ const MindMap = () => {
         updateNode={updateNode}
       />
       <SideMenu />
-      <TestFunctionButton
+      {/* <TestFunctionButton
         // eslint-disable-next-line
         onClick={() =>
           addNode({
@@ -118,7 +118,7 @@ const MindMap = () => {
           })
         }
         icon={<AddCircleOutline />}
-      />
+      /> */}
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );
