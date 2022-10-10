@@ -27,7 +27,7 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     if (Number.isNaN(newID))
       throw new Error(`New ID not a number! New ID: ${newID}`);
 
-    const newNode: localNode = {
+    const newNode: node = {
       parent,
       // children: [],
       text,
@@ -36,27 +36,10 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     updateDoc(mindMapRef, {
       nodes: arrayUnion(newNode),
     });
-
-    if (parent !== -1) {
-      // Get the parent node
-      const parentNode = mindmap.nodes.find((o) => o.id === parent);
-      if (!parentNode) throw new Error('Parent node not found!');
-      // Update the parent node
-      // const newParentNode = {
-      //   ...parentNode,
-      //   children: [...(parentNode.children ?? []), newID],
-      // };
-      // console.log('Updating parent node', parentNode, newParentNode);
-      // updateNode(parentNode, newParentNode);
-      // updateNode(parentNode, {
-      //   ...parentNode,
-      //   children: [...(parentNode.children ?? []), newID],
-      // });
-    }
   };
 
   const stripInputNodeProperties = (inputNode: localNode) => {
-    const strippedNode: localNode = {
+    const strippedNode: node = {
       parent: inputNode.parent,
       // children: inputNode.children,
       text: inputNode.text,
@@ -65,8 +48,44 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
     return strippedNode;
   };
 
-  const deleteNode = (nodeToDelete: localNode) => {
+  const getAllChildren = (nodeTarget: node): node[] => {
+    // recursively get all children of a node
+    const children = mindmap.nodes.filter((o) => o.parent === nodeTarget.id);
+    if (children.length === 0) return [];
+    return children.concat(...children.map((o) => getAllChildren(o)));
+  };
+
+  const deleteNode = (nodeToDelete: node) => {
     if (nodeToDelete.id === 0) return;
+
+    /*
+     * Node deletion should be a rare event in an additive idea generation tool,
+     * so it makes more sense to have an O(N^2) operation here that finds all the
+     * nodes that need to be deleted in our singly linked list rather than
+     * increasing our space complexity by creating a doubly linked list storing a
+     * list of children for each node.
+     */
+
+    // Find all nodes that have this node as a parent
+    const children = getAllChildren(nodeToDelete);
+
+    // Create a batch to update the database
+    const batch = writeBatch(firestore);
+
+    // Delete the node
+    batch.update(mindMapRef, {
+      nodes: arrayRemove(stripInputNodeProperties(nodeToDelete)),
+    });
+
+    // Delete all children
+    children.forEach((child) => {
+      batch.update(mindMapRef, {
+        nodes: arrayRemove(stripInputNodeProperties(child)),
+      });
+    });
+
+    // Commit the batch
+    batch.commit();
 
     // if (nodeToDelete.children) {
     //   nodeToDelete.children.forEach((child) => {
