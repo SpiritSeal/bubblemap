@@ -162,11 +162,11 @@ const Bubble = ({
         }
       >
         <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
-          Copy
+          Add Node
         </MenuItem>
-        <MenuItem onClick={handleContextMenuClose}>Print</MenuItem>
-        <MenuItem onClick={handleContextMenuClose}>Highlight</MenuItem>
-        <MenuItem onClick={handleContextMenuClose}>Email</MenuItem>
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
+          Delete Node
+        </MenuItem>
       </Menu>
       <circle
         cx={radius}
