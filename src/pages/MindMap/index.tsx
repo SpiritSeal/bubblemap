@@ -7,16 +7,16 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { localNode, MindMap as MindMapType, node } from '../../types';
-
+import { AddCircleOutline } from '@mui/icons-material';
+import { useParams } from 'react-router-dom';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
 import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
-import Loading from '../../components/Loading';
-// import FormDialog from './overlays/FormDialog';
 
-const MindMap = ({ mindmapID }: { mindmapID: string }) => {
+const MindMap = () => {
+  const { mindmapID } = useParams();
+
   const firestore = useFirestore();
   const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
   const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
@@ -98,13 +98,7 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
   //   // Create an MUI dialog box to update the node
   // };
 
-  if (!mindmap)
-    return (
-      <div>
-        <h1>{mindmapID}</h1>
-        <Loading />
-      </div>
-    );
+  if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
@@ -123,7 +117,7 @@ const MindMap = ({ mindmapID }: { mindmapID: string }) => {
             text: 'Hello world!',
           })
         }
-        icon={<AddCircleOutlineIcon />}
+        icon={<AddCircleOutline />}
       />
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
