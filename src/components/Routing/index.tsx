@@ -12,6 +12,7 @@ import About from '../../pages/About';
 import ManageMindMaps from '../../pages/ManageMindMaps';
 import SignIn from '../../pages/SignIn';
 import MindMap from '../../pages/MindMap';
+import CreateAccount from '../../pages/CreateAccount';
 
 const Routing = () => {
   const signinCheck = useSigninCheck().data;
@@ -23,7 +24,10 @@ const Routing = () => {
           <Route index element={<Home />} />
           <Route path="about" element={<About />} />
           {!signinCheck.signedIn && (
-            <Route path="signin" element={<SignIn />} />
+            <>
+              <Route path="signin" element={<SignIn />} />
+              <Route path="createaccount" element={<CreateAccount />} />
+            </>
           )}
           <Route path="/mindmap">
             <Route index element={<ManageMindMaps />} />

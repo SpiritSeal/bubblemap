@@ -182,8 +182,7 @@ const SignIn = () => {
             <DialogContent>
               <DialogContentText>
                 If you already have an account, but forgot your password, enter
-                your email here. If you also forgot which email you used, visit
-                the library for help.
+                your email here.
               </DialogContentText>
               {error && <h3 style={{ textAlign: 'center' }}>{error}</h3>}
               <TextField
