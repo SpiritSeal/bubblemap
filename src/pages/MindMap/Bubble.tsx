@@ -81,10 +81,12 @@ const Bubble = ({
   const handleAddNode = (e: React.MouseEvent) => {
     // eslint-disable-next-line no-alert
     const newText = prompt('Enter new text', '');
-    addNode({
-      parent: node.id,
-      text: newText || '',
-    });
+    if (newText) {
+      addNode({
+        parent: node.id,
+        text: newText || '',
+      });
+    }
     handleContextMenuClose();
     e.preventDefault();
   };
