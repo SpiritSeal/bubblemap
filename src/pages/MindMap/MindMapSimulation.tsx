@@ -46,7 +46,7 @@ const MindMapSimulationWithTransform = forwardRef(
       setDragNodeSelected: Dispatch<
         SetStateAction<(SimulationNodeDatum & node) | undefined>
       >;
-      addNode: (node: node) => void;
+      addNode: (node: { parent: number; text: string }) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
     },
@@ -235,6 +235,9 @@ const MindMapSimulationWithTransform = forwardRef(
               mouseDown={mouseDown}
               setMouseDown={setMouseDown}
               downMouseCoords={downMouseCoords}
+              addNode={addNode}
+              deleteNode={deleteNode}
+              updateNode={updateNode}
             />
           ))}
         </svg>
@@ -250,7 +253,7 @@ const MindMapSimulation = ({
   updateNode,
 }: {
   data: MindMap;
-  addNode: (node: node) => void;
+  addNode: (node: { parent: number; text: string }) => void;
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
 }) => {
@@ -275,6 +278,9 @@ const MindMapSimulation = ({
         centerOnInit
         panning={{
           disabled: !!dragNodeSelected,
+        }}
+        doubleClick={{
+          disabled: true,
         }}
       >
         <TransformComponent

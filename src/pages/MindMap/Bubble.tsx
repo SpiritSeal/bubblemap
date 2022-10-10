@@ -1,6 +1,6 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
-import { Menu, MenuItem } from '@mui/material';
+import { Divider, Menu, MenuItem } from '@mui/material';
 import { localNode as nodeType } from '../../types';
 // import './Bubble.css';
 
@@ -31,6 +31,9 @@ const Bubble = ({
   mouseDown,
   setMouseDown,
   downMouseCoords,
+  addNode,
+  deleteNode,
+  updateNode,
 }: {
   node: SimulationNodeDatum & nodeType;
   dragging: boolean;
@@ -39,6 +42,9 @@ const Bubble = ({
   mouseDown: boolean;
   setMouseDown: (mouseDown: boolean) => void;
   downMouseCoords: { x: number; y: number };
+  addNode: (node: { parent: number; text: string }) => void;
+  deleteNode: (node: nodeType) => void;
+  updateNode: (oldNode: nodeType, newNode: nodeType) => void;
 }) => {
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -67,10 +73,39 @@ const Bubble = ({
   const printOptionAndClose = (e: React.MouseEvent, option: string) => {
     // eslint-disable-next-line no-console
     console.log(option);
+    // console.log("node", node.fx, node.fy);
     handleContextMenuClose();
     e.preventDefault();
   };
 
+  const handleAddNode = (e: React.MouseEvent) => {
+    // eslint-disable-next-line no-alert
+    const newText = prompt('Enter new text', '');
+    addNode({
+      parent: node.id,
+      text: newText || '',
+    });
+    handleContextMenuClose();
+    e.preventDefault();
+  };
+  const handleDeleteNode = (e: React.MouseEvent) => {
+    // Ask for confirmation
+    // eslint-disable-next-line no-alert
+    if (window.confirm('Are you sure you want to delete this node?')) {
+      deleteNode(node);
+    }
+    handleContextMenuClose();
+    e.preventDefault();
+  };
+  const handleEditNode = (e: React.MouseEvent) => {
+    handleContextMenuClose();
+    // eslint-disable-next-line no-alert
+    const newText = prompt('Enter new text', node.text);
+    if (newText) {
+      updateNode(node, { ...node, text: newText });
+    }
+    e.preventDefault();
+  };
   // Prepare the text
   const { text } = node;
   const words = wordsGenerator(text);
@@ -136,9 +171,25 @@ const Bubble = ({
           ) {
             // If the menu is open, return
             setSelectedNode(node);
+            // console.log('Selected', node);
           }
         }
         e.stopPropagation();
+      }}
+      onDoubleClick={(e) => {
+        // prevent duplicate onClick when context menu is open
+        if (contextMenu) {
+          return;
+        }
+        // eslint-disable-next-line no-console
+        console.log(node);
+        e.stopPropagation();
+        // Edit the node text
+        // eslint-disable-next-line no-alert
+        const newText = prompt('Enter new text', node.text);
+        if (newText) {
+          updateNode(node, { ...node, text: newText });
+        }
       }}
     >
       <Menu
@@ -151,12 +202,14 @@ const Bubble = ({
             : undefined
         }
       >
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
-          Add Node
+        <MenuItem onClick={(e) => printOptionAndClose(e, 'Lock Node')}>
+          {/* ${node.fx !== undefined ? `Lock Node` : `Unlock Node`} */}
+          Lock Node
         </MenuItem>
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'test')}>
-          Delete Node
-        </MenuItem>
+        <Divider />
+        <MenuItem onClick={(e) => handleAddNode(e)}>Add Node</MenuItem>
+        <MenuItem onClick={(e) => handleDeleteNode(e)}>Delete Node</MenuItem>
+        <MenuItem onClick={(e) => handleEditNode(e)}>Edit Node</MenuItem>
       </Menu>
       <circle
         cx={radius}
@@ -168,26 +221,29 @@ const Bubble = ({
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
-      <text
-        transform={`translate(${radius},${
-          radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
-        }) scale(${radius / (textRadius() * 1.5)})`}
-        // Green
-        fill={node.id === 0 ? 'red' : 'darkblue'}
-      >
-        {lines.map((line, i) => (
-          <tspan
-            // eslint-disable-next-line react/no-array-index-key
-            key={`${i}: ${line.text}`}
-            x="0"
-            // dy={i === 0 ? '0em' : `${lineHeight}em`}
-            y={(i - lines.length / 2 + 1) * lineHeight}
-            textAnchor="middle"
-          >
-            {line.text}
-          </tspan>
-        ))}
-      </text>
+      {/* If Text has a value */}
+      {text && (
+        <text
+          transform={`translate(${radius},${
+            radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
+          }) scale(${radius / (textRadius() * 1.6)})`}
+          // Green
+          fill={node.id === 0 ? 'red' : 'darkblue'}
+        >
+          {lines.map((line, i) => (
+            <tspan
+              // eslint-disable-next-line react/no-array-index-key
+              key={`${i}: ${line.text}`}
+              x="0"
+              // dy={i === 0 ? '0em' : `${lineHeight}em`}
+              y={(i - lines.length / 2 + 1) * lineHeight}
+              textAnchor="middle"
+            >
+              {line.text}
+            </tspan>
+          ))}
+        </text>
+      )}
     </g>
   );
 };
