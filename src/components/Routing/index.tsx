@@ -10,8 +10,8 @@ import { useSigninCheck } from 'reactfire';
 import Home from '../../pages/Home';
 import About from '../../pages/About';
 import ManageMindMaps from '../../pages/ManageMindMaps';
-import MindMapRouter from './mindmapRouter';
 import SignIn from '../../pages/SignIn';
+import MindMap from '../../pages/MindMap';
 
 const Routing = () => {
   const signinCheck = useSigninCheck().data;
@@ -27,7 +27,7 @@ const Routing = () => {
           )}
           <Route path="/mindmap">
             <Route index element={<ManageMindMaps />} />
-            <Route path=":mindmapID" element={<MindMapRouter />} />
+            <Route path=":mindmapID" element={<MindMap />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
