@@ -7,13 +7,6 @@ const ManageMindMaps = () => {
   return (
     <div>
       <Button
-        onClick={() => {
-          navigate('/');
-        }}
-      >
-        <h1>Home</h1>
-      </Button>
-      <Button
         variant="contained"
         style={{ textTransform: 'none' }}
         onClick={() => {
