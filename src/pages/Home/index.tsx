@@ -1,11 +1,13 @@
 import React from 'react';
 import { Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useSigninCheck } from 'reactfire';
+import { useAuth, useSigninCheck } from 'reactfire';
 
 const HomePage = () => {
   const navigate = useNavigate();
+  const auth = useAuth();
   const signinCheck = useSigninCheck().data;
+
   return (
     <div>
       <Button
@@ -18,15 +20,29 @@ const HomePage = () => {
         About
       </Button>
       {signinCheck.signedIn && (
-        <Button
-          variant="contained"
-          style={{ textTransform: 'none' }}
-          onClick={() => {
-            navigate('/mindmap');
-          }}
-        >
-          Go to Mindmap Selector
-        </Button>
+        <>
+          <Button
+            variant="contained"
+            style={{ textTransform: 'none' }}
+            onClick={() => {
+              navigate('/mindmap');
+            }}
+          >
+            Go to Mindmap Selector
+          </Button>
+          <Button
+            variant="contained"
+            style={{ textTransform: 'none' }}
+            onClick={() => {
+              navigate('.');
+              auth.signOut().then(() => {
+                window.location.reload();
+              });
+            }}
+          >
+            Sign Out
+          </Button>
+        </>
       )}
       {!signinCheck.signedIn && (
         <Button

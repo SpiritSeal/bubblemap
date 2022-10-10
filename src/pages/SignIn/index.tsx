@@ -9,7 +9,9 @@ import {
   FormControlLabel,
   Checkbox,
   Paper,
+  Divider,
 } from '@mui/material';
+import { Google } from '@mui/icons-material';
 
 import { useAuth } from 'reactfire';
 
@@ -19,8 +21,13 @@ import {
   setPersistence,
   indexedDBLocalPersistence,
   browserSessionPersistence,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
+
+import { ReactComponent as GoogleBtnLight } from './SVGs/btn_google_light_normal.svg';
+import { ReactComponent as GoogleBtnDark } from './SVGs/btn_google_dark_normal.svg';
 
 const SignIn = () => {
   const auth = useAuth();
@@ -66,88 +73,105 @@ const SignIn = () => {
         }}
       >
         {displaySignInForm && (
-          <form
-            noValidate
-            onSubmit={async (e) => {
-              e.preventDefault();
-              await setPersistence(
-                auth,
-                rememberMe
-                  ? indexedDBLocalPersistence
-                  : browserSessionPersistence
-              ).then(async () => {
-                await signInWithEmailAndPassword(auth, email, password).catch(
-                  (err) => {
-                    if (err.code === 'auth/wrong-password') {
-                      setError('Wrong Password');
-                    } else if (err.code === 'auth/user-not-found') {
-                      setError('User not Found');
-                    } else if (err.code === 'auth/user-disabled') {
-                      setError('This user has been disabled');
-                    } else if (err.code === 'auth/invalid-email') {
-                      setError('Please enter a valid email');
+          <div>
+            <form
+              noValidate
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await setPersistence(
+                  auth,
+                  rememberMe
+                    ? indexedDBLocalPersistence
+                    : browserSessionPersistence
+                ).then(async () => {
+                  await signInWithEmailAndPassword(auth, email, password).catch(
+                    (err) => {
+                      if (err.code === 'auth/wrong-password') {
+                        setError('Wrong Password');
+                      } else if (err.code === 'auth/user-not-found') {
+                        setError('User not Found');
+                      } else if (err.code === 'auth/user-disabled') {
+                        setError('This user has been disabled');
+                      } else if (err.code === 'auth/invalid-email') {
+                        setError('Please enter a valid email');
+                      }
                     }
-                  }
-                );
-              });
-            }}
-          >
-            <h1 style={{ textAlign: 'center' }}>Sign In</h1>
-            <p style={{ textAlign: 'center' }}>
-              Welcome! If you already have registered for an account, please
-              sign in here. If you do not have an account, please{' '}
-              <Link to="/createaccount">click here to create one.</Link>
-            </p>
-            {error && <h3 style={{ textAlign: 'center' }}>{error}</h3>}
-            <TextField
-              id="email"
-              type="email"
-              label="Email"
-              fullWidth
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              style={{ paddingBottom: '1rem' }}
-            />
-            <br />
-            <TextField
-              id="password"
-              type="password"
-              label="Password"
-              fullWidth
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <FormControlLabel
-              style={{ marginTop: '.5rem' }}
-              control={
-                <Checkbox
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  name="rememberMe"
-                  color="primary"
-                />
-              }
-              label="Remember Me"
-            />
-            <br />
-            <div style={{ float: 'right', paddingTop: 3 }}>
+                  );
+                });
+              }}
+            >
+              <h1 style={{ textAlign: 'center' }}>Sign In</h1>
+              <p style={{ textAlign: 'center' }}>
+                Welcome! If you already have registered for an account, please
+                sign in here. If you do not have an account, please{' '}
+                <Link to="/createaccount">click here to create one.</Link>
+              </p>
+              {error && <h3 style={{ textAlign: 'center' }}>{error}</h3>}
+              <TextField
+                id="email"
+                type="email"
+                label="Email"
+                fullWidth
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                style={{ paddingBottom: '1rem' }}
+              />
+              <br />
+              <TextField
+                id="password"
+                type="password"
+                label="Password"
+                fullWidth
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <FormControlLabel
+                style={{ marginTop: '.5rem' }}
+                control={
+                  <Checkbox
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    name="rememberMe"
+                    color="primary"
+                  />
+                }
+                label="Remember Me"
+              />
+              <br />
+              <div style={{ float: 'right', paddingTop: 3 }}>
+                <Button
+                  size="small"
+                  onClick={() => {
+                    setError(null);
+                    setPassword('');
+                    setDisplaySignInForm((current) => !current);
+                  }}
+                >
+                  Reset password instead
+                </Button>
+              </div>
+              <Button type="submit" color="primary" variant="contained">
+                <p className="m-0">Sign In</p>
+              </Button>
+            </form>
+            <Divider sx={{ marginBlock: 3 }} />
+            <div style={{ textAlign: 'center' }}>
               <Button
-                size="small"
-                onClick={() => {
-                  setError(null);
-                  setPassword('');
-                  setDisplaySignInForm((current) => !current);
+                onClick={async () => {
+                  console.log(auth);
+                  const provider = new GoogleAuthProvider();
+                  await signInWithPopup(auth, provider);
                 }}
+                startIcon={<Google />}
+                variant="outlined"
+                color="inherit"
               >
-                Reset password instead
+                Sign In with Google
               </Button>
             </div>
-            <Button type="submit" color="primary" variant="contained">
-              <p className="m-0">Sign In</p>
-            </Button>
-          </form>
+          </div>
         )}
         {!displaySignInForm && (
           <form

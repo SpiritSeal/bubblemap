@@ -21,7 +21,6 @@ import { Link } from 'react-router-dom';
 const CreateAccount = () => {
   const auth = useAuth();
 
-  const [displaySignInForm, setDisplaySignInForm] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
