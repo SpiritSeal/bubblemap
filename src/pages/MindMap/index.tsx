@@ -22,7 +22,10 @@ const MindMap = () => {
   const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
-    const newID = Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1;
+    const newID =
+      mindmap.nodes.length > 0
+        ? Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1
+        : 0;
 
     if (Number.isNaN(newID))
       throw new Error(`New ID not a number! New ID: ${newID}`);

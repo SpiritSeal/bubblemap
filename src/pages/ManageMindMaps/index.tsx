@@ -1,10 +1,73 @@
 import React from 'react';
-import { Box, Button, ButtonGroup, Paper } from '@mui/material';
+import { Button, ButtonGroup, Paper } from '@mui/material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useFirestore, useFirestoreCollectionData, useUser } from 'reactfire';
+import {
+  addDoc,
+  collection,
+  query,
+  serverTimestamp,
+  Timestamp,
+  where,
+} from 'firebase/firestore';
+import { MindMap, WithID } from '../../types';
 
 const ManageMindMaps = () => {
+  const user = useUser().data;
+  if (!user) throw new Error('No User Authenticated!');
+  const firestore = useFirestore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const mindmapsCollection = collection(firestore, 'mindmaps');
+
+  let mindmapsQuery = query(
+    mindmapsCollection,
+    where('permissions.read', 'array-contains', user.uid)
+  );
+
+  if (searchParams.get('filter') === 'owned') {
+    mindmapsQuery = query(
+      mindmapsQuery,
+      where('permissions.owner', '==', user.uid)
+    );
+  }
+
+  if (searchParams.get('filter') === 'shared') {
+    mindmapsQuery = query(
+      mindmapsQuery,
+      where('permissions.owner', '!=', user.uid)
+    );
+  }
+
+  const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
+    mindmapsQuery,
+    {
+      idField: 'ID',
+    }
+  ).data as WithID<MindMap>[];
+
+  const createMindMap = (title: string) => {
+    const newDocData: MindMap = {
+      metadata: {
+        createdAt: serverTimestamp() as Timestamp,
+        createdBy: user.uid,
+        updatedAt: serverTimestamp() as Timestamp,
+        updatedBy: user.uid,
+      },
+      nodes: [],
+      permissions: {
+        owner: user.uid,
+        delete: [user.uid],
+        read: [user.uid],
+        write: [user.uid],
+      },
+      title,
+    };
+    addDoc(mindmapsCollection, newDocData).then((newDoc) => {
+      navigate(newDoc.id);
+    });
+  };
 
   return (
     <Paper
@@ -41,6 +104,20 @@ const ManageMindMaps = () => {
     >
       <div style={{ textAlign: 'center' }}>
         <h1>MindMaps</h1>
+        <Button
+          variant="contained"
+          onClick={() => {
+            // eslint-disable-next-line no-alert
+            const title = window.prompt(
+              'What would you like to title your new Mind Map?'
+            );
+            createMindMap(title || 'Untitled MindMap');
+          }}
+        >
+          Create a Mind Map!
+        </Button>
+        <br />
+        <br />
         <ButtonGroup variant="outlined">
           <Button
             disabled={searchParams.get('filter') === null}
@@ -71,6 +148,31 @@ const ManageMindMaps = () => {
           </Button>
         </ButtonGroup>
       </div>
+      {mindmaps.map((mindmap) => (
+        <Button
+          key={mindmap.ID}
+          onClick={() => {
+            navigate(mindmap.ID);
+          }}
+        >
+          {mindmap.title}
+        </Button>
+      ))}
+      {mindmaps.length === 0 && (
+        <div style={{ textAlign: 'center' }}>
+          <Button
+            onClick={() => {
+              // eslint-disable-next-line no-alert
+              const title = window.prompt(
+                'What would you like to title your new Mind Map?'
+              );
+              createMindMap(title || 'Untitled MindMap');
+            }}
+          >
+            You don&apos;t have any MindMaps. Create one now!
+          </Button>
+        </div>
+      )}
     </Paper>
   );
 };
