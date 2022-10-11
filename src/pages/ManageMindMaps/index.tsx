@@ -55,7 +55,13 @@ const ManageMindMaps = () => {
         updatedAt: serverTimestamp() as Timestamp,
         updatedBy: user.uid,
       },
-      nodes: [],
+      nodes: [
+        {
+          parent: 0,
+          text: title,
+          id: 0,
+        },
+      ],
       permissions: {
         owner: user.uid,
         delete: [user.uid],
@@ -67,6 +73,15 @@ const ManageMindMaps = () => {
     addDoc(mindmapsCollection, newDocData).then((newDoc) => {
       navigate(newDoc.id);
     });
+  };
+
+  const handleCreateMindMap = () => {
+    // eslint-disable-next-line no-alert
+    const title = window.prompt('What would you like to ideate upon?')?.trim();
+    createMindMap(
+      // eslint-disable-next-line
+      title === null || title === '' ? 'Untitled Mind Map' : title!
+    );
   };
 
   return (
@@ -107,11 +122,7 @@ const ManageMindMaps = () => {
         <Button
           variant="contained"
           onClick={() => {
-            // eslint-disable-next-line no-alert
-            const title = window.prompt(
-              'What would you like to title your new Mind Map?'
-            );
-            createMindMap(title || 'Untitled MindMap');
+            handleCreateMindMap();
           }}
         >
           Create a Mind Map!
@@ -162,11 +173,7 @@ const ManageMindMaps = () => {
         <div style={{ textAlign: 'center' }}>
           <Button
             onClick={() => {
-              // eslint-disable-next-line no-alert
-              const title = window.prompt(
-                'What would you like to title your new Mind Map?'
-              );
-              createMindMap(title || 'Untitled MindMap');
+              handleCreateMindMap();
             }}
           >
             You don&apos;t have any MindMaps. Create one now!
