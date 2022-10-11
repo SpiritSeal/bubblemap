@@ -7,12 +7,10 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
-import { AddCircleOutline } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
-import TestFunctionButton from './overlays/TestFunctionButton/TestFunctionButton';
 
 const MindMap = () => {
   const { mindmapID } = useParams();
@@ -41,7 +39,6 @@ const MindMap = () => {
   const stripInputNodeProperties = (inputNode: localNode) => {
     const strippedNode: node = {
       parent: inputNode.parent,
-      // children: inputNode.children,
       text: inputNode.text,
       id: inputNode.id,
     };
@@ -109,16 +106,6 @@ const MindMap = () => {
         updateNode={updateNode}
       />
       <SideMenu />
-      {/* <TestFunctionButton
-        // eslint-disable-next-line
-        onClick={() =>
-          addNode({
-            parent: 0,
-            text: 'Hello world!',
-          })
-        }
-        icon={<AddCircleOutline />}
-      /> */}
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );

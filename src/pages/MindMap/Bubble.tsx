@@ -91,7 +91,6 @@ const Bubble = ({
     e.preventDefault();
   };
   const handleDeleteNode = (e: React.MouseEvent) => {
-    // Ask for confirmation
     // eslint-disable-next-line no-alert
     if (window.confirm('Are you sure you want to delete this node?')) {
       deleteNode(node);
@@ -118,7 +117,6 @@ const Bubble = ({
     let lineWidth0 = Infinity;
     const linesTemp = [];
     for (let i = 0, n = words.length; i < n; i += 1) {
-      // eslint-disable-next-line
       const lineText1 = `${line.text}${line ? ' ' : ''}${words[i]}`;
       const lineWidth1 = measureWidth(lineText1);
       if ((lineWidth0 + lineWidth1) / 2 < targetWidth) {
@@ -191,7 +189,6 @@ const Bubble = ({
           return;
         }
         e.stopPropagation();
-        // Edit the node text
         // eslint-disable-next-line no-alert
         const newText = prompt('Enter new text', node.text);
         if (newText) {
@@ -228,7 +225,6 @@ const Bubble = ({
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
-      {/* If Text has a value */}
       {text && (
         <text
           transform={`translate(${radius},${
@@ -242,7 +238,6 @@ const Bubble = ({
               // eslint-disable-next-line react/no-array-index-key
               key={`${i}: ${line.text}`}
               x="0"
-              // dy={i === 0 ? '0em' : `${lineHeight}em`}
               y={(i - lines.length / 2 + 1) * lineHeight}
               textAnchor="middle"
             >
