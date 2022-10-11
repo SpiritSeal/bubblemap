@@ -91,7 +91,7 @@ export default function SideMenu() {
           text="My Mind Maps"
           icon={<Map />}
           onClick={() => {
-            navigate('/mindmap');
+            navigate('/mindmaps');
           }}
         />
         <DrawerListItem

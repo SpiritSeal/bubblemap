@@ -89,12 +89,25 @@ const MindMap = () => {
   };
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
+    if (oldNode.id !== newNode.id) {
+      console.warn(
+        'Node ID changed, funny things might happen, so blocking update'
+      );
+      return;
+    }
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
-    batch.update(mindMapRef, {
-      nodes: arrayUnion(stripInputNodeProperties(newNode)),
-    });
+    if (newNode.id === 0) {
+      batch.update(mindMapRef, {
+        title: newNode.text,
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
+      });
+    } else {
+      batch.update(mindMapRef, {
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
+      });
+    }
     batch.commit();
   };
   // const updateNodePrompt = (nodeToUpdate: node) => {
