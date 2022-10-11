@@ -98,12 +98,14 @@ const MindMap = () => {
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
-    batch.update(mindMapRef, {
-      nodes: arrayUnion(stripInputNodeProperties(newNode)),
-    });
     if (newNode.id === 0) {
       batch.update(mindMapRef, {
         title: newNode.text,
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
+      });
+    } else {
+      batch.update(mindMapRef, {
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
       });
     }
     batch.commit();
