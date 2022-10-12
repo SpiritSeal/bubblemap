@@ -1,6 +1,7 @@
 /*eslint-disable*/
 import * as React from 'react';
 import { Box, Drawer, Button, List, Divider } from '@mui/material';
+import { HotKeys } from 'react-hotkeys';
 
 import {
   Menu,
@@ -138,7 +139,16 @@ export default function SideMenu() {
     </Box>
   );
 
+  const shortcutHandlers = {
+    // Set the drawer to the opposite of what it is
+    TOGGLE_SIDE_MENU: () => {
+      console.log('toggle');
+      setState({ ...state, left: !state.left });
+    },
+  };
+
   return (
+    <HotKeys handlers={shortcutHandlers}>
     <div>
       <React.Fragment key="left">
         <Button onClick={toggleDrawer(true)}>
@@ -150,5 +160,6 @@ export default function SideMenu() {
         <SettingsDialog open={open} setOpen={setOpen} />
       </React.Fragment>
     </div>
+    </HotKeys>
   );
 }

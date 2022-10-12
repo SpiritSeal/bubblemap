@@ -8,9 +8,21 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
+import { HotKeys } from 'react-hotkeys';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
+
+const keyMap = {
+  ADD_NODE: 'ctrl+enter',
+  DELETE_NODE: 'del',
+  EDIT_NODE_TEXT: 'enter',
+  GENERATE_IDEAS: 'ctrl+shift+enter',
+  TOGGLE_SIDE_MENU: 'ctrl+shift+s',
+  TOGGLE_SETTINGS: 'ctrl+shift+p',
+  // MOVE_SELECTION_POINTER_TO_PARENT has two options: 'up' or '`'
+  MOVE_SELECTION_POINTER_TO_PARENT: ['up', '`'],
+};
 
 const MindMap = () => {
   const { mindmapID } = useParams();
@@ -21,10 +33,8 @@ const MindMap = () => {
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
     const newID = Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1;
-
     if (Number.isNaN(newID))
       throw new Error(`New ID not a number! New ID: ${newID}`);
-
     const newNode: node = {
       parent,
       // children: [],
@@ -54,7 +64,6 @@ const MindMap = () => {
 
   const deleteNode = (nodeToDelete: node) => {
     if (nodeToDelete.id === 0) return;
-
     /*
      * Node deletion should be a rare event in an additive idea generation tool,
      * so it makes more sense to have an O(N^2) operation here that finds all the
@@ -62,7 +71,6 @@ const MindMap = () => {
      * increasing our space complexity by creating a doubly linked list storing a
      * list of children for each node.
      */
-
     const children = getAllChildren(nodeToDelete);
     const batch = writeBatch(firestore);
     batch.update(mindMapRef, {
@@ -74,9 +82,7 @@ const MindMap = () => {
       });
     });
     batch.commit();
-
     const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
-
     updateDoc(mindMapRef, {
       nodes: arrayRemove(strippedNodeToDelete),
     });
@@ -99,13 +105,15 @@ const MindMap = () => {
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <MindMapSimulation
-        data={mindmap}
-        addNode={addNode}
-        deleteNode={deleteNode}
-        updateNode={updateNode}
-      />
-      <SideMenu />
+      <HotKeys keyMap={keyMap}>
+        <MindMapSimulation
+          data={mindmap}
+          addNode={addNode}
+          deleteNode={deleteNode}
+          updateNode={updateNode}
+        />
+        <SideMenu />
+      </HotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );

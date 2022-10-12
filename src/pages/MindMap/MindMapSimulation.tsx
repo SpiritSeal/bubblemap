@@ -8,6 +8,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
+import { HotKeys } from 'react-hotkeys';
 import {
   forceSimulation,
   forceLink,
@@ -66,6 +67,95 @@ const MindMapSimulationWithTransform = forwardRef(
     const [selectedNode, setSelectedNode] = useState<
       SimulationNodeDatum & node
     >();
+
+    const handleAddNode = (parentNode: SimulationNodeDatum & node) => {
+      // eslint-disable-next-line no-alert
+      const newText = prompt('Enter new text', '');
+      if (newText) {
+        addNode({ parent: parentNode.id, text: newText });
+      }
+    };
+    const checkIfRecursiveChildrenisSelected = (
+      nodeTo: (SimulationNodeDatum & node) | undefined,
+      nodeFrom: (SimulationNodeDatum & node) | undefined = selectedNode
+    ): boolean => {
+      if (nodeFrom && nodeTo) {
+        if (nodeFrom.id === nodeTo.id) {
+          return true;
+        }
+        if (nodeFrom.id === 0) {
+          return false;
+        }
+        return checkIfRecursiveChildrenisSelected(
+          nodeTo,
+          nodes.find((n) => n.id === nodeFrom.parent)
+        );
+      }
+      return false;
+    };
+
+    const handleDeleteNode = (nodeToDelete: node) => {
+      // eslint-disable-next-line no-alert
+      if (window.confirm('Are you sure you want to delete this node?')) {
+        // If the node is selected, select the parent
+        if (selectedNode?.id === nodeToDelete.id) {
+          setSelectedNode(
+            nodes.find((nodeF) => nodeF.id === nodeToDelete.parent) || undefined
+          );
+        }
+        console.log(checkIfRecursiveChildrenisSelected(nodeToDelete));
+        if (checkIfRecursiveChildrenisSelected(nodeToDelete)) {
+          // Set the selected node to the parent of the node to be deleted
+          setSelectedNode(
+            nodes.find((nodeF) => nodeF.id === nodeToDelete.parent) || undefined
+          );
+        }
+        deleteNode(nodeToDelete);
+      }
+    };
+    const handleEditNode = (nodeToEdit: node) => {
+      // eslint-disable-next-line no-alert
+      const newText = prompt('Enter new text', nodeToEdit.text);
+      if (newText) {
+        updateNode(nodeToEdit, { ...nodeToEdit, text: newText });
+      }
+    };
+    const handleMoveSelectionPointerToParent = () => {
+      if (selectedNode) {
+        // Get the parent of the selected node
+        const parent = nodes.find((nodeF) => nodeF.id === selectedNode.parent);
+        if (parent) {
+          setSelectedNode(parent);
+        }
+      }
+    };
+
+    const shortcutHandlers = {
+      ADD_NODE: () => {
+        console.log(selectedNode, 'add node');
+        if (selectedNode) {
+          if (selectedNode) {
+            handleAddNode(selectedNode);
+          }
+        }
+      },
+      DELETE_NODE: () => {
+        console.log(selectedNode, 'delete node');
+        if (selectedNode) {
+          handleDeleteNode(selectedNode);
+        }
+      },
+      EDIT_NODE_TEXT: () => {
+        console.log(selectedNode, 'edit node');
+        if (selectedNode) {
+          handleEditNode(selectedNode);
+        }
+      },
+      MOVE_SELECTION_POINTER_TO_PARENT: () => {
+        console.log(selectedNode, 'move selection pointer to parent');
+        handleMoveSelectionPointerToParent();
+      },
+    };
 
     const [mouseDown, setMouseDown] = useState(false);
     const [downMouseCoords, setDownMouseCoords] = useState({ x: 0, y: 0 });
@@ -182,6 +272,26 @@ const MindMapSimulationWithTransform = forwardRef(
       onMouseMove(e: any) {
         onMouseMove(e);
       },
+      handleAddNode() {
+        if (selectedNode) {
+          handleAddNode(selectedNode);
+        }
+      },
+      handleDeleteNode() {
+        if (selectedNode) {
+          handleDeleteNode(selectedNode);
+        }
+      },
+      handleEditNode() {
+        if (selectedNode) {
+          handleEditNode(selectedNode);
+        }
+      },
+      handleMoveSelectionPointerToParent() {
+        if (selectedNode) {
+          handleMoveSelectionPointerToParent();
+        }
+      }
     }));
 
     if (simulation === null) return <Loading />;
@@ -189,6 +299,7 @@ const MindMapSimulationWithTransform = forwardRef(
     let nodeClicked: (SimulationNodeDatum & node) | undefined;
     if (nodes.length > 0)
       return (
+        // <HotKeys handlers={shortcutHandlers} allowChanges>
         <svg
           style={{
             overflow: 'visible',
@@ -214,7 +325,6 @@ const MindMapSimulationWithTransform = forwardRef(
             e.stopPropagation();
           }}
           onMouseUp={() => {
-            // I'll be relying on the fact that the mouseDown state will be reset in Bubble.tsx's onClick events
             releaseBubble();
           }}
         >
@@ -225,22 +335,35 @@ const MindMapSimulationWithTransform = forwardRef(
               targetNode={nodes[link.target]}
             />
           ))}
-          {nodes.map((nodeData) => (
-            <Bubble
-              key={nodeData.id}
-              node={nodeData}
-              dragging={dragNodeSelected === nodeData}
-              selected={selectedNode === nodeData}
-              setSelectedNode={setSelectedNode}
-              mouseDown={mouseDown}
-              setMouseDown={setMouseDown}
-              downMouseCoords={downMouseCoords}
-              addNode={addNode}
-              deleteNode={deleteNode}
-              updateNode={updateNode}
-            />
-          ))}
+          {nodes.map((nodeData) => {
+            const handleAddNodePD = () => {
+              handleAddNode(nodeData);
+            };
+            const handleDeleteNodePD = () => {
+              handleDeleteNode(nodeData);
+            };
+            const handleEditNodePD = () => {
+              handleEditNode(nodeData);
+            };
+            return (
+              <Bubble
+                key={nodeData.id}
+                node={nodeData}
+                dragging={dragNodeSelected === nodeData}
+                selected={selectedNode?.id === nodeData.id}
+                setSelectedNode={setSelectedNode}
+                mouseDown={mouseDown}
+                setMouseDown={setMouseDown}
+                downMouseCoords={downMouseCoords}
+                handleAddNode={handleAddNodePD}
+                handleDeleteNode={handleDeleteNodePD}
+                updateNode={updateNode}
+                handleEditNode={handleEditNodePD}
+              />
+            );
+          })}
         </svg>
+        // </HotKeys>
       );
     return null;
   }
@@ -264,47 +387,64 @@ const MindMapSimulation = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const childRef: any = useRef();
 
+  const shortcutHandlers = {
+    ADD_NODE: () => {
+      childRef.current.handleAddNode();
+    },
+    DELETE_NODE: () => {
+      childRef.current.handleDeleteNode();
+    },
+    EDIT_NODE_TEXT: () => {
+      childRef.current.handleEditNode();
+    },
+    MOVE_SELECTION_POINTER_TO_PARENT: () => {
+      childRef.current.handleMoveSelectionPointerToParent();
+    },
+  };
+
   return (
-    <div
-      onMouseLeave={() => childRef?.current?.releaseBubble()}
-      onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
-    >
-      <TransformWrapper
-        initialScale={1}
-        minScale={0.1}
-        maxScale={25}
-        limitToBounds={false}
-        // centerZoomedOut
-        centerOnInit
-        panning={{
-          disabled: !!dragNodeSelected,
-        }}
-        doubleClick={{
-          disabled: true,
-        }}
+    <HotKeys handlers={shortcutHandlers} allowChanges>
+      <div
+        onMouseLeave={() => childRef?.current?.releaseBubble()}
+        onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
       >
-        <TransformComponent
-          wrapperStyle={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
+        <TransformWrapper
+          initialScale={1}
+          minScale={0.1}
+          maxScale={25}
+          limitToBounds={false}
+          // centerZoomedOut
+          centerOnInit
+          panning={{
+            disabled: !!dragNodeSelected,
           }}
-          // contentClass="no-translate"
+          doubleClick={{
+            disabled: true,
+          }}
         >
-          <MindMapSimulationWithTransform
-            ref={childRef}
-            data={data}
-            dragNodeSelected={dragNodeSelected}
-            setDragNodeSelected={setDragNodeSelected}
-            addNode={addNode}
-            deleteNode={deleteNode}
-            updateNode={updateNode}
-          />
-        </TransformComponent>
-      </TransformWrapper>
-    </div>
+          <TransformComponent
+            wrapperStyle={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+            }}
+            // contentClass="no-translate"
+          >
+            <MindMapSimulationWithTransform
+              ref={childRef}
+              data={data}
+              dragNodeSelected={dragNodeSelected}
+              setDragNodeSelected={setDragNodeSelected}
+              addNode={addNode}
+              deleteNode={deleteNode}
+              updateNode={updateNode}
+            />
+          </TransformComponent>
+        </TransformWrapper>
+      </div>
+    </HotKeys>
   );
 };
 
