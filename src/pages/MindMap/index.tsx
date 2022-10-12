@@ -17,11 +17,16 @@ const keyMap = {
   ADD_NODE: 'ctrl+enter',
   DELETE_NODE: 'del',
   EDIT_NODE_TEXT: 'enter',
+  // Not Implemented
   GENERATE_IDEAS: 'ctrl+shift+enter',
+  // Not Working
   TOGGLE_SIDE_MENU: 'ctrl+shift+s',
+  // Not Implemented
   TOGGLE_SETTINGS: 'ctrl+shift+p',
-  // MOVE_SELECTION_POINTER_TO_PARENT has two options: 'up' or '`'
-  MOVE_SELECTION_POINTER_TO_PARENT: ['up', '`'],
+  MOVE_SELECTION_TO_PARENT: ['up', '`'],
+  MOVE_SELECTION_TO_CHILD: 'down',
+  MOVE_SELECTION_TO_NEXT_SIBLING: ['right', 'tab'],
+  MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
 };
 
 const MindMap = () => {

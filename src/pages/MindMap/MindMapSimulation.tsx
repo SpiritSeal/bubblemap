@@ -151,7 +151,7 @@ const MindMapSimulationWithTransform = forwardRef(
           handleEditNode(selectedNode);
         }
       },
-      MOVE_SELECTION_POINTER_TO_PARENT: () => {
+      MOVE_SELECTION_TO_PARENT: () => {
         console.log(selectedNode, 'move selection pointer to parent');
         handleMoveSelectionPointerToParent();
       },
@@ -291,7 +291,7 @@ const MindMapSimulationWithTransform = forwardRef(
         if (selectedNode) {
           handleMoveSelectionPointerToParent();
         }
-      }
+      },
     }));
 
     if (simulation === null) return <Loading />;
@@ -397,7 +397,7 @@ const MindMapSimulation = ({
     EDIT_NODE_TEXT: () => {
       childRef.current.handleEditNode();
     },
-    MOVE_SELECTION_POINTER_TO_PARENT: () => {
+    MOVE_SELECTION_TO_PARENT: () => {
       childRef.current.handleMoveSelectionPointerToParent();
     },
   };
