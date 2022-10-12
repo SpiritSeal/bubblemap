@@ -8,7 +8,8 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
-import { HotKeys, getApplicationKeyMap } from 'react-hotkeys';
+import { HotKeys } from 'react-hotkeys';
+// You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
@@ -112,15 +113,19 @@ const MindMap = () => {
 
   const shortcutHandlers = {
     GENERATE_IDEAS: () => {
+      // eslint-disable-next-line no-console
       console.log('Generate Ideas');
     },
     TOGGLE_SIDE_MENU: () => {
+      // eslint-disable-next-line no-console
       console.log('Toggle Side Menu');
     },
     TOGGLE_SETTINGS: () => {
+      // eslint-disable-next-line no-console
       console.log('Toggle Settings');
     },
     RESET_VIEW: () => {
+      // eslint-disable-next-line no-console
       console.log('Reset View');
     },
   };
