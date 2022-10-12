@@ -31,9 +31,10 @@ const Bubble = ({
   mouseDown,
   setMouseDown,
   downMouseCoords,
-  addNode,
-  deleteNode,
+  handleAddNode,
+  handleDeleteNode,
   updateNode,
+  handleEditNode,
 }: {
   node: SimulationNodeDatum & nodeType;
   dragging: boolean;
@@ -42,9 +43,10 @@ const Bubble = ({
   mouseDown: boolean;
   setMouseDown: (mouseDown: boolean) => void;
   downMouseCoords: { x: number; y: number };
-  addNode: (node: { parent: number; text: string }) => void;
-  deleteNode: (node: nodeType) => void;
+  handleAddNode: () => void;
+  handleDeleteNode: () => void;
   updateNode: (oldNode: nodeType, newNode: nodeType) => void;
+  handleEditNode: () => void;
 }) => {
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
@@ -78,34 +80,41 @@ const Bubble = ({
     e.preventDefault();
   };
 
-  const handleAddNode = (e: React.MouseEvent) => {
-    // eslint-disable-next-line no-alert
-    const newText = prompt('Enter new text', '');
-    addNode({
-      parent: node.id,
-      text: newText || '',
-    });
+  const handleInheritedHandles = (e: React.MouseEvent, handle: () => void) => {
+    handle();
     handleContextMenuClose();
     e.preventDefault();
   };
-  const handleDeleteNode = (e: React.MouseEvent) => {
-    // Ask for confirmation
-    // eslint-disable-next-line no-alert
-    if (window.confirm('Are you sure you want to delete this node?')) {
-      deleteNode(node);
-    }
-    handleContextMenuClose();
-    e.preventDefault();
-  };
-  const handleEditNode = (e: React.MouseEvent) => {
-    handleContextMenuClose();
-    // eslint-disable-next-line no-alert
-    const newText = prompt('Enter new text', node.text);
-    if (newText) {
-      updateNode(node, { ...node, text: newText });
-    }
-    e.preventDefault();
-  };
+
+  // const handleAddNode = (e?: React.MouseEvent) => {
+  //   // eslint-disable-next-line no-alert
+  //   const newText = prompt('Enter new text', '');
+  //   if (newText) {
+  //     addNode({
+  //       parent: node.id,
+  //       text: newText || '',
+  //     });
+  //   }
+  //   handleContextMenuClose();
+  //   e?.preventDefault();
+  // };
+  // const handleDeleteNode = (e?: React.MouseEvent) => {
+  //   // eslint-disable-next-line no-alert
+  //   if (window.confirm('Are you sure you want to delete this node?')) {
+  //     deleteNode(node);
+  //   }
+  //   handleContextMenuClose();
+  //   e?.preventDefault();
+  // };
+  // const handleEditNode = (e?: React.MouseEvent) => {
+  //   handleContextMenuClose();
+  //   // eslint-disable-next-line no-alert
+  //   const newText = prompt('Enter new text', node.text);
+  //   if (newText) {
+  //     updateNode(node, { ...node, text: newText });
+  //   }
+  //   e?.preventDefault();
+  // };
   // Prepare the text
   const { text } = node;
   const words = wordsGenerator(text);
@@ -116,7 +125,6 @@ const Bubble = ({
     let lineWidth0 = Infinity;
     const linesTemp = [];
     for (let i = 0, n = words.length; i < n; i += 1) {
-      // eslint-disable-next-line
       const lineText1 = `${line.text}${line ? ' ' : ''}${words[i]}`;
       const lineWidth1 = measureWidth(lineText1);
       if ((lineWidth0 + lineWidth1) / 2 < targetWidth) {
@@ -144,6 +152,7 @@ const Bubble = ({
   };
 
   return (
+    // <HotKeys handlers={shortcutHandlers}>
     <g
       onContextMenu={handleContextMenu}
       // style={{ cursor: 'context-menu' }}
@@ -169,9 +178,13 @@ const Bubble = ({
             downMouseCoords.x === e.clientX &&
             downMouseCoords.y === e.clientY
           ) {
-            // If the menu is open, return
-            setSelectedNode(node);
-            // console.log('Selected', node);
+            if (e.ctrlKey || e.metaKey) {
+              handleInheritedHandles(e, handleAddNode);
+            } else if (e.altKey) {
+              handleInheritedHandles(e, handleDeleteNode);
+            } else {
+              setSelectedNode(node);
+            }
           }
         }
         e.stopPropagation();
@@ -181,10 +194,10 @@ const Bubble = ({
         if (contextMenu) {
           return;
         }
-        // eslint-disable-next-line no-console
-        console.log(node);
+        if (e.ctrlKey || e.metaKey || e.altKey) {
+          return;
+        }
         e.stopPropagation();
-        // Edit the node text
         // eslint-disable-next-line no-alert
         const newText = prompt('Enter new text', node.text);
         if (newText) {
@@ -207,9 +220,15 @@ const Bubble = ({
           Lock Node
         </MenuItem>
         <Divider />
-        <MenuItem onClick={(e) => handleAddNode(e)}>Add Node</MenuItem>
-        <MenuItem onClick={(e) => handleDeleteNode(e)}>Delete Node</MenuItem>
-        <MenuItem onClick={(e) => handleEditNode(e)}>Edit Node</MenuItem>
+        <MenuItem onClick={(e) => handleInheritedHandles(e, handleAddNode)}>
+          Add Node
+        </MenuItem>
+        <MenuItem onClick={(e) => handleInheritedHandles(e, handleDeleteNode)}>
+          Delete Node
+        </MenuItem>
+        <MenuItem onClick={(e) => handleInheritedHandles(e, handleEditNode)}>
+          Edit Node
+        </MenuItem>
       </Menu>
       <circle
         cx={radius}
@@ -221,7 +240,6 @@ const Bubble = ({
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
-      {/* If Text has a value */}
       {text && (
         <text
           transform={`translate(${radius},${
@@ -235,7 +253,6 @@ const Bubble = ({
               // eslint-disable-next-line react/no-array-index-key
               key={`${i}: ${line.text}`}
               x="0"
-              // dy={i === 0 ? '0em' : `${lineHeight}em`}
               y={(i - lines.length / 2 + 1) * lineHeight}
               textAnchor="middle"
             >
@@ -245,6 +262,7 @@ const Bubble = ({
         </text>
       )}
     </g>
+    // </HotKeys>
   );
 };
 export default Bubble;
