@@ -103,7 +103,6 @@ const MindMapSimulationWithTransform = forwardRef(
             nodes.find((nodeF) => nodeF.id === nodeToDelete.parent) || undefined
           );
         }
-        console.log(checkIfRecursiveChildrenisSelected(nodeToDelete));
         if (checkIfRecursiveChildrenisSelected(nodeToDelete)) {
           // Set the selected node to the parent of the node to be deleted
           setSelectedNode(
@@ -120,7 +119,7 @@ const MindMapSimulationWithTransform = forwardRef(
         updateNode(nodeToEdit, { ...nodeToEdit, text: newText });
       }
     };
-    const handleMoveSelectionPointerToParent = () => {
+    const handleMoveSelectionToParent = () => {
       if (selectedNode) {
         // Get the parent of the selected node
         const parent = nodes.find((nodeF) => nodeF.id === selectedNode.parent);
@@ -129,32 +128,96 @@ const MindMapSimulationWithTransform = forwardRef(
         }
       }
     };
-
-    const shortcutHandlers = {
-      ADD_NODE: () => {
-        console.log(selectedNode, 'add node');
-        if (selectedNode) {
-          if (selectedNode) {
-            handleAddNode(selectedNode);
+    const handleMoveSelectionToChild = () => {
+      if (selectedNode) {
+        // Get the children of the selected node
+        let children = nodes.filter(
+          (nodeF) => nodeF.parent === selectedNode.id
+        );
+        // If selectedNode is the root, remove the root from the children
+        if (selectedNode.id === 0) {
+          children = children.filter((nodeF) => nodeF.id !== 0);
+        }
+        // Get the child with the most children
+        const child = children.reduce(
+          (prev, curr) =>
+            nodes.filter((nodeF) => nodeF.parent === curr.id).length >
+            nodes.filter((nodeF) => nodeF.parent === prev.id).length
+              ? curr
+              : prev,
+          children[0]
+        );
+        if (child) {
+          setSelectedNode(child);
+        }
+      }
+    };
+    const handleMoveSelectionToSibling = (
+      direction: 'clockwise' | 'anticlockwise'
+    ) => {
+      if (selectedNode) {
+        // Get the parent of the selected node
+        const parent = nodes.find((nodeF) => nodeF.id === selectedNode.parent);
+        if (parent) {
+          // Get the children of the parent
+          const children = nodes.filter(
+            (nodeF) => nodeF.parent === parent.id && nodeF.id !== 0
+          );
+          // Keep the children that have x and y values
+          const childrenWithCoords = children.filter(
+            (nodeF) => nodeF.x && nodeF.y
+          );
+          // Sort the children in clockwise order
+          childrenWithCoords.sort((a, b) => {
+            // check if any of the nodes are undefined, but allow 0
+            if (
+              a.x === undefined ||
+              a.y === undefined ||
+              b.x === undefined ||
+              b.y === undefined ||
+              parent.x === undefined ||
+              parent.y === undefined
+            ) {
+              return 0;
+            }
+            const atanA = Math.atan2(a.y - parent.y, a.x - parent.x);
+            const atanB = Math.atan2(b.y - parent.y, b.x - parent.x);
+            return atanA - atanB;
+          });
+          // Get the index of the selected node in the sorted array
+          const index = childrenWithCoords.findIndex(
+            (nodeF) => nodeF.id === selectedNode.id
+          );
+          // Get the next node in the sorted array
+          const nextNode =
+            direction === 'clockwise'
+              ? childrenWithCoords[(index + 1) % childrenWithCoords.length]
+              : childrenWithCoords[
+                  (index - 1 + childrenWithCoords.length) %
+                    childrenWithCoords.length
+                ];
+          if (nextNode) {
+            setSelectedNode(nextNode);
           }
         }
-      },
-      DELETE_NODE: () => {
-        console.log(selectedNode, 'delete node');
-        if (selectedNode) {
-          handleDeleteNode(selectedNode);
-        }
-      },
-      EDIT_NODE_TEXT: () => {
-        console.log(selectedNode, 'edit node');
-        if (selectedNode) {
-          handleEditNode(selectedNode);
-        }
-      },
-      MOVE_SELECTION_TO_PARENT: () => {
-        console.log(selectedNode, 'move selection pointer to parent');
-        handleMoveSelectionPointerToParent();
-      },
+      }
+    };
+    const handleMoveSelectionToNextSibling = () => {
+      if (selectedNode) {
+        handleMoveSelectionToSibling('clockwise');
+      }
+    };
+    const handleMoveSelectionToPreviousSibling = () => {
+      if (selectedNode) {
+        handleMoveSelectionToSibling('anticlockwise');
+      }
+    };
+    const handleMoveSelectionToRoot = () => {
+      // Get the root node
+      const root = nodes.find((nodeF) => nodeF.id === 0);
+      if (root) {
+        setSelectedNode(root);
+      }
     };
 
     const [mouseDown, setMouseDown] = useState(false);
@@ -287,10 +350,28 @@ const MindMapSimulationWithTransform = forwardRef(
           handleEditNode(selectedNode);
         }
       },
-      handleMoveSelectionPointerToParent() {
+      handleMoveSelectionToParent() {
         if (selectedNode) {
-          handleMoveSelectionPointerToParent();
+          handleMoveSelectionToParent();
         }
+      },
+      handleMoveSelectionToChild() {
+        if (selectedNode) {
+          handleMoveSelectionToChild();
+        }
+      },
+      handleMoveSelectionToNextSibling() {
+        if (selectedNode) {
+          handleMoveSelectionToNextSibling();
+        }
+      },
+      handleMoveSelectionToPreviousSibling() {
+        if (selectedNode) {
+          handleMoveSelectionToPreviousSibling();
+        }
+      },
+      handleMoveSelectionToRoot() {
+        handleMoveSelectionToRoot();
       },
     }));
 
@@ -299,7 +380,6 @@ const MindMapSimulationWithTransform = forwardRef(
     let nodeClicked: (SimulationNodeDatum & node) | undefined;
     if (nodes.length > 0)
       return (
-        // <HotKeys handlers={shortcutHandlers} allowChanges>
         <svg
           style={{
             overflow: 'visible',
@@ -363,7 +443,6 @@ const MindMapSimulationWithTransform = forwardRef(
             );
           })}
         </svg>
-        // </HotKeys>
       );
     return null;
   }
@@ -398,7 +477,22 @@ const MindMapSimulation = ({
       childRef.current.handleEditNode();
     },
     MOVE_SELECTION_TO_PARENT: () => {
-      childRef.current.handleMoveSelectionPointerToParent();
+      childRef.current.handleMoveSelectionToParent();
+    },
+    MOVE_SELECTION_TO_CHILD: () => {
+      childRef.current.handleMoveSelectionToChild();
+    },
+    MOVE_SELECTION_TO_NEXT_SIBLING: () => {
+      childRef.current.handleMoveSelectionToNextSibling();
+    },
+    MOVE_SELECTION_TO_PREVIOUS_SIBLING: () => {
+      childRef.current.handleMoveSelectionToPreviousSibling();
+    },
+    MOVE_SELECTION_TO_ROOT: () => {
+      childRef.current.handleMoveSelectionToRoot();
+    },
+    RESET_VIEW: () => {
+      // TODO: Reset the Transform
     },
   };
 

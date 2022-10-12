@@ -8,7 +8,7 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
-import { HotKeys } from 'react-hotkeys';
+import { HotKeys, getApplicationKeyMap } from 'react-hotkeys';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
@@ -19,7 +19,7 @@ const keyMap = {
   EDIT_NODE_TEXT: 'enter',
   // Not Implemented
   GENERATE_IDEAS: 'ctrl+shift+enter',
-  // Not Working
+  // Not Implemented
   TOGGLE_SIDE_MENU: 'ctrl+shift+s',
   // Not Implemented
   TOGGLE_SETTINGS: 'ctrl+shift+p',
@@ -27,6 +27,8 @@ const keyMap = {
   MOVE_SELECTION_TO_CHILD: 'down',
   MOVE_SELECTION_TO_NEXT_SIBLING: ['right', 'tab'],
   MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
+  MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
+  RESET_VIEW: ['ctrl+0', 'home'],
 };
 
 const MindMap = () => {
@@ -108,9 +110,24 @@ const MindMap = () => {
 
   if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
 
+  const shortcutHandlers = {
+    GENERATE_IDEAS: () => {
+      console.log('Generate Ideas');
+    },
+    TOGGLE_SIDE_MENU: () => {
+      console.log('Toggle Side Menu');
+    },
+    TOGGLE_SETTINGS: () => {
+      console.log('Toggle Settings');
+    },
+    RESET_VIEW: () => {
+      console.log('Reset View');
+    },
+  };
+
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <HotKeys keyMap={keyMap}>
+      <HotKeys keyMap={keyMap} handlers={shortcutHandlers}>
         <MindMapSimulation
           data={mindmap}
           addNode={addNode}
