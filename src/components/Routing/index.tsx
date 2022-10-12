@@ -13,6 +13,7 @@ import ManageMindMaps from '../../pages/ManageMindMaps';
 import SignIn from '../../pages/SignIn';
 import MindMap from '../../pages/MindMap';
 import CreateAccount from '../../pages/CreateAccount';
+import Navigation from '../Navigation';
 
 const Routing = () => {
   const signinCheck = useSigninCheck().data;
@@ -21,16 +22,56 @@ const Routing = () => {
     <Router>
       <Routes>
         <Route path="/">
-          <Route index element={<Home />} />
-          <Route path="about" element={<About />} />
+          <Route
+            index
+            element={
+              <>
+                <Navigation />
+                <Home />
+              </>
+            }
+          />
+          <Route
+            path="about"
+            element={
+              <>
+                <Navigation />
+                <About />
+              </>
+            }
+          />
           {!signinCheck.signedIn && (
             <>
-              <Route path="signin" element={<SignIn />} />
-              <Route path="createaccount" element={<CreateAccount />} />
+              <Route
+                path="signin"
+                element={
+                  <>
+                    <Navigation />
+                    <SignIn />
+                  </>
+                }
+              />
+              <Route
+                path="createaccount"
+                element={
+                  <>
+                    <Navigation />
+                    <CreateAccount />
+                  </>
+                }
+              />
             </>
           )}
-          <Route path="/mindmap">
-            <Route index element={<ManageMindMaps />} />
+          <Route path="/mindmaps">
+            <Route
+              index
+              element={
+                <>
+                  <Navigation />
+                  <ManageMindMaps />
+                </>
+              }
+            />
             <Route path=":mindmapID" element={<MindMap />} />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
