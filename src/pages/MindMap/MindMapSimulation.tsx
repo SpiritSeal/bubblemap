@@ -291,7 +291,6 @@ const MindMapSimulation = ({
             width: '100%',
             height: '100%',
           }}
-          // contentClass="no-translate"
         >
           <MindMapSimulationWithTransform
             ref={childRef}

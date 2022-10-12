@@ -14,7 +14,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "compromise": "^14.5.0",
+    "compromise": "^14.5.1",
     "cowsay": "^1.5.0",
     "firebase-admin": "^11.0.1",
     "firebase-functions": "^3.24.1",

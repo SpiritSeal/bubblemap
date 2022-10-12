@@ -33,3 +33,7 @@ export interface MindMap {
 export type WithID<T> = T & {
   ID: string;
 };
+
+export type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};

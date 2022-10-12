@@ -1,16 +1,42 @@
-import React from 'react';
-import { Button, ButtonGroup, Paper } from '@mui/material';
+import React, { useState } from 'react';
+import {
+  Paper,
+  Button,
+  ButtonGroup,
+  Card,
+  CardActionArea,
+  CardActions,
+  CardContent,
+  CardMedia,
+  Typography,
+  IconButton,
+  Dialog,
+  Skeleton,
+} from '@mui/material';
+import {
+  Add,
+  BubbleChart,
+  Delete,
+  DriveFileRenameOutline,
+  Link as LinkIcon,
+  PersonAdd,
+} from '@mui/icons-material';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useFirestore, useFirestoreCollectionData, useUser } from 'reactfire';
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
+  orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   where,
 } from 'firebase/firestore';
-import { MindMap, WithID } from '../../types';
+import { MindMap, RecursivePartial, WithID } from '../../types';
+import ShareDialog from './ShareDialog';
 
 const ManageMindMaps = () => {
   const user = useUser().data;
@@ -18,12 +44,13 @@ const ManageMindMaps = () => {
   const firestore = useFirestore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [openShareDialog, setOpenShareDialog] = useState<MindMap | null>(null);
 
   const mindmapsCollection = collection(firestore, 'mindmaps');
 
   let mindmapsQuery = query(
     mindmapsCollection,
-    where('permissions.read', 'array-contains', user.uid)
+    orderBy('metadata.updatedAt', 'desc')
   );
 
   if (searchParams.get('filter') === 'owned') {
@@ -36,7 +63,7 @@ const ManageMindMaps = () => {
   if (searchParams.get('filter') === 'shared') {
     mindmapsQuery = query(
       mindmapsQuery,
-      where('permissions.owner', '!=', user.uid)
+      where('permissions.read', 'array-contains', user.uid)
     );
   }
 
@@ -64,9 +91,9 @@ const ManageMindMaps = () => {
       ],
       permissions: {
         owner: user.uid,
-        delete: [user.uid],
-        read: [user.uid],
-        write: [user.uid],
+        delete: [],
+        read: [],
+        write: [],
       },
       title,
     };
@@ -94,19 +121,26 @@ const ManageMindMaps = () => {
           lg: '2rem',
           xl: '4rem',
         },
+        marginBottom: {
+          xs: '.5rem',
+          sm: '.5rem',
+          md: '.5rem',
+          lg: '1rem',
+          xl: '2rem',
+        },
         marginLeft: {
           xs: '1rem',
           sm: '2rem',
-          md: '10rem',
-          lg: '20rem',
-          xl: '30rem',
+          md: '5rem',
+          lg: '10rem',
+          xl: '15rem',
         },
         marginRight: {
           xs: '1rem',
           sm: '2rem',
-          md: '10rem',
-          lg: '20rem',
-          xl: '30rem',
+          md: '5rem',
+          lg: '10rem',
+          xl: '15rem',
         },
         padding: {
           xs: '1rem',
@@ -120,12 +154,13 @@ const ManageMindMaps = () => {
       <div style={{ textAlign: 'center' }}>
         <h1>MindMaps</h1>
         <Button
+          startIcon={<Add />}
           variant="contained"
           onClick={() => {
             handleCreateMindMap();
           }}
         >
-          Create a Mind Map!
+          New Mind Map
         </Button>
         <br />
         <br />
@@ -159,18 +194,128 @@ const ManageMindMaps = () => {
           </Button>
         </ButtonGroup>
       </div>
-      {mindmaps.map((mindmap) => (
-        <Button
-          key={mindmap.ID}
-          onClick={() => {
-            navigate(mindmap.ID);
-          }}
+      <div
+        style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
+      >
+        <Dialog
+          open={!!openShareDialog}
+          onClose={() => setOpenShareDialog(null)}
         >
-          {mindmap.title}
-        </Button>
-      ))}
+          {openShareDialog && <ShareDialog mindmap={openShareDialog} />}
+        </Dialog>
+        {mindmaps.map((mindmap) => (
+          <Card
+            sx={{ maxWidth: 345, margin: '1rem' }}
+            elevation={2}
+            key={mindmap.ID}
+          >
+            <CardActionArea onClick={() => navigate(`/mindmaps/${mindmap.ID}`)}>
+              <CardMedia>
+                <BubbleChart
+                  sx={{ width: '90%', height: '90%', textAlign: 'center' }}
+                />
+              </CardMedia>
+              <CardContent>
+                <h2>{mindmap.title}</h2>
+                <Typography variant="body2" color="text.secondary">
+                  {mindmap.permissions.owner === user.uid
+                    ? 'Owned by you'
+                    : 'Shared with you'}
+                  <br />
+                  {mindmap.metadata.updatedAt ? (
+                    <>
+                      Last modified{' '}
+                      {mindmap.metadata.updatedAt.toDate().toLocaleDateString()}
+                      <br />
+                    </>
+                  ) : (
+                    <Skeleton animation="wave" />
+                  )}
+
+                  {`${mindmap.nodes.length} node${
+                    mindmap.nodes.length !== 1 ? 's' : ''
+                  }`}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+            <CardActions
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              <IconButton
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/mindmaps/${mindmap.ID}`
+                  );
+                }}
+                aria-label="copy link to clipboard"
+              >
+                <LinkIcon />
+              </IconButton>
+              <IconButton
+                type="button"
+                onClick={() => {
+                  setOpenShareDialog(mindmap);
+                }}
+                aria-label="open share dialog"
+                disabled
+              >
+                <PersonAdd />
+              </IconButton>
+              <IconButton
+                type="button"
+                onClick={() => {
+                  if (
+                    // eslint-disable-next-line no-restricted-globals, no-alert
+                    confirm(
+                      `Are you sure you want to PERMANENTLY DELETE "${mindmap.title}"?`
+                    )
+                  )
+                    deleteDoc(doc(firestore, 'mindmaps', mindmap.ID));
+                }}
+                aria-label="delete mindmap"
+              >
+                <Delete />
+              </IconButton>{' '}
+              <IconButton
+                type="button"
+                onClick={() => {
+                  // eslint-disable-next-line no-alert
+                  const newTitle = prompt(
+                    `What would you like to rename ${mindmap.title} to?`,
+                    mindmap.title
+                  );
+                  if (newTitle) {
+                    const updatedDocFields: RecursivePartial<MindMap> = {
+                      metadata: {
+                        updatedAt: serverTimestamp() as Timestamp,
+                        updatedBy: user.uid,
+                      },
+                      title: newTitle,
+                    };
+                    setDoc(
+                      doc(firestore, 'mindmaps', mindmap.ID),
+                      updatedDocFields,
+                      {
+                        merge: true,
+                      }
+                    );
+                  }
+                }}
+                aria-label="rename mindmap"
+              >
+                <DriveFileRenameOutline />
+              </IconButton>
+            </CardActions>
+          </Card>
+        ))}
+      </div>
       {mindmaps.length === 0 && (
-        <div style={{ textAlign: 'center' }}>
+        <div style={{ textAlign: 'center', margin: '1rem' }}>
           <Button
             onClick={() => {
               handleCreateMindMap();
