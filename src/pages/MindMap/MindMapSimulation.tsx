@@ -463,38 +463,48 @@ const MindMapSimulation = ({
     (SimulationNodeDatum & node) | undefined
   >(undefined);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   const childRef: any = useRef();
 
   const shortcutHandlers = {
-    ADD_NODE: () => {
+    ADD_NODE: (e: any) => {
       childRef.current.handleAddNode();
+      e.preventDefault();
     },
-    DELETE_NODE: () => {
+    DELETE_NODE: (e: any) => {
       childRef.current.handleDeleteNode();
+      e.preventDefault();
     },
-    EDIT_NODE_TEXT: () => {
+    EDIT_NODE_TEXT: (e: any) => {
       childRef.current.handleEditNode();
+      e.preventDefault();
     },
-    MOVE_SELECTION_TO_PARENT: () => {
+    MOVE_SELECTION_TO_PARENT: (e: any) => {
       childRef.current.handleMoveSelectionToParent();
+      e.preventDefault();
     },
-    MOVE_SELECTION_TO_CHILD: () => {
+    MOVE_SELECTION_TO_CHILD: (e: any) => {
       childRef.current.handleMoveSelectionToChild();
+      e.preventDefault();
     },
-    MOVE_SELECTION_TO_NEXT_SIBLING: () => {
+    MOVE_SELECTION_TO_NEXT_SIBLING: (e: any) => {
       childRef.current.handleMoveSelectionToNextSibling();
+      e.preventDefault();
     },
-    MOVE_SELECTION_TO_PREVIOUS_SIBLING: () => {
+    MOVE_SELECTION_TO_PREVIOUS_SIBLING: (e: any) => {
       childRef.current.handleMoveSelectionToPreviousSibling();
+      e.preventDefault();
     },
-    MOVE_SELECTION_TO_ROOT: () => {
+    MOVE_SELECTION_TO_ROOT: (e: any) => {
       childRef.current.handleMoveSelectionToRoot();
+      e.preventDefault();
     },
-    RESET_VIEW: () => {
+    RESET_VIEW: (e: any) => {
       // TODO: Reset the Transform
+      e.preventDefault();
     },
   };
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <HotKeys handlers={shortcutHandlers} allowChanges>
