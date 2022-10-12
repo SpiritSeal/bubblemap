@@ -244,7 +244,7 @@ const Bubble = ({
         <text
           transform={`translate(${radius},${
             radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
-          }) scale(${radius / (textRadius() * 1.6)})`}
+          }) scale(${radius / (textRadius() * 1.64)})`}
           // Green
           fill={node.id === 0 ? 'red' : 'darkblue'}
         >

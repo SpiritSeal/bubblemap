@@ -40,7 +40,11 @@ const MindMap = () => {
   const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
-    const newID = Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1;
+    const newID =
+      mindmap.nodes.length > 0
+        ? Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1
+        : 0;
+
     if (Number.isNaN(newID))
       throw new Error(`New ID not a number! New ID: ${newID}`);
     const newNode: node = {
@@ -97,12 +101,25 @@ const MindMap = () => {
   };
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
+    if (oldNode.id !== newNode.id) {
+      console.warn(
+        'Node ID changed, funny things might happen, so blocking update'
+      );
+      return;
+    }
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
-    batch.update(mindMapRef, {
-      nodes: arrayUnion(stripInputNodeProperties(newNode)),
-    });
+    if (newNode.id === 0) {
+      batch.update(mindMapRef, {
+        title: newNode.text,
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
+      });
+    } else {
+      batch.update(mindMapRef, {
+        nodes: arrayUnion(stripInputNodeProperties(newNode)),
+      });
+    }
     batch.commit();
   };
   // const updateNodePrompt = (nodeToUpdate: node) => {

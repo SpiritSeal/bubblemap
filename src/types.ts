@@ -14,15 +14,26 @@ export interface localNode extends node, SimulationNodeDatum {
 }
 
 export interface MindMap {
-  createdAt: Timestamp;
-  createdBy: string;
-  updatedAt: Timestamp;
-  updatedBy: string;
-  owner: string;
+  title: string;
+  nodes: node[];
+  metadata: {
+    createdAt: Timestamp;
+    createdBy: string;
+    updatedAt: Timestamp;
+    updatedBy: string;
+  };
   permissions: {
+    owner: string;
     read?: string[];
     write?: string[];
     delete?: string[];
   };
-  nodes: node[];
 }
+
+export type WithID<T> = T & {
+  ID: string;
+};
+
+export type RecursivePartial<T> = {
+  [P in keyof T]?: RecursivePartial<T[P]>;
+};
