@@ -138,7 +138,6 @@ export default function SideMenu() {
     </Box>
   );
 
-
   return (
     <div>
       <React.Fragment key="left">
