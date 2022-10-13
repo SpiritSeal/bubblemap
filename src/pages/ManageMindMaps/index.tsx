@@ -222,19 +222,18 @@ const ManageMindMaps = () => {
                     ? 'Owned by you'
                     : 'Shared with you'}
                   <br />
+                  {`${mindmap.nodes.length} node${
+                    mindmap.nodes.length !== 1 ? 's' : ''
+                  }`}
                   {mindmap.metadata.updatedAt ? (
                     <>
+                      <br />
                       Last modified{' '}
                       {mindmap.metadata.updatedAt.toDate().toLocaleDateString()}
-                      <br />
                     </>
                   ) : (
                     <Skeleton animation="wave" />
                   )}
-
-                  {`${mindmap.nodes.length} node${
-                    mindmap.nodes.length !== 1 ? 's' : ''
-                  }`}
                 </Typography>
               </CardContent>
             </CardActionArea>
