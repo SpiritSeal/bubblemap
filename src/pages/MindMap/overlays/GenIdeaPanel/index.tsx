@@ -83,21 +83,18 @@ const PersistentDrawerRight = () => {
     setOpen(false);
   };
 
-  const styles = {
-    fab: {
-      right: 20,
-      top: 20,
-      position: 'fixed',
-      // marginLeft: 40
-    },
-  };
-
+  const mindmapRef = React.useRef(null);
   return (
     <>
       <CssBaseline />
       <Fab
         variant="extended"
-        sx={styles.fab}
+        sx={{
+          right: 20,
+          top: 20,
+          position: 'fixed',
+          // marginLeft: 40
+        }}
         onClick={handleDrawerOpen}
         // sx={{ ...(open && { display: 'none' }) }}
       >
@@ -120,10 +117,30 @@ const PersistentDrawerRight = () => {
           <IconButton onClick={handleDrawerClose}>
             <ChevronRightIcon />
           </IconButton>
+          Idea Generation Panel
         </DrawerHeader>
         <Divider />
         <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
+          <ListItemButton
+            onClick={() => {
+              console.log('clicked');
+            }}
+          >
+            <ListItemText primary="Add Idea" />
+          </ListItemButton>
+          {/* Return to simulation button */}
+          <ListItemButton
+            onClick={() => {
+              // focus the element with class "react-transform-wrapper"
+              //   document
+              //     .getElementsByClassName('react-transform-wrapper')[0]
+              //     .focus();
+            }}
+          >
+            <ListItemText primary="Return to Simulation" />
+          </ListItemButton>
+
+          {/* {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
                 <ListItemIcon>
@@ -132,10 +149,10 @@ const PersistentDrawerRight = () => {
                 <ListItemText primary={text} />
               </ListItemButton>
             </ListItem>
-          ))}
+          ))} */}
         </List>
         <Divider />
-        <List>
+        {/* <List>
           {['All mail', 'Trash', 'Spam'].map((text, index) => (
             <ListItem key={text} disablePadding>
               <ListItemButton>
@@ -146,7 +163,7 @@ const PersistentDrawerRight = () => {
               </ListItemButton>
             </ListItem>
           ))}
-        </List>
+        </List> */}
       </Drawer>
     </>
     // </Box>

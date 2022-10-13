@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   doc,
   arrayRemove,
@@ -8,7 +8,7 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
-import { HotKeys } from 'react-hotkeys';
+import { configure, GlobalHotKeys } from 'react-hotkeys';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
@@ -148,18 +148,29 @@ const MindMap = () => {
     },
   };
 
+  // Create a sidebar active state
+  const [sideMenuActive, setSideMenuActive] = useState(false);
+
+  configure({
+    ignoreEventsCondition: () => {
+      // Ignore keypresses while side menu is open
+      if (sideMenuActive) return true;
+      return false;
+    },
+  });
+
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <HotKeys keyMap={keyMap} handlers={shortcutHandlers}>
+      <GlobalHotKeys keyMap={keyMap} handlers={shortcutHandlers}>
         <MindMapSimulation
           data={mindmap}
           addNode={addNode}
           deleteNode={deleteNode}
           updateNode={updateNode}
         />
-        <SideMenu />
+        <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
         <GenIdeaPanel />
-      </HotKeys>
+      </GlobalHotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );

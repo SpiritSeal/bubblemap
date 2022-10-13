@@ -8,7 +8,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from 'react';
-import { HotKeys } from 'react-hotkeys';
+import { GlobalHotKeys } from 'react-hotkeys';
 import {
   forceSimulation,
   forceLink,
@@ -507,7 +507,7 @@ const MindMapSimulation = ({
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
-    <HotKeys handlers={shortcutHandlers} allowChanges>
+    <GlobalHotKeys handlers={shortcutHandlers} allowChanges>
       <div
         onMouseLeave={() => childRef?.current?.releaseBubble()}
         onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
@@ -548,7 +548,7 @@ const MindMapSimulation = ({
           </TransformComponent>
         </TransformWrapper>
       </div>
-    </HotKeys>
+    </GlobalHotKeys>
   );
 };
 
