@@ -13,6 +13,7 @@ import { HotKeys } from 'react-hotkeys';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
+import GenIdeaPanel from './overlays/GenIdeaPanel';
 
 const keyMap = {
   ADD_NODE: 'ctrl+enter',
@@ -157,6 +158,7 @@ const MindMap = () => {
           updateNode={updateNode}
         />
         <SideMenu />
+        <GenIdeaPanel />
       </HotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
