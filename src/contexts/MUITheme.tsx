@@ -7,11 +7,11 @@ const getDesignTokens: (mode: PaletteMode) => ThemeOptions = (
   mode: PaletteMode
 ) => ({
   typography: {
-    fontFamily: 'century-gothic, sans-serif',
-    fontWeightLight: 300,
-    fontWeightRegular: 400,
-    fontWeightMedium: 500,
-    fontWeightBold: 700,
+    fontFamily: 'Inter, sans-serif',
+    fontWeightLight: 500,
+    fontWeightRegular: 700,
+    fontWeightMedium: 800,
+    fontWeightBold: 900,
   },
   palette: {
     mode,
@@ -19,11 +19,12 @@ const getDesignTokens: (mode: PaletteMode) => ThemeOptions = (
       default: mode === 'light' ? '#f8f7f8' : '#121212',
     },
     primary: {
-      main: '#3891A6',
+      main: '#7F95D1',
+      dark: '#0B3954',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#4C5B5C',
+      main: '#FF7075',
     },
     warning: {
       main: '#FDE74C',
