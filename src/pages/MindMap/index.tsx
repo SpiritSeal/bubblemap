@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   doc,
   arrayRemove,
@@ -8,11 +8,13 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
-import { HotKeys } from 'react-hotkeys';
+import { configure, GlobalHotKeys } from 'react-hotkeys';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
+import { SimulationNodeDatum } from 'd3-force';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import SideMenu from './overlays/SideMenu/SideMenu';
+import GenIdeaPanel from './overlays/GenIdeaPanel';
 
 const keyMap = {
   ADD_NODE: 'ctrl+enter',
@@ -129,14 +131,6 @@ const MindMap = () => {
   if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
 
   const shortcutHandlers = {
-    GENERATE_IDEAS: () => {
-      // eslint-disable-next-line no-console
-      console.log('Generate Ideas');
-    },
-    TOGGLE_SIDE_MENU: () => {
-      // eslint-disable-next-line no-console
-      console.log('Toggle Side Menu');
-    },
     TOGGLE_SETTINGS: () => {
       // eslint-disable-next-line no-console
       console.log('Toggle Settings');
@@ -147,17 +141,42 @@ const MindMap = () => {
     },
   };
 
+  // Create a sidebar active state
+  const [sideMenuActive, setSideMenuActive] = useState(false);
+
+  configure({
+    ignoreEventsCondition: () => {
+      // Ignore keypresses while side menu is open
+      if (sideMenuActive) return true;
+      return false;
+    },
+  });
+
+  // Get the mindmap node with id 0, which is the root node
+  const rootNode = mindmap.nodes.find((o) => o.id === 0);
+
+  if (!rootNode) {
+    throw new Error('Root node not found!');
+  }
+
+  const [selectedNode, setSelectedNode] = useState<SimulationNodeDatum & node>(
+    rootNode
+  );
+
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <HotKeys keyMap={keyMap} handlers={shortcutHandlers}>
+      <GlobalHotKeys keyMap={keyMap} handlers={shortcutHandlers}>
         <MindMapSimulation
           data={mindmap}
           addNode={addNode}
           deleteNode={deleteNode}
           updateNode={updateNode}
+          selectedNode={selectedNode}
+          setSelectedNode={setSelectedNode}
         />
-        <SideMenu />
-      </HotKeys>
+        <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
+        <GenIdeaPanel selectedNode={selectedNode} data={mindmap} />
+      </GlobalHotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );

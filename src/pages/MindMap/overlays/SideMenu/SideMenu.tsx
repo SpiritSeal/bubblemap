@@ -1,6 +1,5 @@
-/*eslint-disable*/
 import * as React from 'react';
-import { Box, Drawer, Button, List, Divider } from '@mui/material';
+import { Box, Drawer, List, Divider, Fab } from '@mui/material';
 
 import {
   Menu,
@@ -27,7 +26,16 @@ import DrawerListItem from './DrawerListItem';
 // Import css file
 import SettingsDialog from './SettingsDialog';
 
-export default function SideMenu() {
+// SideMenu component accepts 2 props
+// 1. active: boolean
+// 2. setActive: function that takes a boolean and returns void
+const SideMenu = ({
+  active,
+  setActive,
+}: {
+  active: boolean;
+  setActive: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const functions = useFunctions();
   const navigate = useNavigate();
 
@@ -46,7 +54,7 @@ export default function SideMenu() {
   /* End Drawer SubFunctions */
 
   const toggleDrawer =
-    (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    (isOpen: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event.type === 'keydown' &&
         ((event as React.KeyboardEvent).key === 'Tab' ||
@@ -55,23 +63,21 @@ export default function SideMenu() {
         return;
       }
 
-      setState({ ...state, left: open });
+      setActive(isOpen);
     };
 
-  const [state, setState] = React.useState({
-    left: false,
-  });
-
   // Pref Dialog Functions
+  // NOTE: the open and setOpen functions all refer to the preferences dialog, and NOT THE DRAWER!!!
   const [open, setOpen] = React.useState(false);
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   const SideMenuItems = () => (
     <Box
       role="presentation"
@@ -139,15 +145,25 @@ export default function SideMenu() {
 
   return (
     <div>
-      <React.Fragment key="left">
-        <Button onClick={toggleDrawer(true)}>
-          <Menu fontSize="large" />
-        </Button>
-        <Drawer open={state.left} onClose={toggleDrawer(false)}>
-          {<SideMenuItems />}
-        </Drawer>
-        <SettingsDialog open={open} setOpen={setOpen} />
-      </React.Fragment>
+      <Fab
+        onClick={toggleDrawer(true)}
+        variant="extended"
+        sx={{
+          left: -30,
+          top: 20,
+          position: 'fixed',
+        }}
+      >
+        {/* spacer element */}
+        <div style={{ width: 30 }} />
+        <Menu className="menu_icon" fontSize="large" />
+      </Fab>
+      <Drawer open={active} onClose={toggleDrawer(false)}>
+        <SideMenuItems />
+      </Drawer>
+      <SettingsDialog open={open} setOpen={setOpen} />
     </div>
   );
-}
+};
+
+export default SideMenu;
