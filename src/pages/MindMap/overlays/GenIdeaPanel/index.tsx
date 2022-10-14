@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Drawer from '@mui/material/Drawer';
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import CssBaseline from '@mui/material/CssBaseline';
 import List from '@mui/material/List';
 import Divider from '@mui/material/Divider';
@@ -11,56 +10,22 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
-import { CircularProgress, Fab } from '@mui/material';
 import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { GlobalHotKeys } from 'react-hotkeys';
+import { Fab } from '@mui/material';
 import { MindMap, node } from '../../../../types';
 
 const drawerWidthPercent = '20%';
 // Calculate the width of the drawer based on the percentage
-const drawerWidth = 240;
-
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })<{
-  open?: boolean;
-}>(({ theme, open }) => ({
-  flexGrow: 1,
-  padding: theme.spacing(3),
-  transition: theme.transitions.create('margin', {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  marginRight: -drawerWidth,
-  ...(open && {
-    transition: theme.transitions.create('margin', {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: 0,
-  }),
-}));
-
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
-
-const AppBar = styled(MuiAppBar, {
-  shouldForwardProp: (prop) => prop !== 'open',
-})<AppBarProps>(({ theme, open }) => ({
-  transition: theme.transitions.create(['margin', 'width'], {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    marginRight: drawerWidth,
-  }),
-}));
+// of the screen width
+const screenWidth = window.innerWidth;
+const drawerWidth =
+  screenWidth * (parseInt(drawerWidthPercent, 10) / 100) < 240
+    ? 240
+    : screenWidth * (parseInt(drawerWidthPercent, 10) / 100);
+// const drawerWidth = 240;
 
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -71,6 +36,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
 }));
 
+/* eslint-disable */
 const PersistentDrawerRight = ({
   selectedNode,
   data,
