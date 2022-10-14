@@ -62,15 +62,15 @@ const PersistentDrawerRight = ({
   // create a state to store the value of the input
   const [input, setInput] = React.useState('');
 
-const [textCache, setTextCache] = React.useState<{
+  const [textCache, setTextCache] = React.useState<{
     [key: number]: string | undefined;
-}>({});
-const [datamuseCache, setDatamuseCache] = React.useState<{
+  }>({});
+  const [datamuseCache, setDatamuseCache] = React.useState<{
     [key: number]: string[] | undefined;
-}>({});
-const [gpt3Cache, setGpt3Cache] = React.useState<{
+  }>({});
+  const [gpt3Cache, setGpt3Cache] = React.useState<{
     [key: number]: string[] | undefined;
-}>({});
+  }>({});
 
   /* eslint-disable no-console */
 
@@ -83,7 +83,7 @@ const [gpt3Cache, setGpt3Cache] = React.useState<{
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
       // Update the idea cache with the new datamuse, and keep the gpt3 the same
-        setDatamuseCache((prev) => ({ ...prev, [nodeID]: ideas }));
+      setDatamuseCache((prev) => ({ ...prev, [nodeID]: ideas }));
     }
   };
 
@@ -96,7 +96,7 @@ const [gpt3Cache, setGpt3Cache] = React.useState<{
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
       // Update the idea cache with the new gpt3, and keep the datamuse the same
-        setGpt3Cache((prev) => ({ ...prev, [nodeID]: ideas }));
+      setGpt3Cache((prev) => ({ ...prev, [nodeID]: ideas }));
     }
   };
 
@@ -107,7 +107,12 @@ const [gpt3Cache, setGpt3Cache] = React.useState<{
     force = false
   ) => {
     // Print parameters
-    console.log('generating ideas for nodeID: ', nodeID, ' given prompt: ', prompt);
+    console.log(
+      'generating ideas for nodeID: ',
+      nodeID,
+      ' given prompt: ',
+      prompt
+    );
     // If the prompt is empty, then don't do anything
     if (prompt === '') {
       return;
@@ -118,15 +123,15 @@ const [gpt3Cache, setGpt3Cache] = React.useState<{
     // Generate ideas from datamuse
     // if (ideaCache[nodeID]?.datamuse === undefined || force) {
     if (datamuseCache[nodeID] === undefined || force) {
-        setDatamuseCache((prev) => ({ ...prev, [nodeID]: undefined }));
-        genIdeaDatamuse(nodeID, prompt);
+      setDatamuseCache((prev) => ({ ...prev, [nodeID]: undefined }));
+      genIdeaDatamuse(nodeID, prompt);
     }
     // }
     // Generate ideas from gpt3
     // if (ideaCache[nodeID]?.gpt3 === undefined || force) {
     if (gpt3Cache[nodeID] === undefined || force) {
-        setGpt3Cache((prev) => ({ ...prev, [nodeID]: undefined }));
-        genIdeaGPT3(nodeID, prompt);
+      setGpt3Cache((prev) => ({ ...prev, [nodeID]: undefined }));
+      genIdeaGPT3(nodeID, prompt);
     }
     // }
   };
@@ -135,19 +140,22 @@ const [gpt3Cache, setGpt3Cache] = React.useState<{
     setInput(selectedNode.text);
     console.log('before generation');
 
-      generateIdeas(selectedNode.id, selectedNode.text, textCache[selectedNode.id] !== selectedNode.text);
+    generateIdeas(
+      selectedNode.id,
+      selectedNode.text,
+      textCache[selectedNode.id] !== selectedNode.text
+    );
   }, [selectedNode]);
 
-React.useEffect(() => {
+  React.useEffect(() => {
     console.log('datamuse cache', datamuseCache);
-}, [datamuseCache]);
-React.useEffect(() => {
+  }, [datamuseCache]);
+  React.useEffect(() => {
     console.log('gpt3 cache', gpt3Cache);
-}, [gpt3Cache]);
-React.useEffect(() => {
+  }, [gpt3Cache]);
+  React.useEffect(() => {
     console.log('text cache', textCache);
-}, [textCache]);
-
+  }, [textCache]);
 
   const shortcutHandlers = {
     TOGGLE_SIDE_MENU: handleDrawerOpen,
@@ -221,7 +229,7 @@ React.useEffect(() => {
               }}
             />
           </ListItem>
-            {datamuseCache[selectedNode.id]?.map((idea) => (
+          {datamuseCache[selectedNode.id]?.map((idea) => (
             <ListItem>
               <ListItemText
                 primary={idea}
@@ -235,23 +243,23 @@ React.useEffect(() => {
             </ListItem>
           ))}
           {/* Otherwise, create 3 blank rows */}
-            {datamuseCache[selectedNode.id] === undefined &&
+          {datamuseCache[selectedNode.id] === undefined &&
             Array(3)
-                .fill(0)
-                .map((_, index) => (
-                    <ListItem>
-                        <ListItemText
-                            primary="Loading..."
-                            primaryTypographyProps={{
-                                //   variant: 'h6',
-                                align: 'center',
-                                color: 'textPrimary',
-                                style: { fontStyle: 'italic' },
-                            }}
-                        />
-                    </ListItem>
-                ))}
-            <Divider />
+              .fill(0)
+              .map((_, index) => (
+                <ListItem>
+                  <ListItemText
+                    primary="Loading..."
+                    primaryTypographyProps={{
+                      //   variant: 'h6',
+                      align: 'center',
+                      color: 'textPrimary',
+                      style: { fontStyle: 'italic' },
+                    }}
+                  />
+                </ListItem>
+              ))}
+          <Divider />
           <Divider />
           {/* List the gpt3 cache for the currently selected node */}
           <ListItem>
@@ -266,7 +274,7 @@ React.useEffect(() => {
             />
           </ListItem>
           {/* {ideaCache[selectedNode.id]?.gpt3?.map((idea) => ( */}
-            {gpt3Cache[selectedNode.id]?.map((idea) => (
+          {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItem>
               <ListItemText
                 primary={idea}
@@ -279,27 +287,25 @@ React.useEffect(() => {
               />
             </ListItem>
           ))}
-            {/* Otherwise, create 3 blank rows */}
-            {/* {ideaCache[selectedNode.id]?.gpt3 === undefined && */}
-            {gpt3Cache[selectedNode.id] === undefined &&
+          {/* Otherwise, create 3 blank rows */}
+          {/* {ideaCache[selectedNode.id]?.gpt3 === undefined && */}
+          {gpt3Cache[selectedNode.id] === undefined &&
             Array(3)
-                
-                .fill(0)
-                .map((_, index) => (
-                    <ListItem>
-                        <ListItemText
-
-                            primary="Loading..."
-                            primaryTypographyProps={{
-                                align: 'center',
-                                color: 'textPrimary',
-                                style: { fontStyle: 'italic' },
-                            }}
-                        />
-                    </ListItem>
-                ))}
-          </List>
-          <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
+              .fill(0)
+              .map((_, index) => (
+                <ListItem>
+                  <ListItemText
+                    primary="Loading..."
+                    primaryTypographyProps={{
+                      align: 'center',
+                      color: 'textPrimary',
+                      style: { fontStyle: 'italic' },
+                    }}
+                  />
+                </ListItem>
+              ))}
+        </List>
+        <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
           <Divider />
           {/* Test Datamuse Button */}
           <ListItemButton
