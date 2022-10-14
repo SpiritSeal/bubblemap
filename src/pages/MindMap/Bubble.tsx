@@ -259,7 +259,7 @@ const Bubble = ({
         <text
           transform={`translate(${radius},${
             radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
-          }) scale(${radius / (textRadius() * 1.64)})`}
+          }) scale(${radius / (textRadius() * 1.74)})`}
           fill={theme.palette.primary.contrastText}
         >
           {lines.map((line, i) => (
