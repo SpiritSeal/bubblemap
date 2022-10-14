@@ -1,8 +1,7 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
-import { Divider, Menu, MenuItem } from '@mui/material';
+import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
 import { localNode as nodeType } from '../../types';
-// import './Bubble.css';
 
 const radius = 15;
 const lineHeight = 15.5;
@@ -48,6 +47,8 @@ const Bubble = ({
   updateNode: (oldNode: nodeType, newNode: nodeType) => void;
   handleEditNode: () => void;
 }) => {
+  const theme = useTheme();
+
   const [contextMenu, setContextMenu] = React.useState<{
     mouseX: number;
     mouseY: number;
@@ -117,8 +118,10 @@ const Bubble = ({
   // };
   // Prepare the text
   const { text } = node;
+
   const words = wordsGenerator(text);
   const targetWidth = Math.sqrt(measureWidth(text.trim()) * lineHeight);
+
   const getLines = () => {
     // line has properties { text, width }
     let line: { text: string; width: number } = { text: '', width: 0 };
@@ -140,15 +143,25 @@ const Bubble = ({
     }
     return linesTemp;
   };
+
   const lines = getLines();
-  const textRadius = function textRadius() {
+
+  const textRadius = () => {
     let tradius = 0;
+
     for (let i = 0, n = lines.length; i < n; i += 1) {
       const dy = (Math.abs(i - n / 2 + 0.5) + 0.5) * lineHeight;
       const dx = lines[i].width / 2;
       tradius = Math.max(tradius, Math.sqrt(dx ** 2 + dy ** 2));
     }
+
     return tradius;
+  };
+
+  const getStrokeColor = () => {
+    if (selected) return theme.palette.secondary.main;
+    if (node.id === 0) return theme.palette.primary.main;
+    return theme.palette.primary.dark;
   };
 
   return (
@@ -156,7 +169,6 @@ const Bubble = ({
     <g
       onContextMenu={handleContextMenu}
       // style={{ cursor: 'context-menu' }}
-      className="bubble"
       transform={`translate(${(node.x ?? 0) - radius} ${
         (node.y ?? 0) - radius
       })`}
@@ -234,9 +246,12 @@ const Bubble = ({
         cx={radius}
         cy={radius}
         r={radius}
-        fill={node.id === 0 ? 'lightblue' : '#e3eeff'}
-        stroke={selected ? 'pink' : 'black'}
-        strokeWidth={selected ? '7' : '.5'}
+        fill={
+          node.id === 0
+            ? theme.palette.primary.dark
+            : theme.palette.primary.main
+        }
+        stroke={getStrokeColor()}
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}
@@ -245,8 +260,7 @@ const Bubble = ({
           transform={`translate(${radius},${
             radius // - 0.5 * 0.5 * 0.5 * 0.5 * radius
           }) scale(${radius / (textRadius() * 1.64)})`}
-          // Green
-          fill={node.id === 0 ? 'red' : 'darkblue'}
+          fill={theme.palette.primary.contrastText}
         >
           {lines.map((line, i) => (
             <tspan

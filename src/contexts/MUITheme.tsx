@@ -1,16 +1,17 @@
 import React, { useState, createContext, useMemo, ReactNode } from 'react';
-import { PaletteMode, useMediaQuery } from '@mui/material';
-import { purple } from '@mui/material/colors';
+import { PaletteMode, ThemeOptions, useMediaQuery } from '@mui/material';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-const getDesignTokens = (mode: PaletteMode) => ({
+const getDesignTokens: (mode: PaletteMode) => ThemeOptions = (
+  mode: PaletteMode
+) => ({
   typography: {
-    fontFamily: 'century-gothic, sans-serif',
-    fontWeightLight: 300,
-    fontWeightRegular: 400,
-    fontWeightMedium: 500,
-    fontWeightBold: 700,
+    fontFamily: 'Inter, sans-serif',
+    fontWeightLight: 500,
+    fontWeightRegular: 600,
+    fontWeightMedium: 700,
+    fontWeightBold: 900,
   },
   palette: {
     mode,
@@ -18,11 +19,18 @@ const getDesignTokens = (mode: PaletteMode) => ({
       default: mode === 'light' ? '#f8f7f8' : '#121212',
     },
     primary: {
-      main: '#6DB058',
-      contrastText: '#000000',
+      main: '#7F95D1',
+      dark: '#0B3954',
+      contrastText: '#FFFFFF',
     },
     secondary: {
-      main: purple[500],
+      main: '#FF7075',
+    },
+    warning: {
+      main: '#FDE74C',
+    },
+    error: {
+      main: '#DB5461',
     },
   },
 });

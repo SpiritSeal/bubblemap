@@ -25,7 +25,6 @@ import { useNavigate } from 'react-router-dom';
 import DrawerListItem from './DrawerListItem';
 
 // Import css file
-import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
 
 export default function SideMenu() {
@@ -73,7 +72,7 @@ export default function SideMenu() {
     setOpen(false);
   };
 
-  const list = () => (
+  const SideMenuItems = () => (
     <Box
       role="presentation"
       onClick={toggleDrawer(false)}
@@ -142,10 +141,10 @@ export default function SideMenu() {
     <div>
       <React.Fragment key="left">
         <Button onClick={toggleDrawer(true)}>
-          <Menu className="menu_icon" />
+          <Menu fontSize="large" />
         </Button>
         <Drawer open={state.left} onClose={toggleDrawer(false)}>
-          {list()}
+          {<SideMenuItems />}
         </Drawer>
         <SettingsDialog open={open} setOpen={setOpen} />
       </React.Fragment>
