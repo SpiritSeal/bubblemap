@@ -24,7 +24,6 @@ import { useNavigate } from 'react-router-dom';
 import DrawerListItem from './DrawerListItem';
 
 // Import css file
-import './SideMenu.css';
 import SettingsDialog from './SettingsDialog';
 
 // SideMenu component accepts 2 props
@@ -78,7 +77,8 @@ const SideMenu = ({
   //   setOpen(false);
   // };
 
-  const list = () => (
+  // eslint-disable-next-line react/no-unstable-nested-components
+  const SideMenuItems = () => (
     <Box
       role="presentation"
       onClick={toggleDrawer(false)}
@@ -156,10 +156,10 @@ const SideMenu = ({
       >
         {/* spacer element */}
         <div style={{ width: 30 }} />
-        <Menu className="menu_icon" />
+        <Menu className="menu_icon" fontSize="large" />
       </Fab>
       <Drawer open={active} onClose={toggleDrawer(false)}>
-        {list()}
+        <SideMenuItems />
       </Drawer>
       <SettingsDialog open={open} setOpen={setOpen} />
     </div>

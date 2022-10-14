@@ -5,6 +5,7 @@ import {
   FormControlLabel,
   Checkbox,
   Paper,
+  Divider,
 } from '@mui/material';
 
 import { useAuth } from 'reactfire';
@@ -15,8 +16,11 @@ import {
   browserSessionPersistence,
   createUserWithEmailAndPassword,
   sendEmailVerification,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
+import { Google } from '@mui/icons-material';
 
 const CreateAccount = () => {
   const auth = useAuth();
@@ -165,6 +169,20 @@ const CreateAccount = () => {
             <p className="m-0">Create Account</p>
           </Button>
         </form>
+        <Divider sx={{ marginBlock: 3 }} />
+        <div style={{ textAlign: 'center' }}>
+          <Button
+            onClick={async () => {
+              const provider = new GoogleAuthProvider();
+              await signInWithPopup(auth, provider);
+            }}
+            startIcon={<Google />}
+            variant="outlined"
+            color="inherit"
+          >
+            Continue with Google
+          </Button>
+        </div>
       </Paper>
     </div>
   );
