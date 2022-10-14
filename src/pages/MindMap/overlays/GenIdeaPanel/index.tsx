@@ -139,12 +139,13 @@ const PersistentDrawerRight = ({
   React.useEffect(() => {
     setInput(selectedNode.text);
     console.log('before generation');
-
-    generateIdeas(
+    if (open) {
+      generateIdeas(
       selectedNode.id,
       selectedNode.text,
       textCache[selectedNode.id] !== selectedNode.text
-    );
+      );
+    }
   }, [selectedNode]);
 
   React.useEffect(() => {
@@ -156,11 +157,23 @@ const PersistentDrawerRight = ({
   React.useEffect(() => {
     console.log('text cache', textCache);
   }, [textCache]);
+  // When the panel is opened, generate ideas for the selected node
+  React.useEffect(() => {
+    if (open) {
+      generateIdeas(selectedNode.id, selectedNode.text);
+    }
+  }, [open]);
 
   const shortcutHandlers = {
     TOGGLE_SIDE_MENU: handleDrawerOpen,
     GENERATE_IDEAS: () => {
-      generateIdeas(selectedNode.id, selectedNode.text, true);
+      if (open) {
+        generateIdeas(selectedNode.id, selectedNode.text, true);
+      }
+      // If the side menu is closed, open it
+      if (!open) {
+        handleDrawerOpen();
+      }
     },
   };
 
@@ -308,7 +321,7 @@ const PersistentDrawerRight = ({
         <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
           <Divider />
           {/* Test Datamuse Button */}
-          <ListItemButton
+          {/* <ListItemButton
             onClick={() => {
               httpsCallable(
                 functions,
@@ -319,7 +332,7 @@ const PersistentDrawerRight = ({
             }}
           >
             <ListItemText primary="Test Datamuse" />
-          </ListItemButton>
+          </ListItemButton> */}
           <Divider />
           <ListItemButton
             onClick={() => {
