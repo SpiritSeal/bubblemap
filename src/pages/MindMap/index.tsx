@@ -123,6 +123,9 @@ const MindMap = () => {
       });
     }
     batch.commit();
+    if (selectedNode?.id === oldNode.id) {
+      setSelectedNode(newNode);
+    }
   };
   // const updateNodePrompt = (nodeToUpdate: node) => {
   //   // Create an MUI dialog box to update the node
