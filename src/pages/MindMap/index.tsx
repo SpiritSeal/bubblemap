@@ -58,6 +58,7 @@ const MindMap = () => {
     updateDoc(mindMapRef, {
       nodes: arrayUnion(newNode),
     });
+    if (selectedNode?.id === parent) setSelectedNode(newNode);
   };
 
   const stripInputNodeProperties = (inputNode: localNode) => {
