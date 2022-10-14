@@ -74,9 +74,9 @@ const SideMenu = ({
     setOpen(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
 
   const list = () => (
     <Box

@@ -108,6 +108,8 @@ const PersistentDrawerRight = ({
       | undefined;
   }>({});
 
+  /* eslint-disable no-console */
+
   const genIdeaDatamuse = async (nodeID: number, prompt: string) => {
     const genIdea = httpsCallable(functions, 'datamuse');
     const result = await genIdea({ data: prompt });
