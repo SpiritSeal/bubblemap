@@ -9,8 +9,8 @@ const getDesignTokens: (mode: PaletteMode) => ThemeOptions = (
   typography: {
     fontFamily: 'Inter, sans-serif',
     fontWeightLight: 500,
-    fontWeightRegular: 700,
-    fontWeightMedium: 800,
+    fontWeightRegular: 600,
+    fontWeightMedium: 700,
     fontWeightBold: 900,
   },
   palette: {

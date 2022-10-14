@@ -12,6 +12,7 @@ import {
   IconButton,
   Dialog,
   Skeleton,
+  Chip,
 } from '@mui/material';
 import {
   Add,
@@ -37,6 +38,7 @@ import {
 } from 'firebase/firestore';
 import { MindMap, RecursivePartial, WithID } from '../../types';
 import ShareDialog from './ShareDialog';
+import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 
 const ManageMindMaps = () => {
   const user = useUser().data;
@@ -45,6 +47,8 @@ const ManageMindMaps = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [openShareDialog, setOpenShareDialog] = useState<MindMap | null>(null);
+  const [openDeleteMindMapConfirmation, setOpenDeleteMindMapConfirmation] =
+    useState<string | null>(null);
 
   const mindmapsCollection = collection(firestore, 'mindmaps');
 
@@ -265,21 +269,39 @@ const ManageMindMaps = () => {
               >
                 <PersonAdd />
               </IconButton>
+              <ConfirmationDialog
+                approveButtonText="Delete MindMap"
+                description={
+                  <>
+                    Are you sure you want to <b>permanently delete</b>{' '}
+                    <Chip
+                      component="b"
+                      clickable
+                      label={mindmap.title}
+                      onClick={() => navigate(`/mindmaps/${mindmap.ID}`)}
+                    />
+                    ? Deleted MindMaps can not be recovered.
+                  </>
+                }
+                isOpen={!!openDeleteMindMapConfirmation}
+                onApprove={() => {
+                  deleteDoc(doc(firestore, 'mindmaps', mindmap.ID));
+                  setOpenDeleteMindMapConfirmation(null);
+                }}
+                onReject={() => setOpenDeleteMindMapConfirmation(null)}
+                rejectButtonText="Cancel"
+                suggestedAction="reject"
+                title="Delete MindMap?"
+              />
               <IconButton
                 type="button"
                 onClick={() => {
-                  if (
-                    // eslint-disable-next-line no-restricted-globals, no-alert
-                    confirm(
-                      `Are you sure you want to PERMANENTLY DELETE "${mindmap.title}"?`
-                    )
-                  )
-                    deleteDoc(doc(firestore, 'mindmaps', mindmap.ID));
+                  setOpenDeleteMindMapConfirmation(mindmap.ID);
                 }}
                 aria-label="delete mindmap"
               >
                 <Delete />
-              </IconButton>{' '}
+              </IconButton>
               <IconButton
                 type="button"
                 onClick={() => {
