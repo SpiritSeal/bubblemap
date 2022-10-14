@@ -6,7 +6,7 @@ import * as https from 'https';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const nlp = require('compromise/two');
-const cowsay = require('cowsay');
+// const cowsay = require('cowsay');
 
 const openai_key = process.env.OPENAI_SECRET;
 
@@ -88,17 +88,16 @@ function formatIdeaOAI(idea: any) {
   return ideas;
 }
 
-/* eslint-disable no-console */
 const ai = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
     const result = await genIdeaOAI(data.data);
     const resultDM = await genIdeaDM(data.data);
-    console.log(cowsay.say({ text: 'Success!' }));
-    console.log(cowsay.say({ text: `Datamuse Thinks: ${resultDM[0]}` }));
+    // console.log(cowsay.say({ text: 'Success!' }));
+    // console.log(cowsay.say({ text: `Datamuse Thinks: ${resultDM[0]}` }));
     // console.log(resultDM);
-    console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
+    // console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
     return {
       idea: {
         openai: result,

@@ -4,10 +4,12 @@ import * as https from 'https';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const nlp = require('compromise/two');
-const cowsay = require('cowsay');
+// const cowsay = require('cowsay');
 
 // This method attempts to extract the greatest possible value keywords from the text
-function extractKeywords(text: string) {
+function extractKeywords(input: string) {
+  // Remove punctuation
+  const text = input.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
   // If the text is empty, return an empty array
   if (text === '') {
     return [];
@@ -59,19 +61,14 @@ function formatIdeaDM(idea: any) {
   return ideas;
 }
 
-/* eslint-disable no-console */
 const datamuse = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
     const resultDM = await genIdeaDM(data.data);
-    console.log(cowsay.say({ text: 'Success!' }));
-    console.log(cowsay.say(`Datamuse Thinks: ${{ text: resultDM[0] }}`));
-    return {
-      idea: {
-        datamuse: resultDM,
-      },
-    };
+    // console.log(cowsay.say({ text: 'Success!' }));
+    // console.log(cowsay.say({ text: `Datamuse Thinks: ${resultDM[0]}` }));
+    return resultDM;
   });
 
 export default datamuse;

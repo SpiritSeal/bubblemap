@@ -41,6 +41,8 @@ const MindMapSimulationWithTransform = forwardRef(
       deleteNode,
       // eslint-disable-next-line
       updateNode,
+      selectedNode,
+      setSelectedNode,
     }: {
       data: MindMap;
       dragNodeSelected: (SimulationNodeDatum & node) | undefined;
@@ -50,6 +52,8 @@ const MindMapSimulationWithTransform = forwardRef(
       addNode: (node: { parent: number; text: string }) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
+      selectedNode: SimulationNodeDatum & node;
+      setSelectedNode: Dispatch<SetStateAction<SimulationNodeDatum & node>>;
     },
     ref
   ) => {
@@ -64,9 +68,9 @@ const MindMapSimulationWithTransform = forwardRef(
       []
     );
 
-    const [selectedNode, setSelectedNode] = useState<
-      SimulationNodeDatum & node
-    >();
+    // const [selectedNode, setSelectedNode] = useState<
+    //   SimulationNodeDatum & node
+    // >();
 
     const handleAddNode = (parentNode: SimulationNodeDatum & node) => {
       // eslint-disable-next-line no-alert
@@ -98,16 +102,17 @@ const MindMapSimulationWithTransform = forwardRef(
       // eslint-disable-next-line no-alert
       if (window.confirm('Are you sure you want to delete this node?')) {
         // If the node is selected, select the parent
+        // Get the parent node
+        const parentNode = nodes.find((n) => n.id === nodeToDelete.parent);
+        if (!parentNode) {
+          return;
+        }
         if (selectedNode?.id === nodeToDelete.id) {
-          setSelectedNode(
-            nodes.find((nodeF) => nodeF.id === nodeToDelete.parent) || undefined
-          );
+          setSelectedNode(parentNode);
         }
         if (checkIfRecursiveChildrenisSelected(nodeToDelete)) {
           // Set the selected node to the parent of the node to be deleted
-          setSelectedNode(
-            nodes.find((nodeF) => nodeF.id === nodeToDelete.parent) || undefined
-          );
+          setSelectedNode(parentNode);
         }
         deleteNode(nodeToDelete);
       }
@@ -453,11 +458,15 @@ const MindMapSimulation = ({
   addNode,
   deleteNode,
   updateNode,
+  selectedNode,
+  setSelectedNode,
 }: {
   data: MindMap;
   addNode: (node: { parent: number; text: string }) => void;
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
+  selectedNode: SimulationNodeDatum & node;
+  setSelectedNode: Dispatch<SetStateAction<SimulationNodeDatum & node>>;
 }) => {
   const [dragNodeSelected, setDragNodeSelected] = useState<
     (SimulationNodeDatum & node) | undefined
@@ -544,6 +553,8 @@ const MindMapSimulation = ({
               addNode={addNode}
               deleteNode={deleteNode}
               updateNode={updateNode}
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
             />
           </TransformComponent>
         </TransformWrapper>

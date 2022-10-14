@@ -3,7 +3,7 @@ import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
-const cowsay = require('cowsay');
+// const cowsay = require('cowsay');
 
 const openai_key = process.env.OPENAI_SECRET;
 
@@ -32,17 +32,14 @@ function formatIdeaOAI(idea: any) {
   return ideas;
 }
 
-/* eslint-disable no-console */
 const gpt3 = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
     const result = await genIdeaOAI(data.data);
-    console.log(cowsay.say({ text: 'Success!' }));
-    console.log(cowsay.say(`OpenAI Thinks: ${{ text: result[0] }}`));
-    return {
-      result,
-    };
+    // console.log(cowsay.say({ text: 'Success!' }));
+    // console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
+    return result;
   });
 
 export default gpt3;
