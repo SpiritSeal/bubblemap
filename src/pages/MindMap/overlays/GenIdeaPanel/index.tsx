@@ -141,9 +141,9 @@ const PersistentDrawerRight = ({
     console.log('before generation');
     if (open) {
       generateIdeas(
-      selectedNode.id,
-      selectedNode.text,
-      textCache[selectedNode.id] !== selectedNode.text
+        selectedNode.id,
+        selectedNode.text,
+        textCache[selectedNode.id] !== selectedNode.text
       );
     }
   }, [selectedNode]);
