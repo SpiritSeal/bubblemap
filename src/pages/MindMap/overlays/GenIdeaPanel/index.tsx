@@ -62,17 +62,25 @@ const PersistentDrawerRight = ({
   // create a state to store the value of the input
   const [input, setInput] = React.useState('');
 
-  // Create a state to cache ideas for each node
-  const [ideaCache, setIdeaCache] = React.useState<{
-    // The prompt (string) is the key, and the ideas generated (string[])
-    [key: number]:
-      | {
-          text: string | undefined;
-          datamuse: string[] | undefined;
-          gpt3: string[] | undefined;
-        }
-      | undefined;
-  }>({});
+//   const [ideaCache, setIdeaCache] = React.useState<{
+//     [key: number]:
+//       | {
+//           text: string | undefined;
+//           datamuse: string[] | undefined;
+//           gpt3: string[] | undefined;
+//         }
+//       | undefined;
+//   }>({});
+// Split the above function into 3 states
+const [textCache, setTextCache] = React.useState<{
+    [key: number]: string | undefined;
+}>({});
+const [datamuseCache, setDatamuseCache] = React.useState<{
+    [key: number]: string[] | undefined;
+}>({});
+const [gpt3Cache, setGpt3Cache] = React.useState<{
+    [key: number]: string[] | undefined;
+}>({});
 
   /* eslint-disable no-console */
 
@@ -80,19 +88,12 @@ const PersistentDrawerRight = ({
     const genIdea = httpsCallable(functions, 'datamuse');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
-    console.log('ideas', ideas);
+    console.log('datamuse ideas', ideas);
     console.log(Array.isArray(ideas));
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
       // Update the idea cache with the new datamuse, and keep the gpt3 the same
-      setIdeaCache({
-        ...ideaCache,
-        [nodeID]: {
-          text: ideaCache[nodeID]?.text,
-          datamuse: ideas,
-          gpt3: ideaCache[nodeID]?.gpt3,
-        },
-      });
+        setDatamuseCache((prev) => ({ ...prev, [nodeID]: ideas }));
     }
   };
 
@@ -100,19 +101,12 @@ const PersistentDrawerRight = ({
     const genIdea = httpsCallable(functions, 'gpt3');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
-    console.log('ideas', ideas);
+    console.log('gpt3 ideas', ideas);
     console.log(Array.isArray(ideas));
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
-      // Update the idea cache with the new datamuse, and keep the gpt3 the same
-      setIdeaCache({
-        ...ideaCache,
-        [nodeID]: {
-          text: ideaCache[nodeID]?.text,
-          datamuse: ideaCache[nodeID]?.datamuse,
-          gpt3: ideas,
-        },
-      });
+      // Update the idea cache with the new gpt3, and keep the datamuse the same
+        setGpt3Cache((prev) => ({ ...prev, [nodeID]: ideas }));
     }
   };
 
@@ -123,30 +117,27 @@ const PersistentDrawerRight = ({
     force = false
   ) => {
     // Print parameters
-    console.log('nodeID: ', nodeID);
-    console.log('prompt: ', prompt);
+    console.log('generating ideas for nodeID: ', nodeID, ' given prompt: ', prompt);
     // If the prompt is empty, then don't do anything
     if (prompt === '') {
       return;
     }
     // Update the idea cache with the new prompt
-    setIdeaCache({
-      ...ideaCache,
-      [nodeID]: {
-        text: prompt,
-        // datamuse: ideaCache[nodeID]?.datamuse,
-        // gpt3: ideaCache[nodeID]?.gpt3,
-        datamuse: undefined,
-        gpt3: undefined,
-      },
-    });
+    setTextCache((prev) => ({ ...prev, [nodeID]: prompt }));
+
     // Generate ideas from datamuse
     // if (ideaCache[nodeID]?.datamuse === undefined || force) {
-    genIdeaDatamuse(nodeID, prompt);
+    if (datamuseCache[nodeID] === undefined || force) {
+        setDatamuseCache((prev) => ({ ...prev, [nodeID]: undefined }));
+        genIdeaDatamuse(nodeID, prompt);
+    }
     // }
     // Generate ideas from gpt3
     // if (ideaCache[nodeID]?.gpt3 === undefined || force) {
-    genIdeaGPT3(nodeID, prompt);
+    if (gpt3Cache[nodeID] === undefined || force) {
+        setGpt3Cache((prev) => ({ ...prev, [nodeID]: undefined }));
+        genIdeaGPT3(nodeID, prompt);
+    }
     // }
   };
 
@@ -154,13 +145,12 @@ const PersistentDrawerRight = ({
     setInput(selectedNode.text);
     // See if we have any ideas for this node
     // log one
-    console.log('one');
+    console.log('before generation');
 
     // Only generate new ideas if the prompt text is different than the cached prompt
-    if (ideaCache[selectedNode.id]?.text !== selectedNode.text) {
-      // Generate ideas
-      generateIdeas(selectedNode.id, selectedNode.text);
-    }
+    // if (ideaCache[selectedNode.id]?.text !== selectedNode.text) {
+      generateIdeas(selectedNode.id, selectedNode.text, textCache[selectedNode.id] !== selectedNode.text);
+    // }
 
     // if (
     //   !(
@@ -180,8 +170,19 @@ const PersistentDrawerRight = ({
     //   });
     //   generateIdeas(selectedNode.id, selectedNode.text);
     // }
-    console.log('ideaCache', ideaCache);
   }, [selectedNode]);
+
+//   useEffect each ideaCache
+React.useEffect(() => {
+    console.log('datamuse cache', datamuseCache);
+}, [datamuseCache]);
+React.useEffect(() => {
+    console.log('gpt3 cache', gpt3Cache);
+}, [gpt3Cache]);
+React.useEffect(() => {
+    console.log('text cache', textCache);
+}, [textCache]);
+
 
   const shortcutHandlers = {
     TOGGLE_SIDE_MENU: handleDrawerOpen,
@@ -255,7 +256,8 @@ const PersistentDrawerRight = ({
               }}
             />
           </ListItem>
-          {ideaCache[selectedNode.id]?.datamuse?.map((idea) => (
+          {/* {ideaCache[selectedNode.id]?.datamuse?.map((idea) => ( */}
+            {datamuseCache[selectedNode.id]?.map((idea) => (
             <ListItem>
               <ListItemText
                 primary={idea}
@@ -268,7 +270,25 @@ const PersistentDrawerRight = ({
               />
             </ListItem>
           ))}
-          {/* Otherwise, List a centered loading icon */}
+          {/* Otherwise, create 3 blank rows */}
+            {/* {ideaCache[selectedNode.id]?.datamuse === undefined && */}
+            {datamuseCache[selectedNode.id] === undefined &&
+            Array(3)
+                .fill(0)
+                .map((_, index) => (
+                    <ListItem>
+                        <ListItemText
+                            primary="Loading..."
+                            primaryTypographyProps={{
+                                //   variant: 'h6',
+                                align: 'center',
+                                color: 'textPrimary',
+                                style: { fontStyle: 'italic' },
+                            }}
+                        />
+                    </ListItem>
+                ))}
+            <Divider />
           {/* {!ideaCache[selectedNode.id]?.datamuse && (
             <ListItem>
               <ListItemText
@@ -294,7 +314,8 @@ const PersistentDrawerRight = ({
               }}
             />
           </ListItem>
-          {ideaCache[selectedNode.id]?.gpt3?.map((idea) => (
+          {/* {ideaCache[selectedNode.id]?.gpt3?.map((idea) => ( */}
+            {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItem>
               <ListItemText
                 primary={idea}
@@ -307,6 +328,27 @@ const PersistentDrawerRight = ({
               />
             </ListItem>
           ))}
+            {/* Otherwise, create 3 blank rows */}
+            {/* {ideaCache[selectedNode.id]?.gpt3 === undefined && */}
+            {gpt3Cache[selectedNode.id] === undefined &&
+            Array(3)
+                
+                .fill(0)
+                .map((_, index) => (
+                    <ListItem>
+                        <ListItemText
+
+                            primary="Loading..."
+                            primaryTypographyProps={{
+                                align: 'center',
+                                color: 'textPrimary',
+                                style: { fontStyle: 'italic' },
+                            }}
+                        />
+                    </ListItem>
+                ))}
+          </List>
+          <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
           <Divider />
           {/* Test Datamuse Button */}
           <ListItemButton
@@ -321,6 +363,7 @@ const PersistentDrawerRight = ({
           >
             <ListItemText primary="Test Datamuse" />
           </ListItemButton>
+          <Divider />
           <ListItemButton
             onClick={() => {
               generateIdeas(selectedNode.id, selectedNode.text, true);
