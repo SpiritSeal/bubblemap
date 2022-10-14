@@ -86,18 +86,6 @@ function extractKeywords(input: string) {
     .filter((item: string) => item !== '');
 
   return uniqueKeywords;
-
-  // const nouns = doc.match('#Noun').out('array');
-  // if (nouns.length > 0) return nouns;
-  // const verbs = doc.match('#Verb').out('array');
-  // if (verbs.length > 0) return verbs;
-  // const adjectives = doc.match('#Adjective').out('array');
-  // if (adjectives.length > 0) return adjectives;
-  // const adverbs = doc.match('#Adverb').out('array');
-  // if (adverbs.length > 0) return adverbs;
-
-  // If no keywords are found, return all the words, sorted by length descending
-  // return text.split(' ').sort((a, b) => b.length - a.length);
 }
 
 async function genIdeaDM(text: string) {
@@ -131,21 +119,6 @@ async function genIdeaDM(text: string) {
       break;
     }
   }
-  // const response = await new Promise((resolve, reject) => {
-  //   https
-  //     .get(url, (res: any) => {
-  //       let data = '';
-  //       res.on('data', (chunk: string) => {
-  //         data += chunk;
-  //       });
-  //       res.on('end', () => {
-  //         resolve(JSON.parse(data));
-  //       });
-  //     })
-  //     .on('error', (err: any) => {
-  //       reject(err);
-  //     });
-  // });
   return formatIdeaDM(response);
 }
 
