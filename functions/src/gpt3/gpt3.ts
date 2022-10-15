@@ -15,9 +15,9 @@ const openai = new OpenAIApi(configuration);
 async function genIdeaOAI(text: string) {
   const response = await openai.createCompletion({
     model: 'text-davinci-002',
-    prompt: `Single word or phrase related to ${text}`,
+    prompt: `Single word or very short phrase related to ${text}`,
     temperature: 0.5,
-    max_tokens: 6,
+    max_tokens: 6 * 3,
     n: 3,
   });
   return formatIdeaOAI(response.data);

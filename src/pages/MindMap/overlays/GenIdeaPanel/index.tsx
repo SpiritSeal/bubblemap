@@ -36,9 +36,9 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-start',
 }));
 
-/* eslint-disable */
 const PersistentDrawerRight = ({
   selectedNode,
+  // eslint-disable-next-line
   data,
 }: {
   selectedNode: SimulationNodeDatum & node;
@@ -46,6 +46,7 @@ const PersistentDrawerRight = ({
 }) => {
   const functions = useFunctions();
 
+  // eslint-disable-next-line
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
 
@@ -136,10 +137,15 @@ const PersistentDrawerRight = ({
     // }
   };
 
+  // Creat a state called "initialLoad"
+  const [initialLoad, setInitialLoad] = React.useState(true);
+
   React.useEffect(() => {
     setInput(selectedNode.text);
-    console.log('before generation');
-    if (open) {
+    if (initialLoad) {
+      generateIdeas(selectedNode.id, selectedNode.text);
+      setInitialLoad(false);
+    } else if (open) {
       generateIdeas(
         selectedNode.id,
         selectedNode.text,
@@ -259,7 +265,7 @@ const PersistentDrawerRight = ({
           {datamuseCache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
-              .map((_, index) => (
+              .map(() => (
                 <ListItem>
                   <ListItemText
                     primary="Loading..."
@@ -305,7 +311,7 @@ const PersistentDrawerRight = ({
           {gpt3Cache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
-              .map((_, index) => (
+              .map(() => (
                 <ListItem>
                   <ListItemText
                     primary="Loading..."
