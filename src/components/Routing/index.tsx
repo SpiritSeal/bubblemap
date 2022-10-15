@@ -66,10 +66,14 @@ const Routing = () => {
             <Route
               index
               element={
-                <>
-                  <Navigation />
-                  <ManageMindMaps />
-                </>
+                signinCheck.signedIn ? (
+                  <>
+                    <Navigation />
+                    <ManageMindMaps />
+                  </>
+                ) : (
+                  <Navigate to="/" />
+                )
               }
             />
             <Route path=":mindmapID" element={<MindMap />} />
