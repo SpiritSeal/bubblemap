@@ -19,6 +19,7 @@ async function genIdeaOAI(text: string) {
     temperature: 0.5,
     max_tokens: 6 * 3,
     n: 3,
+    presence_penalty: 1.9,
   });
   return formatIdeaOAI(response.data);
 }
