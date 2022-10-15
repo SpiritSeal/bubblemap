@@ -179,7 +179,11 @@ const MindMap = () => {
           setSelectedNode={setSelectedNode}
         />
         <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
-        <GenIdeaPanel selectedNode={selectedNode} data={mindmap} />
+        <GenIdeaPanel
+          selectedNode={selectedNode}
+          data={mindmap}
+          addNode={addNode}
+        />
       </GlobalHotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>

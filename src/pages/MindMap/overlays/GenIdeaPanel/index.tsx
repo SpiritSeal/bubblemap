@@ -40,9 +40,11 @@ const PersistentDrawerRight = ({
   selectedNode,
   // eslint-disable-next-line
   data,
+  addNode,
 }: {
   selectedNode: SimulationNodeDatum & node;
   data: MindMap;
+  addNode: ({ parent, text }: { parent: number; text: string }) => void;
 }) => {
   const functions = useFunctions();
 
@@ -170,6 +172,10 @@ const PersistentDrawerRight = ({
     }
   }, [open]);
 
+  const handleIdeaClick = (nodeID: number, idea: string) => {
+    addNode({ parent: nodeID, text: idea });
+  };
+
   const shortcutHandlers = {
     TOGGLE_SIDE_MENU: handleDrawerOpen,
     GENERATE_IDEAS: () => {
@@ -249,7 +255,9 @@ const PersistentDrawerRight = ({
             />
           </ListItem>
           {datamuseCache[selectedNode.id]?.map((idea) => (
-            <ListItem>
+            <ListItemButton
+              onClick={() => handleIdeaClick(selectedNode.id, idea)}
+            >
               <ListItemText
                 primary={idea}
                 primaryTypographyProps={{
@@ -259,7 +267,7 @@ const PersistentDrawerRight = ({
                   style: { fontStyle: 'italic' },
                 }}
               />
-            </ListItem>
+            </ListItemButton>
           ))}
           {/* Otherwise, create 3 blank rows */}
           {datamuseCache[selectedNode.id] === undefined &&
@@ -348,7 +356,6 @@ const PersistentDrawerRight = ({
             <ListItemText primary="Manually Regenerate Ideas" />
           </ListItemButton>
         </List>
-        <Divider />
       </Drawer>
     </>
     // </Box>
