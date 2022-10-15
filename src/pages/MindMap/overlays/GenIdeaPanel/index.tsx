@@ -14,7 +14,8 @@ import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { GlobalHotKeys } from 'react-hotkeys';
-import { Fab } from '@mui/material';
+import { Fab, ListItemSecondaryAction } from '@mui/material';
+import { SettingsSuggest } from '@mui/icons-material';
 import { MindMap, node } from '../../../../types';
 
 const drawerWidthPercent = '20%';
@@ -75,14 +76,10 @@ const PersistentDrawerRight = ({
     [key: number]: string[] | undefined;
   }>({});
 
-  /* eslint-disable no-console */
-
   const genIdeaDatamuse = async (nodeID: number, prompt: string) => {
     const genIdea = httpsCallable(functions, 'datamuse');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
-    console.log('datamuse ideas', ideas);
-    console.log(Array.isArray(ideas));
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
       // Update the idea cache with the new datamuse, and keep the gpt3 the same
@@ -94,8 +91,6 @@ const PersistentDrawerRight = ({
     const genIdea = httpsCallable(functions, 'gpt3');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
-    console.log('gpt3 ideas', ideas);
-    console.log(Array.isArray(ideas));
     // Assert ideas is an array of strings
     if (Array.isArray(ideas)) {
       // Update the idea cache with the new gpt3, and keep the datamuse the same
@@ -109,13 +104,6 @@ const PersistentDrawerRight = ({
     prompt: string,
     force = false
   ) => {
-    // Print parameters
-    console.log(
-      'generating ideas for nodeID: ',
-      nodeID,
-      ' given prompt: ',
-      prompt
-    );
     // If the prompt is empty, then don't do anything
     if (prompt === '') {
       return;
@@ -157,13 +145,13 @@ const PersistentDrawerRight = ({
   }, [selectedNode]);
 
   React.useEffect(() => {
-    console.log('datamuse cache', datamuseCache);
+    // console.log('datamuse cache', datamuseCache);
   }, [datamuseCache]);
   React.useEffect(() => {
-    console.log('gpt3 cache', gpt3Cache);
+    // console.log('gpt3 cache', gpt3Cache);
   }, [gpt3Cache]);
   React.useEffect(() => {
-    console.log('text cache', textCache);
+    // console.log('text cache', textCache);
   }, [textCache]);
   // When the panel is opened, generate ideas for the selected node
   React.useEffect(() => {
@@ -182,7 +170,6 @@ const PersistentDrawerRight = ({
       if (open) {
         generateIdeas(selectedNode.id, selectedNode.text, true);
       }
-      // If the side menu is closed, open it
       if (!open) {
         handleDrawerOpen();
       }
@@ -232,7 +219,6 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary={input}
-              //   secondary="Editable Text"
               primaryTypographyProps={{
                 variant: 'h5',
                 align: 'center',
@@ -248,11 +234,14 @@ const PersistentDrawerRight = ({
               primary="Datamuse"
               primaryTypographyProps={{
                 variant: 'h6',
-                // align: 'center',
                 color: 'textPrimary',
-                // style: { fontStyle: 'italic' },
               }}
             />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" aria-label="settings">
+                <SettingsSuggest />
+              </IconButton>
+            </ListItemSecondaryAction>
           </ListItem>
           {datamuseCache[selectedNode.id]?.map((idea) => (
             <ListItemButton
@@ -261,7 +250,6 @@ const PersistentDrawerRight = ({
               <ListItemText
                 primary={idea}
                 primaryTypographyProps={{
-                  //   variant: 'h6',
                   align: 'center',
                   color: 'textPrimary',
                   style: { fontStyle: 'italic' },
@@ -269,7 +257,6 @@ const PersistentDrawerRight = ({
               />
             </ListItemButton>
           ))}
-          {/* Otherwise, create 3 blank rows */}
           {datamuseCache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
@@ -294,15 +281,20 @@ const PersistentDrawerRight = ({
               primary="GPT3"
               primaryTypographyProps={{
                 variant: 'h6',
-                // align: 'center',
                 color: 'textPrimary',
-                // style: { fontStyle: 'italic' },
               }}
             />
+            {/* Add a right-aligned, clickable settings gear next to the text */}
+            <ListItemSecondaryAction>
+              <IconButton edge="end" aria-label="settings">
+                <SettingsSuggest />
+              </IconButton>
+            </ListItemSecondaryAction>
           </ListItem>
-          {/* {ideaCache[selectedNode.id]?.gpt3?.map((idea) => ( */}
           {gpt3Cache[selectedNode.id]?.map((idea) => (
-            <ListItem>
+            <ListItemButton
+              onClick={() => handleIdeaClick(selectedNode.id, idea)}
+            >
               <ListItemText
                 primary={idea}
                 primaryTypographyProps={{
@@ -312,7 +304,7 @@ const PersistentDrawerRight = ({
                   style: { fontStyle: 'italic' },
                 }}
               />
-            </ListItem>
+            </ListItemButton>
           ))}
           {/* Otherwise, create 3 blank rows */}
           {/* {ideaCache[selectedNode.id]?.gpt3 === undefined && */}
@@ -334,20 +326,37 @@ const PersistentDrawerRight = ({
         </List>
         <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
           <Divider />
-          {/* Test Datamuse Button */}
-          {/* <ListItemButton
+          {/* Test GPT3_PARENT */}
+          <ListItemButton
             onClick={() => {
+              // If selected node is root, return
+              if (selectedNode.id === 0) {
+                return;
+              }
+              // Get the text of the selected node
+              const { text } = selectedNode;
+              // Get the id of the parent of the selected node
+              const parentID = selectedNode.parent;
+              // Get the text of the parent of the selected node
+              // find the parent node
+              const parentNode = data.nodes.find(
+                (nodeF) => nodeF.id === parentID
+              );
+              // get the text of the parent node
+              const parentText = parentNode?.text;
               httpsCallable(
                 functions,
-                'datamuse'
-              )({ data: 'test' }).then((res) => {
+                'gpt3_parent'
+              )({ data: [text, parentText] }).then((res) => {
+                // eslint-disable-next-line no-console
                 console.log(res);
               });
             }}
           >
-            <ListItemText primary="Test Datamuse" />
-          </ListItemButton> */}
+            <ListItemText primary="Test GPT3_PARENT" />
+          </ListItemButton>
           <Divider />
+
           <ListItemButton
             onClick={() => {
               generateIdeas(selectedNode.id, selectedNode.text, true);
