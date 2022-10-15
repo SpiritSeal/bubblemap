@@ -32,6 +32,7 @@ const keyMap = {
   MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
   MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
   RESET_VIEW: ['ctrl+0', 'home'],
+  LOCK_NODE: ['l', 'ctrl+l'],
 };
 
 const MindMap = () => {

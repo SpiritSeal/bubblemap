@@ -34,6 +34,8 @@ const Bubble = ({
   handleDeleteNode,
   updateNode,
   handleEditNode,
+  handleSetNodeLockState,
+  locked,
 }: {
   node: SimulationNodeDatum & nodeType;
   dragging: boolean;
@@ -46,6 +48,8 @@ const Bubble = ({
   handleDeleteNode: () => void;
   updateNode: (oldNode: nodeType, newNode: nodeType) => void;
   handleEditNode: () => void;
+  handleSetNodeLockState: (lockState?: boolean) => void;
+  locked: boolean;
 }) => {
   const theme = useTheme();
 
@@ -73,13 +77,13 @@ const Bubble = ({
     setContextMenu(null);
   };
 
-  const printOptionAndClose = (e: React.MouseEvent, option: string) => {
-    // eslint-disable-next-line no-console
-    console.log(option);
-    // console.log("node", node.fx, node.fy);
-    handleContextMenuClose();
-    e.preventDefault();
-  };
+  // const printOptionAndClose = (e: React.MouseEvent, option: string) => {
+  //   // eslint-disable-next-line no-console
+  //   console.log(option);
+  //   // console.log("node", node.fx, node.fy);
+  //   handleContextMenuClose();
+  //   e.preventDefault();
+  // };
 
   const handleInheritedHandles = (e: React.MouseEvent, handle: () => void) => {
     handle();
@@ -87,35 +91,6 @@ const Bubble = ({
     e.preventDefault();
   };
 
-  // const handleAddNode = (e?: React.MouseEvent) => {
-  //   // eslint-disable-next-line no-alert
-  //   const newText = prompt('Enter new text', '');
-  //   if (newText) {
-  //     addNode({
-  //       parent: node.id,
-  //       text: newText || '',
-  //     });
-  //   }
-  //   handleContextMenuClose();
-  //   e?.preventDefault();
-  // };
-  // const handleDeleteNode = (e?: React.MouseEvent) => {
-  //   // eslint-disable-next-line no-alert
-  //   if (window.confirm('Are you sure you want to delete this node?')) {
-  //     deleteNode(node);
-  //   }
-  //   handleContextMenuClose();
-  //   e?.preventDefault();
-  // };
-  // const handleEditNode = (e?: React.MouseEvent) => {
-  //   handleContextMenuClose();
-  //   // eslint-disable-next-line no-alert
-  //   const newText = prompt('Enter new text', node.text);
-  //   if (newText) {
-  //     updateNode(node, { ...node, text: newText });
-  //   }
-  //   e?.preventDefault();
-  // };
   // Prepare the text
   const { text } = node;
 
@@ -159,7 +134,9 @@ const Bubble = ({
   };
 
   const getStrokeColor = () => {
+    if (selected && locked) return theme.palette.error.dark;
     if (selected) return theme.palette.secondary.main;
+    if (locked) return theme.palette.warning.main;
     if (node.id === 0) return theme.palette.primary.main;
     return theme.palette.primary.dark;
   };
@@ -179,7 +156,6 @@ const Bubble = ({
       }
       // onClick set selectedNode and console.log the node
       onClick={(e) => {
-        // prevent duplicate onClick when context menu is open
         if (contextMenu) {
           return;
         }
@@ -194,6 +170,8 @@ const Bubble = ({
               handleInheritedHandles(e, handleAddNode);
             } else if (e.altKey) {
               handleInheritedHandles(e, handleDeleteNode);
+            } else if (e.shiftKey) {
+              handleSetNodeLockState();
             } else {
               setSelectedNode(node);
             }
@@ -202,7 +180,6 @@ const Bubble = ({
         e.stopPropagation();
       }}
       onDoubleClick={(e) => {
-        // prevent duplicate onClick when context menu is open
         if (contextMenu) {
           return;
         }
@@ -227,9 +204,13 @@ const Bubble = ({
             : undefined
         }
       >
-        <MenuItem onClick={(e) => printOptionAndClose(e, 'Lock Node')}>
-          {/* ${node.fx !== undefined ? `Lock Node` : `Unlock Node`} */}
-          Lock Node
+        <MenuItem
+          onClick={(e) => {
+            handleSetNodeLockState();
+            handleInheritedHandles(e, () => {});
+          }}
+        >
+          {!locked ? `Lock Node` : `Unlock Node`}
         </MenuItem>
         <Divider />
         <MenuItem onClick={(e) => handleInheritedHandles(e, handleAddNode)}>

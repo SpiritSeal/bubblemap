@@ -68,6 +68,55 @@ const MindMapSimulationWithTransform = forwardRef(
       []
     );
 
+    // Create a state to store the lockstates of all the nodes
+    const [nodeLockStates, setNodeLockStates] = useState<{
+      [key: number]: boolean;
+    }>({});
+    // lastNodeLockStates is used to store the previous state of nodeLockStates
+    const lastNodeLockStates = useRef<{
+      [key: number]: boolean;
+    }>({});
+
+    // UseEffect Lockstate
+    useEffect(() => {
+      // Find the difference between the lastNodeLockStates and the current nodeLockStates
+      const difference = Object.keys(nodeLockStates).filter(
+        (key) =>
+          nodeLockStates[Number(key)] !==
+          lastNodeLockStates.current[Number(key)]
+      );
+      // If the difference is not empty, find nodes that now have a lockstate of false
+      if (difference.length > 0) {
+        const unlockedNodes = difference.filter(
+          (key) => nodeLockStates[Number(key)] === false
+        );
+        // Set their fx and fy to null
+        unlockedNodes.forEach((key) => {
+          // Get the node with the id of the key
+          const nodeUnlocked = nodes.find((o) => o.id === parseInt(key, 10));
+          if (nodeUnlocked && nodeUnlocked.id !== 0) {
+            nodeUnlocked.fx = null;
+            nodeUnlocked.fy = null;
+          }
+        });
+        // Find those nodes that now have a lockstate of true
+        const lockedNodes = difference.filter(
+          (key) => nodeLockStates[Number(key)] === true
+        );
+        // Set their fx and fy to their current x and y
+        lockedNodes.forEach((key) => {
+          // Get the node with the id of the key
+          const nodeLocked = nodes.find((o) => o.id === parseInt(key, 10));
+          if (nodeLocked) {
+            nodeLocked.fx = nodeLocked.x;
+            nodeLocked.fy = nodeLocked.y;
+          }
+        });
+      }
+      // Set the lastNodeLockStates to the current nodeLockStates
+      lastNodeLockStates.current = nodeLockStates;
+    }, [nodeLockStates, simulation]);
+
     // const [selectedNode, setSelectedNode] = useState<
     //   SimulationNodeDatum & node
     // >();
@@ -224,6 +273,12 @@ const MindMapSimulationWithTransform = forwardRef(
         setSelectedNode(root);
       }
     };
+    const handleToggleNodeLock = (nodeToToggle: node) => {
+      setNodeLockStates({
+        ...nodeLockStates,
+        [nodeToToggle.id]: !nodeLockStates[nodeToToggle.id],
+      });
+    };
 
     const [mouseDown, setMouseDown] = useState(false);
     const [downMouseCoords, setDownMouseCoords] = useState({ x: 0, y: 0 });
@@ -311,8 +366,10 @@ const MindMapSimulationWithTransform = forwardRef(
         } else {
           dragNodeSelected.x = dragNodeSelected?.fx ?? 0;
           dragNodeSelected.y = dragNodeSelected?.fy ?? 0;
-          dragNodeSelected.fx = null;
-          dragNodeSelected.fy = null;
+          if (!nodeLockStates[dragNodeSelected.id]) {
+            dragNodeSelected.fx = null;
+            dragNodeSelected.fy = null;
+          }
           setDragNodeSelected(undefined);
           simulation?.alpha(1).restart();
         }
@@ -378,6 +435,11 @@ const MindMapSimulationWithTransform = forwardRef(
       handleMoveSelectionToRoot() {
         handleMoveSelectionToRoot();
       },
+      handleToggleNodeLock() {
+        if (selectedNode) {
+          handleToggleNodeLock(selectedNode);
+        }
+      },
     }));
 
     if (simulation === null) return <Loading />;
@@ -430,6 +492,18 @@ const MindMapSimulationWithTransform = forwardRef(
             const handleEditNodePD = () => {
               handleEditNode(nodeData);
             };
+            const handleSetNodeLockStatePD = (lockState?: boolean) => {
+              if (nodeData.id === 0) return;
+              if (lockState === undefined) {
+                handleSetNodeLockStatePD(!nodeLockStates[nodeData.id]);
+              } else {
+                // Update the lock state of the node in the nodeLockStates state array
+                setNodeLockStates({
+                  ...nodeLockStates,
+                  [nodeData.id]: lockState,
+                });
+              }
+            };
             return (
               <Bubble
                 key={nodeData.id}
@@ -444,6 +518,8 @@ const MindMapSimulationWithTransform = forwardRef(
                 handleDeleteNode={handleDeleteNodePD}
                 updateNode={updateNode}
                 handleEditNode={handleEditNodePD}
+                handleSetNodeLockState={handleSetNodeLockStatePD}
+                locked={nodeLockStates[nodeData.id]}
               />
             );
           })}
@@ -510,6 +586,10 @@ const MindMapSimulation = ({
     },
     RESET_VIEW: (e: any) => {
       // TODO: Reset the Transform
+      e.preventDefault();
+    },
+    LOCK_NODE: (e: any) => {
+      childRef.current.handleToggleNodeLock();
       e.preventDefault();
     },
   };
