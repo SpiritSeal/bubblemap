@@ -16,9 +16,10 @@ import { SimulationNodeDatum } from 'd3-force';
 import { GlobalHotKeys } from 'react-hotkeys';
 /* eslint-disable */
 import { Fab, ListItemSecondaryAction } from '@mui/material';
-import { SettingsSuggest } from '@mui/icons-material';
+import { Help, QuestionMark, SettingsSuggest } from '@mui/icons-material';
 /* eslint-enable */
 import { MindMap, node } from '../../../../types';
+import BottomRightButtons from '../BottomRightButtons';
 
 const drawerWidthPercent = '20%';
 // Calculate the width of the drawer based on the percentage
@@ -167,7 +168,13 @@ const PersistentDrawerRight = ({
   };
 
   const shortcutHandlers = {
-    TOGGLE_SIDE_MENU: handleDrawerOpen,
+    TOGGLE_SIDE_MENU: () => {
+      if (open) {
+        handleDrawerClose();
+      } else {
+        handleDrawerOpen();
+      }
+    },
     GENERATE_IDEAS: () => {
       if (open) {
         generateIdeas(selectedNode.id, selectedNode.text, true);
@@ -179,7 +186,7 @@ const PersistentDrawerRight = ({
   };
 
   return (
-    <>
+    <div>
       <GlobalHotKeys handlers={shortcutHandlers} />
       <CssBaseline />
       <Fab
@@ -288,11 +295,11 @@ const PersistentDrawerRight = ({
               }}
             />
             {/* PART ONE */}
-            {/* <ListItemSecondaryAction>
+            <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="settings">
                 <SettingsSuggest />
               </IconButton>
-            </ListItemSecondaryAction> */}
+            </ListItemSecondaryAction>
           </ListItem>
           {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItemButton
@@ -364,7 +371,9 @@ const PersistentDrawerRight = ({
           </ListItemButton>
         </List>
       </Drawer>
-    </>
+      {/* Create a Help Button that is positioned on the bottom right of the page relative to the drawer */}
+      <BottomRightButtons drawerOpen={open} drawerWidth={drawerWidth} />
+    </div>
     // </Box>
   );
 };
