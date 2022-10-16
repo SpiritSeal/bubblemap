@@ -12,14 +12,14 @@ const configuration = new Configuration({
 });
 const openai = new OpenAIApi(configuration);
 
-async function genIdeaOAI(text: string) {
+async function genIdeaOAI(child: string, parent: string) {
   const response = await openai.createCompletion({
     model: 'text-davinci-002',
-    prompt: `Single word or very short phrase related to ${text}`,
+    prompt: `${child} --> ${parent} --> \n[Short phrase]: `,
     temperature: 0.5,
-    max_tokens: 6 * 3,
-    n: 3,
-    presence_penalty: 1.9,
+    max_tokens: 6 * 4,
+    presence_penalty: 2.0,
+    frequency_penalty: 2.0,
   });
   return formatIdeaOAI(response.data);
 }
@@ -33,14 +33,14 @@ function formatIdeaOAI(idea: any) {
   return ideas;
 }
 
-const gpt3 = functions
+const gpt3_parent = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
-    const result = await genIdeaOAI(data.data);
+    const result = await genIdeaOAI(data.data[0], data.data[1]);
     // console.log(cowsay.say({ text: 'Success!' }));
     // console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
     return result;
   });
 
-export default gpt3;
+export default gpt3_parent;

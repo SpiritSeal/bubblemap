@@ -90,7 +90,12 @@ function extractKeywords(input: string) {
 
 async function genIdeaDM(text: string) {
   const keywords = extractKeywords(text);
-  const url = `https://api.datamuse.com/words?rel_trg=${keywords[0]}&max=3`;
+  // Get up to the first 6 keywords from the array
+  const keywordsToUse = keywords.slice(0, 7);
+  // const url = `https://api.datamuse.com/words?rel_trg=${keywords[0]}&topics=${keywords[1-6, comma separatedif they exist]}&max=3`;
+  const url = `https://api.datamuse.com/words?rel_trg=${
+    keywordsToUse[0]
+  }&topics=${keywordsToUse.slice(1).join(',')}&max=3`;
 
   // attempt to generate ideas from Datamuse by trying each word in keywords until a valid response is received
   let response: any;

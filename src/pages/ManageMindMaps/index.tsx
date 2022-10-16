@@ -22,7 +22,11 @@ import {
   Link as LinkIcon,
   PersonAdd,
 } from '@mui/icons-material';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useNavigate,
+  useSearchParams,
+  Link as RouterLink,
+} from 'react-router-dom';
 import { useFirestore, useFirestoreCollectionData, useUser } from 'reactfire';
 import {
   addDoc,
@@ -213,7 +217,7 @@ const ManageMindMaps = () => {
             elevation={2}
             key={mindmap.ID}
           >
-            <CardActionArea onClick={() => navigate(`/mindmaps/${mindmap.ID}`)}>
+            <CardActionArea component={RouterLink} to={mindmap.ID}>
               <CardMedia>
                 <BubbleChart
                   sx={{ width: '90%', height: '90%', textAlign: 'center' }}

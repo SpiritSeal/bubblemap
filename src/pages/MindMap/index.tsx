@@ -32,6 +32,7 @@ const keyMap = {
   MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
   MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
   RESET_VIEW: ['ctrl+0', 'home'],
+  LOCK_NODE: ['l', 'ctrl+l'],
 };
 
 const MindMap = () => {
@@ -58,6 +59,7 @@ const MindMap = () => {
     updateDoc(mindMapRef, {
       nodes: arrayUnion(newNode),
     });
+    setSelectedNode(newNode);
   };
 
   const stripInputNodeProperties = (inputNode: localNode) => {
@@ -123,6 +125,9 @@ const MindMap = () => {
       });
     }
     batch.commit();
+    if (selectedNode?.id === oldNode.id) {
+      setSelectedNode(newNode);
+    }
   };
   // const updateNodePrompt = (nodeToUpdate: node) => {
   //   // Create an MUI dialog box to update the node
@@ -175,7 +180,11 @@ const MindMap = () => {
           setSelectedNode={setSelectedNode}
         />
         <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
-        <GenIdeaPanel selectedNode={selectedNode} data={mindmap} />
+        <GenIdeaPanel
+          selectedNode={selectedNode}
+          data={mindmap}
+          addNode={addNode}
+        />
       </GlobalHotKeys>
       {/* <FormDialog promptText="Hello world!" /> */}
     </div>
