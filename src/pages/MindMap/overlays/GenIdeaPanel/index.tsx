@@ -237,11 +237,12 @@ const PersistentDrawerRight = ({
                 color: 'textPrimary',
               }}
             />
-            <ListItemSecondaryAction>
+            {/* PART ONE */}
+            {/* <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="settings">
                 <SettingsSuggest />
               </IconButton>
-            </ListItemSecondaryAction>
+            </ListItemSecondaryAction> */}
           </ListItem>
           {datamuseCache[selectedNode.id]?.map((idea) => (
             <ListItemButton
@@ -284,12 +285,12 @@ const PersistentDrawerRight = ({
                 color: 'textPrimary',
               }}
             />
-            {/* Add a right-aligned, clickable settings gear next to the text */}
-            <ListItemSecondaryAction>
+            {/* PART ONE */}
+            {/* <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="settings">
                 <SettingsSuggest />
               </IconButton>
-            </ListItemSecondaryAction>
+            </ListItemSecondaryAction> */}
           </ListItem>
           {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItemButton
@@ -307,7 +308,6 @@ const PersistentDrawerRight = ({
             </ListItemButton>
           ))}
           {/* Otherwise, create 3 blank rows */}
-          {/* {ideaCache[selectedNode.id]?.gpt3 === undefined && */}
           {gpt3Cache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
@@ -327,18 +327,14 @@ const PersistentDrawerRight = ({
         <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
           <Divider />
           {/* Test GPT3_PARENT */}
-          <ListItemButton
+          {/* PART ONE */}
+          {/* <ListItemButton
             onClick={() => {
-              // If selected node is root, return
               if (selectedNode.id === 0) {
                 return;
               }
-              // Get the text of the selected node
               const { text } = selectedNode;
-              // Get the id of the parent of the selected node
               const parentID = selectedNode.parent;
-              // Get the text of the parent of the selected node
-              // find the parent node
               const parentNode = data.nodes.find(
                 (nodeF) => nodeF.id === parentID
               );
@@ -354,7 +350,7 @@ const PersistentDrawerRight = ({
             }}
           >
             <ListItemText primary="Test GPT3_PARENT" />
-          </ListItemButton>
+          </ListItemButton> */}
           <Divider />
 
           <ListItemButton
