@@ -14,8 +14,10 @@ import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { GlobalHotKeys } from 'react-hotkeys';
+/* eslint-disable */
 import { Fab, ListItemSecondaryAction } from '@mui/material';
 import { SettingsSuggest } from '@mui/icons-material';
+/* eslint-enable */
 import { MindMap, node } from '../../../../types';
 
 const drawerWidthPercent = '20%';
