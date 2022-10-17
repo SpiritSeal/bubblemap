@@ -68,10 +68,9 @@ jobs:
           asset_content_type: application/gzip
 
       - name: Deploy to Firebase
-        if: 'github.event.release.prerelease'
         uses: w9jds/firebase-action@master
         with:
-          args: deploy --only hosting:preview
+          args: deploy -P testing
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
 
@@ -79,6 +78,6 @@ jobs:
         if: '!github.event.release.prerelease'
         uses: w9jds/firebase-action@master
         with:
-          args: deploy
+          args: deploy -P app
         env:
-          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
+          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUBBLEMAP_APP }}'

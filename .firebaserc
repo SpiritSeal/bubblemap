@@ -1,7 +1,8 @@
 {
   "projects": {
     "app": "bubblemap-app",
-    "default": "mind-map-testing"
+    "testing": "mind-map-testing",
+    "default": "bubblemap-app"
   },
   "targets": {
     "bubblemap-app": {

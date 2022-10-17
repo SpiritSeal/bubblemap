@@ -3,7 +3,6 @@ import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, useSigninCheck } from 'reactfire';
 import { signInAnonymously } from 'firebase/auth';
-import ClaimAccount from '../../components/ClaimAccount';
 
 const HomePage = () => {
   const auth = useAuth();
