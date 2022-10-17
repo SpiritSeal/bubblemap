@@ -34,8 +34,8 @@
     "start": "echo 'Loading.... This will take a few minutes.' && npm run tsc && npm-run-all --parallel dev:emulators dev:react tsc:watch",
     "start:export": "npm-run-all --parallel dev:emulators:export dev:react tsc:watch",
     "dev:react": "react-scripts start",
-    "dev:emulators": "firebase emulators:start --import=./emulator-data",
-    "dev:emulators:export": "firebase emulators:start --import=./emulator-data --export-on-exit",
+    "dev:emulators": "firebase emulators:start --import=./emulator-data -P testing",
+    "dev:emulators:export": "firebase emulators:start --import=./emulator-data --export-on-exit -P testing",
     "tsc": "npm-run-all --parallel tsc: tsc:functions",
     "tsc:": "tsc --project ./",
     "tsc:functions": "tsc --project ./functions",
@@ -43,13 +43,13 @@
     "tsc:watch:": "tsc --watch --project ./",
     "tsc:watch:functions": "tsc --watch --project ./functions",
     "build": "react-scripts build",
-    "test": "firebase emulators:exec --import=./emulator-data \"react-scripts test --passWithNoTests\"",
+    "test": "firebase emulators:exec --import=./emulator-data -P testing \"react-scripts test --passWithNoTests\"",
     "test:noemulators": "react-scripts test",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "eslint": "eslint .",
     "eslint:fix": "eslint --fix .",
-    "deploy": "firebase deploy"
+    "deploy": "firebase deploy -P app"
   },
   "eslintConfig": {
     "extends": [
