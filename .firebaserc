@@ -1,21 +1,20 @@
 {
   "projects": {
     "app": "bubblemap-app",
-    "testing": "mind-map-testing",
-    "default": "bubblemap-app"
+    "testing": "mind-map-testing"
   },
   "targets": {
     "bubblemap-app": {
       "hosting": {
-        "prod": [
+        "default": [
           "bubblemap-app"
         ]
       }
     },
     "mind-map-testing": {
       "hosting": {
-        "preview": [
-          "mind-map-testing-preview"
+        "default": [
+          "mind-map-testing"
         ]
       }
     }
