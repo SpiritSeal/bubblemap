@@ -1,26 +1,28 @@
+import React, { useState } from 'react';
 import { CenterFocusStrong, QuestionMark } from '@mui/icons-material';
 import { Fab } from '@mui/material';
-import React from 'react';
+import KeyBindsDialog from './KeyBindsDialog';
 
 const HelpButton = () => {
-  // eslint-disable-next-line
-  const one = 1;
+  const [isKeyBindsDialogOpen, setIsKeyBindsDialogOpen] = useState(false);
+
   return (
-    <Fab
-      // variant="extended"
-      sx={{
-        right: 20,
-        bottom: 20,
-        position: 'absolute',
-      }}
-    >
-      <QuestionMark
-        onClick={() => {
-          // open a popup with the help text
-          // setHelpOpen(true);
-        }}
+    <>
+      <KeyBindsDialog
+        open={isKeyBindsDialogOpen}
+        handleClose={() => setIsKeyBindsDialogOpen(false)}
       />
-    </Fab>
+      <Fab
+        // variant="extended"
+        sx={{
+          right: 20,
+          bottom: 20,
+          position: 'absolute',
+        }}
+      >
+        <QuestionMark onClick={() => setIsKeyBindsDialogOpen(true)} />
+      </Fab>
+    </>
   );
 };
 
