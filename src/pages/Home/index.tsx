@@ -1,9 +1,12 @@
 import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useSigninCheck } from 'reactfire';
+import { useAuth, useSigninCheck } from 'reactfire';
+import { signInAnonymously } from 'firebase/auth';
+import ClaimAccount from '../../components/ClaimAccount';
 
 const HomePage = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const signinCheck = useSigninCheck().data;
 
@@ -65,10 +68,13 @@ const HomePage = () => {
             {!signinCheck.user ? (
               <Button
                 style={{ marginTop: 10 }}
-                onClick={() => navigate('/createaccount')}
+                onClick={async () => {
+                  signInAnonymously(auth).then(() => navigate('/mindmaps'));
+                }}
                 variant="contained"
+                size="large"
               >
-                Create an Account
+                Create Your First MindMap
               </Button>
             ) : (
               <Button

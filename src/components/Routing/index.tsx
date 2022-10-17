@@ -14,6 +14,8 @@ import SignIn from '../../pages/SignIn';
 import MindMap from '../../pages/MindMap';
 import CreateAccount from '../../pages/CreateAccount';
 import Navigation from '../Navigation';
+import Account from '../../pages/Account';
+import ClaimAccount from '../ClaimAccount';
 
 const Routing = () => {
   const signinCheck = useSigninCheck().data;
@@ -28,6 +30,7 @@ const Routing = () => {
               <>
                 <Navigation />
                 <Home />
+                <ClaimAccount />
               </>
             }
           />
@@ -37,6 +40,7 @@ const Routing = () => {
               <>
                 <Navigation />
                 <About />
+                <ClaimAccount />
               </>
             }
           />
@@ -62,6 +66,18 @@ const Routing = () => {
               />
             </>
           )}
+          {signinCheck.signedIn && (
+            <Route
+              path="account"
+              element={
+                <>
+                  <Navigation />
+                  <Account />
+                  <ClaimAccount />
+                </>
+              }
+            />
+          )}
           <Route path="/mindmaps">
             <Route
               index
@@ -70,13 +86,22 @@ const Routing = () => {
                   <>
                     <Navigation />
                     <ManageMindMaps />
+                    <ClaimAccount />
                   </>
                 ) : (
                   <Navigate to="/" />
                 )
               }
             />
-            <Route path=":mindmapID" element={<MindMap />} />
+            <Route
+              path=":mindmapID"
+              element={
+                <>
+                  <MindMap />
+                  <ClaimAccount />
+                </>
+              }
+            />
           </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
