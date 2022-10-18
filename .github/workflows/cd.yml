@@ -44,8 +44,8 @@ jobs:
 
       - name: Create Build Assets
         run: |
-          zip -r build.zip react/build
-          tar -czf build.tar.gz react/build
+          zip -r build.zip build
+          tar -czf build.tar.gz build
 
       - name: Upload .zip Build Asset
         uses: actions/upload-release-asset@v1
