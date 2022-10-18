@@ -1,4 +1,21 @@
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "mindmaps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "permissions.owner", "order": "ASCENDING" },
+        { "fieldPath": "metadata.updatedAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "mindmaps",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "permissions.read", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "metadata.updatedAt", "order": "DESCENDING" }
+      ]
+    }
+  ],
   "fieldOverrides": []
 }
