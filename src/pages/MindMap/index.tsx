@@ -8,12 +8,11 @@ import {
 } from 'firebase/firestore';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
 import { useParams } from 'react-router-dom';
-import { configure, GlobalHotKeys } from 'react-hotkeys';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
+import { GlobalHotKeys } from 'react-hotkeys';
 import { SimulationNodeDatum } from 'd3-force';
 import { localNode, MindMap as MindMapType, node } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
-import SideMenu from './overlays/SideMenu/SideMenu';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
 
 const keyMap = {
@@ -103,6 +102,7 @@ const MindMap = () => {
       nodes: arrayRemove(strippedNodeToDelete),
     });
   };
+
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
     if (oldNode.id !== newNode.id) {
@@ -114,6 +114,7 @@ const MindMap = () => {
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
+
     if (newNode.id === 0) {
       batch.update(mindMapRef, {
         title: newNode.text,
@@ -129,9 +130,6 @@ const MindMap = () => {
       setSelectedNode(newNode);
     }
   };
-  // const updateNodePrompt = (nodeToUpdate: node) => {
-  //   // Create an MUI dialog box to update the node
-  // };
 
   if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
 
@@ -145,17 +143,6 @@ const MindMap = () => {
       console.log('Reset View');
     },
   };
-
-  // Create a sidebar active state
-  const [sideMenuActive, setSideMenuActive] = useState(false);
-
-  configure({
-    ignoreEventsCondition: () => {
-      // Ignore keypresses while side menu is open
-      if (sideMenuActive) return true;
-      return false;
-    },
-  });
 
   // Get the mindmap node with id 0, which is the root node
   const rootNode = mindmap.nodes.find((o) => o.id === 0);
@@ -179,14 +166,12 @@ const MindMap = () => {
           selectedNode={selectedNode}
           setSelectedNode={setSelectedNode}
         />
-        <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
         <GenIdeaPanel
           selectedNode={selectedNode}
           data={mindmap}
           addNode={addNode}
         />
       </GlobalHotKeys>
-      {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );
 };

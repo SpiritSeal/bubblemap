@@ -1,6 +1,6 @@
-import { CenterFocusStrong, QuestionMark } from '@mui/icons-material';
-import { Fab } from '@mui/material';
 import React from 'react';
+import { Fab } from '@mui/material';
+import { MyLocation, QuestionMark } from '@mui/icons-material';
 
 const HelpButton = () => {
   // eslint-disable-next-line
@@ -35,7 +35,7 @@ const ResetViewportButton = () => {
         position: 'absolute',
       }}
     >
-      <CenterFocusStrong
+      <MyLocation
         onClick={() => {
           // reset the viewport
         }}

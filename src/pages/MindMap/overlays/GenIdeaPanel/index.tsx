@@ -1,25 +1,26 @@
-import * as React from 'react';
+import React, { useEffect, useState } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemText from '@mui/material/ListItemText';
+import {
+  Drawer,
+  List,
+  Divider,
+  Fab,
+  ListItemSecondaryAction,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+} from '@mui/material';
+import {
+  SettingsSuggest,
+  ChevronLeft,
+  ChevronRight,
+} from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { GlobalHotKeys } from 'react-hotkeys';
-/* eslint-disable */
-import { Fab, ListItemSecondaryAction } from '@mui/material';
-import { Help, QuestionMark, SettingsSuggest } from '@mui/icons-material';
-/* eslint-enable */
 import { MindMap, node } from '../../../../types';
-import BottomRightButtons from '../BottomRightButtons';
 
 const drawerWidthPercent = '20%';
 // Calculate the width of the drawer based on the percentage
@@ -54,7 +55,7 @@ const PersistentDrawerRight = ({
 
   // eslint-disable-next-line
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -64,18 +65,18 @@ const PersistentDrawerRight = ({
     setOpen(false);
   };
 
-  //   const [realNode, setRealNode] = React.useState<node | null>(null);
+  //   const [realNode, setRealNode] = useState<node | null>(null);
 
   // create a state to store the value of the input
-  const [input, setInput] = React.useState('');
+  const [input, setInput] = useState('');
 
-  const [textCache, setTextCache] = React.useState<{
+  const [textCache, setTextCache] = useState<{
     [key: number]: string | undefined;
   }>({});
-  const [datamuseCache, setDatamuseCache] = React.useState<{
+  const [datamuseCache, setDatamuseCache] = useState<{
     [key: number]: string[] | undefined;
   }>({});
-  const [gpt3Cache, setGpt3Cache] = React.useState<{
+  const [gpt3Cache, setGpt3Cache] = useState<{
     [key: number]: string[] | undefined;
   }>({});
 
@@ -131,9 +132,9 @@ const PersistentDrawerRight = ({
   };
 
   // Creat a state called "initialLoad"
-  const [initialLoad, setInitialLoad] = React.useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setInput(selectedNode.text);
     if (initialLoad) {
       generateIdeas(selectedNode.id, selectedNode.text);
@@ -147,17 +148,8 @@ const PersistentDrawerRight = ({
     }
   }, [selectedNode]);
 
-  React.useEffect(() => {
-    // console.log('datamuse cache', datamuseCache);
-  }, [datamuseCache]);
-  React.useEffect(() => {
-    // console.log('gpt3 cache', gpt3Cache);
-  }, [gpt3Cache]);
-  React.useEffect(() => {
-    // console.log('text cache', textCache);
-  }, [textCache]);
   // When the panel is opened, generate ideas for the selected node
-  React.useEffect(() => {
+  useEffect(() => {
     if (open) {
       generateIdeas(selectedNode.id, selectedNode.text);
     }
@@ -188,7 +180,6 @@ const PersistentDrawerRight = ({
   return (
     <div>
       <GlobalHotKeys handlers={shortcutHandlers} />
-      <CssBaseline />
       <Fab
         variant="extended"
         sx={{
@@ -198,7 +189,7 @@ const PersistentDrawerRight = ({
         }}
         onClick={handleDrawerOpen}
       >
-        <ChevronLeftIcon />
+        <ChevronLeft />
         Idea Menu
       </Fab>
       <Drawer
@@ -218,7 +209,7 @@ const PersistentDrawerRight = ({
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
-            <ChevronRightIcon />
+            <ChevronRight />
           </IconButton>
           Idea Generation Panel
         </DrawerHeader>
@@ -372,7 +363,7 @@ const PersistentDrawerRight = ({
         </List>
       </Drawer>
       {/* Create a Help Button that is positioned on the bottom right of the page relative to the drawer */}
-      <BottomRightButtons drawerOpen={open} drawerWidth={drawerWidth} />
+      {/* <BottomRightButtons drawerOpen={open} drawerWidth={drawerWidth} /> */}
     </div>
     // </Box>
   );

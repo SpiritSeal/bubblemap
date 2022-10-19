@@ -7,6 +7,7 @@ import React, {
   useRef,
   forwardRef,
   useImperativeHandle,
+  MouseEvent,
 } from 'react';
 import { GlobalHotKeys } from 'react-hotkeys';
 import {
@@ -27,6 +28,7 @@ import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
 import { MindMap, node } from '../../types';
 import Loading from '../../components/Loading';
+import BottomBar from './overlays/BottomBar';
 
 const MindMapSimulationWithTransform = forwardRef(
   (
@@ -37,6 +39,7 @@ const MindMapSimulationWithTransform = forwardRef(
       // TODO: Implement the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
       // eslint-disable-next-line
       addNode,
+      handleAddNode,
       // eslint-disable-next-line
       deleteNode,
       // eslint-disable-next-line
@@ -50,6 +53,7 @@ const MindMapSimulationWithTransform = forwardRef(
         SetStateAction<(SimulationNodeDatum & node) | undefined>
       >;
       addNode: (node: { parent: number; text: string }) => void;
+      handleAddNode: (parentNode?: SimulationNodeDatum & node) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
       selectedNode: SimulationNodeDatum & node;
@@ -117,17 +121,6 @@ const MindMapSimulationWithTransform = forwardRef(
       lastNodeLockStates.current = nodeLockStates;
     }, [nodeLockStates, simulation]);
 
-    // const [selectedNode, setSelectedNode] = useState<
-    //   SimulationNodeDatum & node
-    // >();
-
-    const handleAddNode = (parentNode: SimulationNodeDatum & node) => {
-      // eslint-disable-next-line no-alert
-      const newText = prompt('Enter new text', '');
-      if (newText) {
-        addNode({ parent: parentNode.id, text: newText });
-      }
-    };
     const checkIfRecursiveChildrenisSelected = (
       nodeTo: (SimulationNodeDatum & node) | undefined,
       nodeFrom: (SimulationNodeDatum & node) | undefined = selectedNode
@@ -376,8 +369,7 @@ const MindMapSimulationWithTransform = forwardRef(
       }
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onMouseMove = (e: any) => {
+    const onMouseMove = (e: MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (dragNodeSelected && dragNodeSelected.id !== 0) {
         dragNodeSelected.fx =
           (e.clientX - context.state.positionX + mouseDelta.x) /
@@ -393,8 +385,7 @@ const MindMapSimulationWithTransform = forwardRef(
       releaseBubble() {
         releaseBubble();
       },
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      onMouseMove(e: any) {
+      onMouseMove(e: MouseEvent<HTMLDivElement, MouseEvent>) {
         onMouseMove(e);
       },
       handleAddNode() {
@@ -548,52 +539,60 @@ const MindMapSimulation = ({
     (SimulationNodeDatum & node) | undefined
   >(undefined);
 
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  const childRef: any = useRef();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const childRef = useRef<any>();
+
+  const handleAddNode = (parentNode?: SimulationNodeDatum & node) => {
+    if (!parentNode) return;
+    // eslint-disable-next-line no-alert
+    const newText = prompt('Enter new text', '');
+    if (newText) {
+      addNode({ parent: parentNode.id, text: newText });
+    }
+  };
 
   const shortcutHandlers = {
-    ADD_NODE: (e: any) => {
-      childRef.current.handleAddNode();
-      e.preventDefault();
+    ADD_NODE: (e?: KeyboardEvent) => {
+      handleAddNode(selectedNode);
+      e?.preventDefault();
     },
-    DELETE_NODE: (e: any) => {
+    DELETE_NODE: (e?: KeyboardEvent) => {
       childRef.current.handleDeleteNode();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    EDIT_NODE_TEXT: (e: any) => {
+    EDIT_NODE_TEXT: (e?: KeyboardEvent) => {
       childRef.current.handleEditNode();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    MOVE_SELECTION_TO_PARENT: (e: any) => {
+    MOVE_SELECTION_TO_PARENT: (e?: KeyboardEvent) => {
       childRef.current.handleMoveSelectionToParent();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    MOVE_SELECTION_TO_CHILD: (e: any) => {
+    MOVE_SELECTION_TO_CHILD: (e?: KeyboardEvent) => {
       childRef.current.handleMoveSelectionToChild();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    MOVE_SELECTION_TO_NEXT_SIBLING: (e: any) => {
+    MOVE_SELECTION_TO_NEXT_SIBLING: (e?: KeyboardEvent) => {
       childRef.current.handleMoveSelectionToNextSibling();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    MOVE_SELECTION_TO_PREVIOUS_SIBLING: (e: any) => {
+    MOVE_SELECTION_TO_PREVIOUS_SIBLING: (e?: KeyboardEvent) => {
       childRef.current.handleMoveSelectionToPreviousSibling();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    MOVE_SELECTION_TO_ROOT: (e: any) => {
+    MOVE_SELECTION_TO_ROOT: (e?: KeyboardEvent) => {
       childRef.current.handleMoveSelectionToRoot();
-      e.preventDefault();
+      e?.preventDefault();
     },
-    RESET_VIEW: (e: any) => {
+    RESET_VIEW: (e?: KeyboardEvent) => {
       // TODO: Reset the Transform
-      e.preventDefault();
+      e?.preventDefault();
     },
-    LOCK_NODE: (e: any) => {
+    LOCK_NODE: (e?: KeyboardEvent) => {
       childRef.current.handleToggleNodeLock();
-      e.preventDefault();
+      e?.preventDefault();
     },
   };
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   return (
     <GlobalHotKeys handlers={shortcutHandlers} allowChanges>
@@ -606,7 +605,6 @@ const MindMapSimulation = ({
           minScale={0.1}
           maxScale={25}
           limitToBounds={false}
-          // centerZoomedOut
           centerOnInit
           panning={{
             disabled: !!dragNodeSelected,
@@ -623,7 +621,6 @@ const MindMapSimulation = ({
               width: '100%',
               height: '100%',
             }}
-            // contentClass="no-translate"
           >
             <MindMapSimulationWithTransform
               ref={childRef}
@@ -631,6 +628,7 @@ const MindMapSimulation = ({
               dragNodeSelected={dragNodeSelected}
               setDragNodeSelected={setDragNodeSelected}
               addNode={addNode}
+              handleAddNode={handleAddNode}
               deleteNode={deleteNode}
               updateNode={updateNode}
               selectedNode={selectedNode}
@@ -639,6 +637,7 @@ const MindMapSimulation = ({
           </TransformComponent>
         </TransformWrapper>
       </div>
+      <BottomBar handleAddNode={handleAddNode} selectedNode={selectedNode} />
     </GlobalHotKeys>
   );
 };
