@@ -74,9 +74,9 @@ const BottomBar = ({
     const newData: Partial<MindMap> = {
       title: newTitle,
     };
-    updateDoc(doc(firestore, `mindmaps/${data.ID}`), newData).then(() =>
-      console.log(`Title updated! ${newTitle}`)
-    );
+    updateDoc(doc(firestore, `mindmaps/${data.ID}`), newData)
+      .then()
+      .catch((err) => console.error(err));
   };
 
   useEffect(() => {
