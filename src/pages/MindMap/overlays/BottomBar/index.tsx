@@ -91,7 +91,11 @@ const BottomBar = ({
   }, [title]);
 
   return (
-    <AppBar position="fixed" color="primary" sx={{ top: 'auto', bottom: 0 }}>
+    <AppBar
+      position="fixed"
+      color="primary"
+      sx={{ top: 'auto', bottom: 0, zIndex: 1300 }}
+    >
       <Toolbar>
         <IconButton color="inherit" aria-label="open drawer">
           <Menu />

@@ -352,7 +352,6 @@ const PersistentDrawerRight = ({
             <ListItemText primary="Test GPT3_PARENT" />
           </ListItemButton> */}
           <Divider />
-
           <ListItemButton
             onClick={() => {
               generateIdeas(selectedNode.id, selectedNode.text, true);
@@ -362,8 +361,6 @@ const PersistentDrawerRight = ({
           </ListItemButton>
         </List>
       </Drawer>
-      {/* Create a Help Button that is positioned on the bottom right of the page relative to the drawer */}
-      {/* <BottomRightButtons drawerOpen={open} drawerWidth={drawerWidth} /> */}
     </div>
     // </Box>
   );
