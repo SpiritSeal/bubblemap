@@ -54,7 +54,7 @@ const HomePage = () => {
             alt="MindMap Logo"
           />
           <div>
-            <Title>Mind Map</Title>
+            <Title>Bubble Map</Title>
             <Typography
               variant="h4"
               component="p"

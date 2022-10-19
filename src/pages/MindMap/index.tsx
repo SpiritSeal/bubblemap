@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
 import { GlobalHotKeys } from 'react-hotkeys';
 import { SimulationNodeDatum } from 'd3-force';
-import { localNode, MindMap as MindMapType, node } from '../../types';
+import { localNode, MindMap as MindMapType, node, WithID } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
 
@@ -39,7 +39,8 @@ const MindMap = () => {
 
   const firestore = useFirestore();
   const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
-  const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
+  const mindmap = useFirestoreDocData(mindMapRef, { idField: 'ID' })
+    .data as WithID<MindMapType>;
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
     const newID =

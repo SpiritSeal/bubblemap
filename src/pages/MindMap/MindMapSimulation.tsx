@@ -26,7 +26,7 @@ import {
 import './MindMap.css';
 import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
-import { MindMap, node } from '../../types';
+import { MindMap, node, WithID } from '../../types';
 import Loading from '../../components/Loading';
 import BottomBar from './overlays/BottomBar';
 
@@ -47,7 +47,7 @@ const MindMapSimulationWithTransform = forwardRef(
       selectedNode,
       setSelectedNode,
     }: {
-      data: MindMap;
+      data: WithID<MindMap>;
       dragNodeSelected: (SimulationNodeDatum & node) | undefined;
       setDragNodeSelected: Dispatch<
         SetStateAction<(SimulationNodeDatum & node) | undefined>
@@ -528,7 +528,7 @@ const MindMapSimulation = ({
   selectedNode,
   setSelectedNode,
 }: {
-  data: MindMap;
+  data: WithID<MindMap>;
   addNode: (node: { parent: number; text: string }) => void;
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
@@ -637,7 +637,11 @@ const MindMapSimulation = ({
           </TransformComponent>
         </TransformWrapper>
       </div>
-      <BottomBar handleAddNode={handleAddNode} selectedNode={selectedNode} />
+      <BottomBar
+        data={data}
+        handleAddNode={handleAddNode}
+        selectedNode={selectedNode}
+      />
     </GlobalHotKeys>
   );
 };
