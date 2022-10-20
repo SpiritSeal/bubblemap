@@ -324,42 +324,6 @@ const PersistentDrawerRight = ({
                 </ListItem>
               ))}
         </List>
-        <List sx={{ position: 'absolute', bottom: 0, width: '100%' }}>
-          <Divider />
-          {/* Test GPT3_PARENT */}
-          {/* PART ONE */}
-          {/* <ListItemButton
-            onClick={() => {
-              if (selectedNode.id === 0) {
-                return;
-              }
-              const { text } = selectedNode;
-              const parentID = selectedNode.parent;
-              const parentNode = data.nodes.find(
-                (nodeF) => nodeF.id === parentID
-              );
-              // get the text of the parent node
-              const parentText = parentNode?.text;
-              httpsCallable(
-                functions,
-                'gpt3_parent'
-              )({ data: [text, parentText] }).then((res) => {
-                // eslint-disable-next-line no-console
-                console.log(res);
-              });
-            }}
-          >
-            <ListItemText primary="Test GPT3_PARENT" />
-          </ListItemButton> */}
-          <Divider />
-          <ListItemButton
-            onClick={() => {
-              generateIdeas(selectedNode.id, selectedNode.text, true);
-            }}
-          >
-            <ListItemText primary="Manually Regenerate Ideas" />
-          </ListItemButton>
-        </List>
       </Drawer>
     </div>
     // </Box>
