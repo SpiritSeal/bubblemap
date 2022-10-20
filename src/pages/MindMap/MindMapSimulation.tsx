@@ -434,6 +434,9 @@ const MindMapSimulationWithTransform = forwardRef(
       getContext() {
         return context;
       },
+      restartSimulation() {
+        if (simulation) simulation.alpha(1).restart();
+      },
     }));
 
     if (simulation === null) return <Loading />;
@@ -445,6 +448,8 @@ const MindMapSimulationWithTransform = forwardRef(
           style={{
             overflow: 'visible',
           }}
+          width={1}
+          height={1}
           onMouseDown={(e) => {
             // if right click
             if (e.button === 2) {
@@ -610,7 +615,9 @@ const MindMapSimulation = ({
     const centerPositionY =
       ((wrapperComponent?.offsetHeight ?? 0) - contentHeight) / 2;
 
-    context.setTransform(centerPositionX, centerPositionY, scale);
+    context.setTransform(centerPositionX, centerPositionY, 2);
+
+    childRef.current.restartSimulation();
   };
 
   return (

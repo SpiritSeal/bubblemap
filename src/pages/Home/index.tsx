@@ -1,13 +1,21 @@
 import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useSigninCheck } from 'reactfire';
+import { useAuth, useFirestore, useUser } from 'reactfire';
 import { signInAnonymously } from 'firebase/auth';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  Timestamp,
+} from 'firebase/firestore';
+import { MindMap } from '../../types';
 
 const HomePage = () => {
   const auth = useAuth();
+  const firestore = useFirestore();
   const navigate = useNavigate();
-  const signinCheck = useSigninCheck().data;
+  const user = useUser().data;
 
   const Content = styled(Container)(({ theme }) => ({
     display: 'flex',
@@ -45,6 +53,37 @@ const HomePage = () => {
     },
   }));
 
+  const mindmapsCollection = collection(firestore, 'mindmaps');
+
+  const createMindMap = (title: string) => {
+    if (!user) return;
+    const newDocData: MindMap = {
+      metadata: {
+        createdAt: serverTimestamp() as Timestamp,
+        createdBy: user.uid,
+        updatedAt: serverTimestamp() as Timestamp,
+        updatedBy: user.uid,
+      },
+      nodes: [
+        {
+          parent: 0,
+          text: title,
+          id: 0,
+        },
+      ],
+      permissions: {
+        owner: user.uid,
+        delete: [],
+        read: [],
+        write: [],
+      },
+      title,
+    };
+    addDoc(mindmapsCollection, newDocData).then((newDoc) => {
+      navigate(newDoc.id);
+    });
+  };
+
   return (
     <div>
       <Box sx={{ pt: 0 }}>
@@ -64,11 +103,13 @@ const HomePage = () => {
               An intuitive mind mapping tool for rapid collaborative AI-assisted
               idea generation
             </Typography>
-            {!signinCheck.user ? (
+            {!user ? (
               <Button
                 style={{ marginTop: 10 }}
                 onClick={async () => {
-                  signInAnonymously(auth).then(() => navigate('/mindmaps'));
+                  signInAnonymously(auth).then(() =>
+                    createMindMap('Untitled MindMap')
+                  );
                 }}
                 variant="contained"
                 size="large"
