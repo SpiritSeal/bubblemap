@@ -56,10 +56,12 @@ const BottomBar = ({
   data,
   handleAddNode,
   selectedNode,
+  resetCanvas,
 }: {
   data: WithID<MindMap>;
   handleAddNode: (parentNode: SimulationNodeDatum & node) => void;
   selectedNode: SimulationNodeDatum & node;
+  resetCanvas: () => void;
 }) => {
   const [title, setTitle] = useState<string>(data.title ?? 'Untitled MindMap');
   const firestore = useFirestore();
@@ -94,7 +96,7 @@ const BottomBar = ({
     <AppBar
       position="fixed"
       color="primary"
-      sx={{ top: 'auto', bottom: 0, zIndex: 1300 }}
+      sx={{ top: 'auto', bottom: 0, zIndex: 1300, transform: 'none' }}
     >
       <Toolbar>
         <IconButton color="inherit" aria-label="open drawer">
@@ -121,7 +123,7 @@ const BottomBar = ({
           <Add />
         </StyledFab>
         <Box sx={{ flexGrow: 1 }} />
-        <IconButton color="inherit">
+        <IconButton color="inherit" onClick={resetCanvas}>
           <MyLocation />
         </IconButton>
         <IconButton color="inherit">

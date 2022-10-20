@@ -431,6 +431,9 @@ const MindMapSimulationWithTransform = forwardRef(
           handleToggleNodeLock(selectedNode);
         }
       },
+      getContext() {
+        return context;
+      },
     }));
 
     if (simulation === null) return <Loading />;
@@ -594,6 +597,22 @@ const MindMapSimulation = ({
     },
   };
 
+  const resetCanvas = () => {
+    const context = childRef.current.getContext();
+    const { contentComponent, wrapperComponent } = context.instance;
+    const { scale } = context.state;
+
+    const contentWidth = (contentComponent?.offsetWidth ?? 0) * scale;
+    const contentHeight = (contentComponent?.offsetHeight ?? 0) * scale;
+
+    const centerPositionX =
+      ((wrapperComponent?.offsetWidth ?? 0) - contentWidth) / 2;
+    const centerPositionY =
+      ((wrapperComponent?.offsetHeight ?? 0) - contentHeight) / 2;
+
+    context.setTransform(centerPositionX, centerPositionY, scale);
+  };
+
   return (
     <GlobalHotKeys handlers={shortcutHandlers} allowChanges>
       <div
@@ -641,6 +660,7 @@ const MindMapSimulation = ({
         data={data}
         handleAddNode={handleAddNode}
         selectedNode={selectedNode}
+        resetCanvas={resetCanvas}
       />
     </GlobalHotKeys>
   );
