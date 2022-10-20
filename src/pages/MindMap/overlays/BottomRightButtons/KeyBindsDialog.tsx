@@ -301,7 +301,7 @@ const KeyBindsDialog = ({
         <Typography variant="h6">
           {
             // eslint-disable-next-line
-          selectedTab === 0
+            selectedTab === 0
               ? 'About'
               : selectedTab === 1
               ? 'Mouse Shortcuts'
