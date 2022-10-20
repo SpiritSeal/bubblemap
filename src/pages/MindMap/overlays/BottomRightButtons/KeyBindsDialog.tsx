@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Box,
   Button,
   Dialog,
   DialogActions,
@@ -19,8 +18,6 @@ import {
   Tabs,
   Typography,
 } from '@mui/material';
-import { ApplicationKeyMap, getApplicationKeyMap } from 'react-hotkeys';
-import { DragHandle } from '@mui/icons-material';
 // import css file
 import './KeyBindsDialog.css';
 
