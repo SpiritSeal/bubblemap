@@ -53,9 +53,9 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
       // width: screenWidth * 0.3,
       width: screenWidth * 0.3,
     },
-    // When the enter key is pressed, deactivate the input
   },
 }));
+// When the enter key is pressed, deactivate the input fiel
 
 const BottomBar = ({
   data,
@@ -120,6 +120,11 @@ const BottomBar = ({
             onChange={(e) => setTitle(e.target.value || 'Untitled MindMap')}
             sx={{
               textOverflow: 'ellipsis',
+            }}
+            onKeyUp={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
             }}
           />
         </Search>
