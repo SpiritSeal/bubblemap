@@ -115,7 +115,7 @@ const BottomBar = ({
             placeholder="Untitled MindMap"
             inputProps={{ 'aria-label': 'title' }}
             value={title}
-            onChange={(e) => setTitle(e.target.value || 'Untitled MindMap')}
+            onChange={(e) => setTitle(e.target.value)}
             sx={{
               textOverflow: 'ellipsis',
             }}
@@ -123,6 +123,9 @@ const BottomBar = ({
               if (e.key === 'Enter') {
                 e.currentTarget.blur();
               }
+            }}
+            onBlur={() => {
+              setTitle(title || 'Untitled MindMap');
             }}
           />
         </Search>
