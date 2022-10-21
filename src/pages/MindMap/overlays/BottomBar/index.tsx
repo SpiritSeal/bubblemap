@@ -40,15 +40,20 @@ const Search = styled('form')(({ theme }) => ({
   },
 }));
 
+const screenWidth = window.innerWidth;
+
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
   '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 1),
     transition: theme.transitions.create('width'),
     width: '100%',
+    textOverflow: 'ellipsis',
     [theme.breakpoints.up('md')]: {
-      width: '20ch',
+      // width: screenWidth * 0.3,
+      width: screenWidth * 0.3,
     },
+    // When the enter key is pressed, deactivate the input
   },
 }));
 
@@ -113,6 +118,9 @@ const BottomBar = ({
             inputProps={{ 'aria-label': 'title' }}
             value={title}
             onChange={(e) => setTitle(e.target.value || 'Untitled MindMap')}
+            sx={{
+              textOverflow: 'ellipsis',
+            }}
           />
         </Search>
         <StyledFab
