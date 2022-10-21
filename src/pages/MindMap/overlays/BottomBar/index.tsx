@@ -50,12 +50,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     width: '100%',
     textOverflow: 'ellipsis',
     [theme.breakpoints.up('md')]: {
-      // width: screenWidth * 0.3,
       width: screenWidth * 0.3,
     },
   },
 }));
-// When the enter key is pressed, deactivate the input fiel
 
 const BottomBar = ({
   data,
