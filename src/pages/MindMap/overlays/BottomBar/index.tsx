@@ -9,7 +9,7 @@ import {
   alpha,
   InputBase,
 } from '@mui/material';
-import { Menu, Add, Help, MyLocation } from '@mui/icons-material';
+import { Add, Help, MyLocation } from '@mui/icons-material';
 import { doc, updateDoc } from 'firebase/firestore';
 import { useFirestore } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
@@ -99,8 +99,8 @@ const BottomBar = ({
       sx={{ top: 'auto', bottom: 0, zIndex: 1300, transform: 'none' }}
     >
       <Toolbar>
-        <IconButton color="inherit" aria-label="open drawer">
-          <Menu />
+        <IconButton color="inherit">
+          <Help />
         </IconButton>
         <Search
           onSubmit={(e) => {
@@ -112,7 +112,7 @@ const BottomBar = ({
             placeholder="Untitled MindMap"
             inputProps={{ 'aria-label': 'title' }}
             value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value || 'Untitled MindMap')}
           />
         </Search>
         <StyledFab
@@ -125,9 +125,6 @@ const BottomBar = ({
         <Box sx={{ flexGrow: 1 }} />
         <IconButton color="inherit" onClick={resetCanvas}>
           <MyLocation />
-        </IconButton>
-        <IconButton color="inherit">
-          <Help />
         </IconButton>
       </Toolbar>
     </AppBar>

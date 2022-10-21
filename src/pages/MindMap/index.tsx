@@ -6,8 +6,10 @@ import {
   arrayUnion,
   writeBatch,
 } from 'firebase/firestore';
+import { Fab } from '@mui/material';
+import { BubbleChart } from '@mui/icons-material';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
 import { GlobalHotKeys } from 'react-hotkeys';
 import { SimulationNodeDatum } from 'd3-force';
@@ -36,6 +38,7 @@ const keyMap = {
 
 const MindMap = () => {
   const { mindmapID } = useParams();
+  const navigate = useNavigate();
 
   const firestore = useFirestore();
   const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
@@ -139,10 +142,6 @@ const MindMap = () => {
       // eslint-disable-next-line no-console
       console.log('Toggle Settings');
     },
-    RESET_VIEW: () => {
-      // eslint-disable-next-line no-console
-      console.log('Reset View');
-    },
   };
 
   // Get the mindmap node with id 0, which is the root node
@@ -172,6 +171,18 @@ const MindMap = () => {
           data={mindmap}
           addNode={addNode}
         />
+        <Fab
+          variant="extended"
+          sx={{
+            left: 20,
+            top: 20,
+            position: 'fixed',
+          }}
+          onClick={() => navigate('/mindmaps')}
+        >
+          <BubbleChart />
+          MindMaps
+        </Fab>
       </GlobalHotKeys>
     </div>
   );

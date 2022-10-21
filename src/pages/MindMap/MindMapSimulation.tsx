@@ -592,12 +592,12 @@ const MindMapSimulation = ({
       childRef.current.handleMoveSelectionToRoot();
       e?.preventDefault();
     },
-    RESET_VIEW: (e?: KeyboardEvent) => {
-      // TODO: Reset the Transform
-      e?.preventDefault();
-    },
     LOCK_NODE: (e?: KeyboardEvent) => {
       childRef.current.handleToggleNodeLock();
+      e?.preventDefault();
+    },
+    RESET_VIEW: (e?: KeyboardEvent) => {
+      resetCanvas();
       e?.preventDefault();
     },
   };
@@ -615,7 +615,7 @@ const MindMapSimulation = ({
     const centerPositionY =
       ((wrapperComponent?.offsetHeight ?? 0) - contentHeight) / 2;
 
-    context.setTransform(centerPositionX, centerPositionY, 2);
+    context.setTransform(centerPositionX, centerPositionY, 7);
 
     childRef.current.restartSimulation();
   };
