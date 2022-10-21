@@ -13,6 +13,7 @@ const HelpButton = () => {
         handleClose={() => setIsKeyBindsDialogOpen(false)}
       />
       <Fab
+        onClick={() => setIsKeyBindsDialogOpen(true)}
         // variant="extended"
         sx={{
           right: 20,
@@ -20,7 +21,7 @@ const HelpButton = () => {
           position: 'absolute',
         }}
       >
-        <QuestionMark onClick={() => setIsKeyBindsDialogOpen(true)} />
+        <QuestionMark />
       </Fab>
     </>
   );
@@ -36,12 +37,11 @@ const ResetViewportButton = () => {
         bottom: 80,
         position: 'absolute',
       }}
+      onClick={() => {
+        // reset the viewport
+      }}
     >
-      <CenterFocusStrong
-        onClick={() => {
-          // reset the viewport
-        }}
-      />
+      <CenterFocusStrong />
     </Fab>
   );
 };
