@@ -255,6 +255,7 @@ const PersistentDrawerRight = ({
           </ListItem>
           {datamuseCache[selectedNode.id]?.map((idea) => (
             <ListItemButton
+              key={idea}
               onClick={() => handleIdeaClick(selectedNode.id, idea)}
             >
               <ListItemText
@@ -270,8 +271,9 @@ const PersistentDrawerRight = ({
           {datamuseCache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
-              .map(() => (
-                <ListItem>
+              .map((value, index) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <ListItem key={value + index}>
                   <ListItemText
                     primary="Loading..."
                     primaryTypographyProps={{
@@ -303,6 +305,7 @@ const PersistentDrawerRight = ({
           </ListItem>
           {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItemButton
+              key={idea}
               onClick={() => handleIdeaClick(selectedNode.id, idea)}
             >
               <ListItemText
@@ -320,8 +323,9 @@ const PersistentDrawerRight = ({
           {gpt3Cache[selectedNode.id] === undefined &&
             Array(3)
               .fill(0)
-              .map(() => (
-                <ListItem>
+              .map((value, index) => (
+                // eslint-disable-next-line react/no-array-index-key
+                <ListItem key={index}>
                   <ListItemText
                     primary="Loading..."
                     primaryTypographyProps={{
