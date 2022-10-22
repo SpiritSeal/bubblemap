@@ -47,7 +47,8 @@ import { ThemeContextProvider } from './contexts/MUITheme';
 import Routing from './components/Routing';
 import Loading from './components/Loading';
 
-const isDev = !(window.location.host === 'bubblemap.app');
+const isDev = process.env.NODE_ENV !== 'production';
+const isPreview = !(window.location.host === 'bubblemap.app');
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -59,7 +60,7 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-const firebaseConfigDev = {
+const firebaseConfigPreview = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY_DEV,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN_DEV,
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID_DEV,
@@ -301,7 +302,7 @@ const App = () => (
   <ErrorBoundary>
     <Suspense fallback={<Loading />}>
       <FirebaseAppProvider
-        firebaseConfig={isDev ? firebaseConfigDev : firebaseConfig}
+        firebaseConfig={isPreview ? firebaseConfigPreview : firebaseConfig}
         suspense
       >
         <Suspense fallback={<Loading />}>
