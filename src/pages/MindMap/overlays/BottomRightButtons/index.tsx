@@ -1,26 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Fab } from '@mui/material';
 import { MyLocation, QuestionMark } from '@mui/icons-material';
+import KeyBindsDialog from './KeyBindsDialog';
 
 const HelpButton = () => {
-  // eslint-disable-next-line
-  const one = 1;
+  const [isKeyBindsDialogOpen, setIsKeyBindsDialogOpen] = useState(false);
+
   return (
-    <Fab
-      // variant="extended"
-      sx={{
-        right: 20,
-        bottom: 20,
-        position: 'absolute',
-      }}
-    >
-      <QuestionMark
-        onClick={() => {
-          // open a popup with the help text
-          // setHelpOpen(true);
-        }}
+    <>
+      <KeyBindsDialog
+        open={isKeyBindsDialogOpen}
+        handleClose={() => setIsKeyBindsDialogOpen(false)}
       />
-    </Fab>
+      <Fab
+        onClick={() => setIsKeyBindsDialogOpen(true)}
+        // variant="extended"
+        sx={{
+          right: 20,
+          bottom: 20,
+          position: 'absolute',
+        }}
+      >
+        <QuestionMark />
+      </Fab>
+    </>
   );
 };
 
@@ -33,6 +36,9 @@ const ResetViewportButton = () => {
         right: 20,
         bottom: 80,
         position: 'absolute',
+      }}
+      onClick={() => {
+        // reset the viewport
       }}
     >
       <MyLocation

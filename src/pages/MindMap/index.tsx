@@ -19,7 +19,7 @@ import GenIdeaPanel from './overlays/GenIdeaPanel';
 
 const keyMap = {
   ADD_NODE: 'ctrl+enter',
-  DELETE_NODE: 'del',
+  DELETE_NODE: ['del', 'backspace'],
   EDIT_NODE_TEXT: 'enter',
   // Not Implemented
   GENERATE_IDEAS: 'ctrl+shift+enter',
@@ -33,7 +33,7 @@ const keyMap = {
   MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
   MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
   RESET_VIEW: ['ctrl+0', 'home'],
-  LOCK_NODE: ['l', 'ctrl+l'],
+  LOCK_NODE: ['l', 'ctrl+l', 'space'],
 };
 
 const MindMap = () => {
