@@ -2,6 +2,7 @@ import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
 import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
 import { localNode as nodeType } from '../../types';
+import './MindMap.css';
 
 const radius = 15;
 const lineHeight = 15.5;
@@ -233,6 +234,7 @@ const Bubble = ({
             : theme.palette.primary.main
         }
         stroke={getStrokeColor()}
+        className={selected ? 'root-node-glow' : ''}
       />
       {/* print the main text in the bubble */}
       {/* main text uses https://observablehq.com/@mbostock/fit-text-to-circle */}

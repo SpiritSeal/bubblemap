@@ -1,13 +1,14 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
 import { useTheme } from '@mui/material';
+import { node } from '../../types';
 
 const BubbleLink = ({
   sourceNode,
   targetNode,
 }: {
-  sourceNode: SimulationNodeDatum;
-  targetNode: SimulationNodeDatum;
+  sourceNode: SimulationNodeDatum & node;
+  targetNode: SimulationNodeDatum & node;
 }) => {
   const theme = useTheme();
 

@@ -1,13 +1,21 @@
 import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useSigninCheck } from 'reactfire';
-import { signInAnonymously } from 'firebase/auth';
+import { useAuth, useFirestore, useSigninCheck } from 'reactfire';
+import { signInAnonymously, UserCredential } from 'firebase/auth';
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  Timestamp,
+} from 'firebase/firestore';
+import { MindMap } from '../../types';
 
 const HomePage = () => {
   const auth = useAuth();
+  const firestore = useFirestore();
   const navigate = useNavigate();
-  const signinCheck = useSigninCheck().data;
+  const signInCheck = useSigninCheck().data;
 
   const Content = styled(Container)(({ theme }) => ({
     display: 'flex',
@@ -45,16 +53,46 @@ const HomePage = () => {
     },
   }));
 
+  const mindmapsCollection = collection(firestore, 'mindmaps');
+
+  const createMindMap = (title: string, user: UserCredential) => {
+    const newDocData: MindMap = {
+      metadata: {
+        createdAt: serverTimestamp() as Timestamp,
+        createdBy: user.user.uid,
+        updatedAt: serverTimestamp() as Timestamp,
+        updatedBy: user.user.uid,
+      },
+      nodes: [
+        {
+          parent: 0,
+          text: title,
+          id: 0,
+        },
+      ],
+      permissions: {
+        owner: user.user.uid,
+        delete: [],
+        read: [],
+        write: [],
+      },
+      title,
+    };
+    addDoc(mindmapsCollection, newDocData).then((newDoc) => {
+      navigate(`/mindmaps/${newDoc.id}`);
+    });
+  };
+
   return (
     <div>
       <Box sx={{ pt: 0 }}>
         <Content maxWidth="md">
           <Logo
-            src={`${process.env.PUBLIC_URL}/assets/logos/Mind Map Logo.svg`}
-            alt="MindMap Logo"
+            src={`${process.env.PUBLIC_URL}/assets/logos/Bubble Map Logo.svg`}
+            alt="Bubble Map Logo"
           />
           <div>
-            <Title>Mind Map</Title>
+            <Title>Bubble Map</Title>
             <Typography
               variant="h4"
               component="p"
@@ -64,11 +102,13 @@ const HomePage = () => {
               An intuitive mind mapping tool for rapid collaborative AI-assisted
               idea generation
             </Typography>
-            {!signinCheck.user ? (
+            {!signInCheck.user ? (
               <Button
                 style={{ marginTop: 10 }}
                 onClick={async () => {
-                  signInAnonymously(auth).then(() => navigate('/mindmaps'));
+                  signInAnonymously(auth).then((user) =>
+                    createMindMap('Untitled MindMap', user)
+                  );
                 }}
                 variant="contained"
                 size="large"

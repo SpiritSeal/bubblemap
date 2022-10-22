@@ -44,12 +44,12 @@ const Navigation = () => {
         <Toolbar>
           <ButtonBase onClick={() => navigate('/')}>
             <img
-              src={`${process.env.PUBLIC_URL}/assets/logos/Mind Map Logo.svg`}
+              src={`${process.env.PUBLIC_URL}/assets/logos/Bubble Map Logo.svg`}
               height="50"
               width="50"
-              alt="Mind Map Logo"
+              alt="Bubble Map Logo"
             />
-            <strong> Mind Map</strong>
+            <strong> Bubble Map</strong>
           </ButtonBase>
           {/* <NavBarItems /> */}
           <div style={{ marginLeft: 'auto', marginRight: 0 }}>

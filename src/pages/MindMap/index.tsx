@@ -6,14 +6,15 @@ import {
   arrayUnion,
   writeBatch,
 } from 'firebase/firestore';
+import { Fab } from '@mui/material';
+import { BubbleChart } from '@mui/icons-material';
 import { useFirestore, useFirestoreDocData } from 'reactfire';
-import { useParams } from 'react-router-dom';
-import { configure, GlobalHotKeys } from 'react-hotkeys';
+import { useNavigate, useParams } from 'react-router-dom';
 // You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
+import { GlobalHotKeys } from 'react-hotkeys';
 import { SimulationNodeDatum } from 'd3-force';
-import { localNode, MindMap as MindMapType, node } from '../../types';
+import { localNode, MindMap as MindMapType, node, WithID } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
-import SideMenu from './overlays/SideMenu/SideMenu';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
 
 const keyMap = {
@@ -37,10 +38,12 @@ const keyMap = {
 
 const MindMap = () => {
   const { mindmapID } = useParams();
+  const navigate = useNavigate();
 
   const firestore = useFirestore();
   const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
-  const mindmap = useFirestoreDocData(mindMapRef).data as MindMapType;
+  const mindmap = useFirestoreDocData(mindMapRef, { idField: 'ID' })
+    .data as WithID<MindMapType>;
 
   const addNode = ({ parent, text }: { parent: number; text: string }) => {
     const newID =
@@ -103,6 +106,7 @@ const MindMap = () => {
       nodes: arrayRemove(strippedNodeToDelete),
     });
   };
+
   const updateNode = (oldNode: node, newNode: node) => {
     const batch = writeBatch(firestore);
     if (oldNode.id !== newNode.id) {
@@ -114,6 +118,7 @@ const MindMap = () => {
     batch.update(mindMapRef, {
       nodes: arrayRemove(stripInputNodeProperties(oldNode)),
     });
+
     if (newNode.id === 0) {
       batch.update(mindMapRef, {
         title: newNode.text,
@@ -129,9 +134,6 @@ const MindMap = () => {
       setSelectedNode(newNode);
     }
   };
-  // const updateNodePrompt = (nodeToUpdate: node) => {
-  //   // Create an MUI dialog box to update the node
-  // };
 
   if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
 
@@ -140,22 +142,7 @@ const MindMap = () => {
       // eslint-disable-next-line no-console
       console.log('Toggle Settings');
     },
-    RESET_VIEW: () => {
-      // eslint-disable-next-line no-console
-      console.log('Reset View');
-    },
   };
-
-  // Create a sidebar active state
-  const [sideMenuActive, setSideMenuActive] = useState(false);
-
-  configure({
-    ignoreEventsCondition: () => {
-      // Ignore keypresses while side menu is open
-      if (sideMenuActive) return true;
-      return false;
-    },
-  });
 
   // Get the mindmap node with id 0, which is the root node
   const rootNode = mindmap.nodes.find((o) => o.id === 0);
@@ -179,14 +166,24 @@ const MindMap = () => {
           selectedNode={selectedNode}
           setSelectedNode={setSelectedNode}
         />
-        <SideMenu active={sideMenuActive} setActive={setSideMenuActive} />
         <GenIdeaPanel
           selectedNode={selectedNode}
           data={mindmap}
           addNode={addNode}
         />
+        <Fab
+          variant="extended"
+          sx={{
+            left: 20,
+            top: 20,
+            position: 'fixed',
+          }}
+          onClick={() => navigate('/mindmaps')}
+        >
+          <BubbleChart />
+          MindMaps
+        </Fab>
       </GlobalHotKeys>
-      {/* <FormDialog promptText="Hello world!" /> */}
     </div>
   );
 };

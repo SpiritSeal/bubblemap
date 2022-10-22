@@ -98,7 +98,12 @@ const Routing = () => {
               element={
                 <>
                   <MindMap />
-                  <ClaimAccount />
+                  <ClaimAccount
+                    location={{
+                      horizontal: 'center',
+                      vertical: 'top',
+                    }}
+                  />
                 </>
               }
             />

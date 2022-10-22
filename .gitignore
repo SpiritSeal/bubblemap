@@ -196,5 +196,4 @@ tsconfig.tsbuildinfo
 
 *.secret
 
-.env
 .runtimeconfig.json

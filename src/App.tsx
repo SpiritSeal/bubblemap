@@ -48,6 +48,7 @@ import Routing from './components/Routing';
 import Loading from './components/Loading';
 
 const isDev = process.env.NODE_ENV !== 'production';
+const isPreview = !(window.location.host === 'bubblemap.app');
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -57,6 +58,16 @@ const firebaseConfig = {
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.REACT_APP_FIREBASE_APP_ID,
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+};
+
+const firebaseConfigPreview = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY_DEV,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN_DEV,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID_DEV,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET_DEV,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID_DEV,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID_DEV,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID_DEV,
 };
 
 const useInitFirebaseSDKs = (): {
@@ -272,12 +283,12 @@ class ErrorBoundary extends Component {
             }}
           >
             <a
-              href="https://github.com/SpiritSeal/mindmap/issues"
+              href="https://github.com/SpiritSeal/bubblemap/issues"
               target="_blank"
               rel="noopener noreferrer"
             >
               Think you found a bug? Please open a new issue in our GitHub Repo:
-              https://github.com/SpiritSeal/mindmap
+              https://github.com/SpiritSeal/bubblemap
             </a>
           </div>
         </div>
@@ -290,7 +301,10 @@ class ErrorBoundary extends Component {
 const App = () => (
   <ErrorBoundary>
     <Suspense fallback={<Loading />}>
-      <FirebaseAppProvider firebaseConfig={firebaseConfig} suspense>
+      <FirebaseAppProvider
+        firebaseConfig={isPreview ? firebaseConfigPreview : firebaseConfig}
+        suspense
+      >
         <Suspense fallback={<Loading />}>
           <AppWithFirebase />
         </Suspense>

@@ -32,3 +32,16 @@ body::-webkit-scrollbar {
 .no-translate {
   transform: none !important;
 }
+
+.root-node-glow {
+  animation: glow 1s infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    stroke-width: 0.5;
+  }
+  to {
+    stroke-width: 1.5;
+  }
+}
