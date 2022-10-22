@@ -39,9 +39,9 @@ body::-webkit-scrollbar {
 
 @keyframes glow {
   from {
-    stroke-width: 1;
+    stroke-width: 0.5;
   }
   to {
-    stroke-width: 3;
+    stroke-width: 1.5;
   }
 }
