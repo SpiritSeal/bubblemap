@@ -34,7 +34,7 @@ body::-webkit-scrollbar {
 }
 
 .root-node-glow {
-  animation: glow 2s infinite alternate;
+  animation: glow 1s infinite alternate;
 }
 
 @keyframes glow {
