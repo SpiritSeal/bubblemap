@@ -14,6 +14,7 @@ import { doc, updateDoc } from 'firebase/firestore';
 import { useFirestore } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { MindMap, node, WithID } from '../../../../types';
+import KeyBindsDialog from './KeyBindsDialog';
 
 const StyledFab = styled(Fab)({
   position: 'absolute',
@@ -66,6 +67,7 @@ const BottomBar = ({
   selectedNode: SimulationNodeDatum & node;
   resetCanvas: () => void;
 }) => {
+  const [isKeyBindsDialogOpen, setIsKeyBindsDialogOpen] = useState(false);
   const [title, setTitle] = useState<string>(data.title ?? 'Untitled MindMap');
   const firestore = useFirestore();
 
@@ -102,7 +104,14 @@ const BottomBar = ({
       sx={{ top: 'auto', bottom: 0, zIndex: 1300, transform: 'none' }}
     >
       <Toolbar>
-        <IconButton color="inherit">
+        <KeyBindsDialog
+          open={isKeyBindsDialogOpen}
+          handleClose={() => setIsKeyBindsDialogOpen(false)}
+        />
+        <IconButton
+          color="inherit"
+          onClick={() => setIsKeyBindsDialogOpen(true)}
+        >
           <Help />
         </IconButton>
         <Search
