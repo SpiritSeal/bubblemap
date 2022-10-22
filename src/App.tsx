@@ -282,12 +282,12 @@ class ErrorBoundary extends Component {
             }}
           >
             <a
-              href="https://github.com/SpiritSeal/mindmap/issues"
+              href="https://github.com/SpiritSeal/bubblemap/issues"
               target="_blank"
               rel="noopener noreferrer"
             >
               Think you found a bug? Please open a new issue in our GitHub Repo:
-              https://github.com/SpiritSeal/mindmap
+              https://github.com/SpiritSeal/bubblemap
             </a>
           </div>
         </div>

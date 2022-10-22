@@ -11,13 +11,13 @@
 1. Clone the repo
 
    ```
-   > git clone https://github.com/SpiritSeal/mindmap.git
-   > cd mindmap
+   > git clone https://github.com/SpiritSeal/bubblemap.git
+   > cd bubblemap
    ```
 
    or
 
-   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/SpiritSeal/mindmap)
+   [![Open in Visual Studio Code](https://img.shields.io/static/v1?logo=visualstudiocode&label=&message=Open%20in%20Visual%20Studio%20Code&labelColor=2c2c32&color=007acc&logoColor=007acc)](https://open.vscode.dev/SpiritSeal/bubblemap)
 
 1. Install dependencies
    ```
