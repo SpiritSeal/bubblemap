@@ -213,9 +213,7 @@ const ManageMindMaps = () => {
         </Dialog>
         {mindmaps.map((mindmap) => (
           <Card
-            // Set width to 100% to prevent card from overflowing
             sx={{ width: '100%', maxWidth: '345px', margin: '1rem' }}
-            // sx={{ maxWidth: 345, margin: '1rem' }}
             elevation={2}
             key={mindmap.ID}
           >
@@ -226,19 +224,15 @@ const ManageMindMaps = () => {
                 />
               </CardMedia>
               <CardContent>
-                {/* Create a h2 styled one-line typography title */}
                 <Typography
                   gutterBottom
                   variant="h5"
                   component="div"
                   noWrap
-                  // Force max width at all times
                   sx={{ maxWidth: '100%' }}
-                  // style={{ textAlign: 'center' }}
                 >
                   {mindmap.title}
                 </Typography>
-                {/* <h2>{mindmap.title}</h2> */}
                 <Typography variant="body2" color="text.secondary">
                   {mindmap.permissions.owner === user.uid
                     ? 'Owned by you'
