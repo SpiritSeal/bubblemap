@@ -13,10 +13,12 @@ import {
   Dialog,
   Skeleton,
   Chip,
+  Snackbar,
 } from '@mui/material';
 import {
   Add,
   BubbleChart,
+  Close,
   Delete,
   DriveFileRenameOutline,
   Link as LinkIcon,
@@ -117,6 +119,56 @@ const ManageMindMaps = () => {
       // eslint-disable-next-line
       title === null || title === '' ? 'Untitled Mind Map' : title!
     );
+  };
+
+  // Snackbar stuff
+  interface SnackbarMessage {
+    message: string;
+    key: number;
+  }
+  
+  interface State {
+    open: boolean;
+    snackPack: readonly SnackbarMessage[];
+    messageInfo?: SnackbarMessage;
+  }
+
+  const [snackPack, setSnackPack] = React.useState<readonly SnackbarMessage[]>(
+    []
+  );
+  const [snackbarOpen, setSnackbarOpen] = React.useState(false);
+  const [messageInfo, setMessageInfo] = React.useState<
+    SnackbarMessage | undefined
+  >(undefined);
+
+  React.useEffect(() => {
+    if (snackPack.length && !messageInfo) {
+      // Set a new snack when we don't have an active one
+      setMessageInfo({ ...snackPack[0] });
+      setSnackPack((prev) => prev.slice(1));
+      setSnackbarOpen(true);
+    } else if (snackPack.length && messageInfo && snackbarOpen) {
+      // Close an active snack when a new one is added
+      setSnackbarOpen(false);
+    }
+  }, [snackPack, messageInfo, snackbarOpen]);
+
+  const handleSnackbarClick = (message: string) => () => {
+    setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
+  };
+
+  const handleSnackbarClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string
+  ) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSnackbarOpen(false);
+  };
+
+  const handleSnackbarExited = () => {
+    setMessageInfo(undefined);
   };
 
   return (
@@ -263,6 +315,8 @@ const ManageMindMaps = () => {
               <IconButton
                 type="button"
                 onClick={() => {
+                  // Open snackbar
+                  handleSnackbarClick('Copied to clipboard')();
                   navigator.clipboard.writeText(
                     `${window.location.origin}/mindmaps/${mindmap.ID}`
                   );
@@ -271,6 +325,29 @@ const ManageMindMaps = () => {
               >
                 <LinkIcon />
               </IconButton>
+              <Snackbar
+                key="Link copied to clipboard"
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                TransitionProps={{ onExited: handleSnackbarExited }}
+                message="Link copied to clipboard"
+                // position bottom right
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    sx={{ p: 0.5 }}
+                    onClick={handleSnackbarClose}
+                  >
+                    <Close />
+                  </IconButton>
+                }
+              />
               <IconButton
                 type="button"
                 onClick={() => {
