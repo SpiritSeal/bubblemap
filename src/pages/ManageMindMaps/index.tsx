@@ -299,6 +299,7 @@ const ManageMindMaps = () => {
               />
               <IconButton
                 type="button"
+                disabled={mindmap.permissions.owner !== user.uid}
                 onClick={() => {
                   setOpenDeleteMindMapConfirmation(mindmap.ID);
                 }}
