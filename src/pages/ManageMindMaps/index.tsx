@@ -151,13 +151,7 @@ const ManageMindMaps = () => {
     setSnackPack((prev) => [...prev, { message, key: new Date().getTime() }]);
   };
 
-  const handleSnackbarClose = (
-    event: React.SyntheticEvent | Event,
-    reason?: string
-  ) => {
-    // if (reason === 'clickaway') {
-    //   return;
-    // }
+  const handleSnackbarClose = () => {
     setSnackbarOpen(false);
   };
 
