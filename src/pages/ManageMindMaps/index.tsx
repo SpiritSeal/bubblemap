@@ -126,12 +126,6 @@ const ManageMindMaps = () => {
     message: string;
     key: number;
   }
-  
-  interface State {
-    open: boolean;
-    snackPack: readonly SnackbarMessage[];
-    messageInfo?: SnackbarMessage;
-  }
 
   const [snackPack, setSnackPack] = React.useState<readonly SnackbarMessage[]>(
     []
