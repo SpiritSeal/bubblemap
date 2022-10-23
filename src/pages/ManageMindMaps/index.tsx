@@ -155,9 +155,9 @@ const ManageMindMaps = () => {
     event: React.SyntheticEvent | Event,
     reason?: string
   ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
+    // if (reason === 'clickaway') {
+    //   return;
+    // }
     setSnackbarOpen(false);
   };
 
@@ -322,7 +322,7 @@ const ManageMindMaps = () => {
               <Snackbar
                 key="Link copied to clipboard"
                 open={snackbarOpen}
-                autoHideDuration={6000}
+                autoHideDuration={3000}
                 onClose={handleSnackbarClose}
                 TransitionProps={{ onExited: handleSnackbarExited }}
                 message="Link copied to clipboard"
