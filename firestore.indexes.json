@@ -4,16 +4,9 @@
       "collectionGroup": "mindmaps",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "permissions.owner", "order": "ASCENDING" },
-        { "fieldPath": "metadata.updatedAt", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "mindmaps",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "permissions.read", "arrayConfig": "CONTAINS" },
-        { "fieldPath": "metadata.updatedAt", "order": "DESCENDING" }
+        { "fieldPath": "metadata.everUpdatedBy", "arrayConfig": "CONTAINS" },
+        { "fieldPath": "permissions.isPublic", "order": "ASCENDING" },
+        { "fieldPath": "permissions.owner", "order": "DESCENDING" }
       ]
     }
   ],
