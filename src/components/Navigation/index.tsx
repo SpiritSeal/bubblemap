@@ -15,8 +15,6 @@ import {
   AccountCircle,
   BubbleChart,
   DarkMode,
-  Info,
-  InfoOutlined,
   InfoTwoTone,
   LightMode,
   Logout,
