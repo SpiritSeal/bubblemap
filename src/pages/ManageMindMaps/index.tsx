@@ -52,7 +52,8 @@ const ManageMindMaps = () => {
   const firestore = useFirestore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [openShareDialog, setOpenShareDialog] = useState<MindMap | null>(null);
+  const [openShareDialog, setOpenShareDialog] =
+    useState<WithID<MindMap> | null>(null);
   const [openDeleteMindMapConfirmation, setOpenDeleteMindMapConfirmation] =
     useState<string | null>(null);
 
@@ -237,7 +238,12 @@ const ManageMindMaps = () => {
           open={!!openShareDialog}
           onClose={() => setOpenShareDialog(null)}
         >
-          {openShareDialog && <ShareDialog mindmap={openShareDialog} />}
+          {openShareDialog && (
+            <ShareDialog
+              mindmap={openShareDialog}
+              handleClose={() => setOpenShareDialog(null)}
+            />
+          )}
         </Dialog>
         {mindmaps.map((mindmap) => (
           <Card
@@ -330,7 +336,6 @@ const ManageMindMaps = () => {
                   setOpenShareDialog(mindmap);
                 }}
                 aria-label="open share dialog"
-                disabled
               >
                 <PersonAdd />
               </IconButton>
