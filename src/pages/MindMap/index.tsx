@@ -145,20 +145,27 @@ const MindMap = () => {
       );
       return;
     }
-    batch.update(mindMapRef, {
-      nodes: arrayRemove(stripInputNodeProperties(oldNode)),
-    });
+    const oldNodeUpdate: RecursivePartial<MindMapType> = {
+      nodes: arrayRemove(
+        stripInputNodeProperties(oldNode)
+      ) as unknown as undefined,
+    };
 
-    if (newNode.id === 0) {
-      batch.update(mindMapRef, {
-        title: newNode.text,
-        nodes: arrayUnion(stripInputNodeProperties(newNode)),
-      });
-    } else {
-      batch.update(mindMapRef, {
-        nodes: arrayUnion(stripInputNodeProperties(newNode)),
-      });
-    }
+    batch.update(mindMapRef, oldNodeUpdate);
+
+    const newNodeUpdate: RecursivePartial<MindMapType> = {
+      nodes: arrayUnion(
+        stripInputNodeProperties(newNode)
+      ) as unknown as undefined,
+      metadata: {
+        updatedAt: serverTimestamp() as Timestamp,
+        updatedBy: user.uid,
+        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
+      },
+    };
+
+    batch.update(mindMapRef, newNodeUpdate);
+
     batch.commit();
     if (selectedNode?.id === oldNode.id) {
       setSelectedNode(newNode);

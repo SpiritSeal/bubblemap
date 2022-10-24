@@ -627,7 +627,7 @@ const MindMapSimulation = ({
         onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
       >
         <TransformWrapper
-          initialScale={1}
+          initialScale={2}
           minScale={0.1}
           maxScale={25}
           limitToBounds={false}
