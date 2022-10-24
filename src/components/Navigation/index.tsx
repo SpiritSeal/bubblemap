@@ -10,14 +10,17 @@ import {
   Toolbar,
   useTheme,
 } from '@mui/material';
-import { useAuth, useSigninCheck } from 'reactfire';
+import { useAuth, useSigninCheck, useUser } from 'reactfire';
 import {
   AccountCircle,
   BubbleChart,
   DarkMode,
-  Home,
+  Info,
+  InfoOutlined,
+  InfoTwoTone,
   LightMode,
   Logout,
+  ManageAccounts,
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -38,6 +41,8 @@ const Navigation = () => {
   >(null);
   const open = Boolean(anchorEl);
 
+  const user = useUser().data;
+
   return (
     <div style={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -51,6 +56,16 @@ const Navigation = () => {
             />
             <strong> Bubble Map</strong>
           </ButtonBase>
+          <Button
+            color="inherit"
+            // about page
+            onClick={() => navigate('/about')}
+            // style={{ marginLeft: 'auto' }}
+            // icon
+            startIcon={<InfoTwoTone />}
+          >
+            About
+          </Button>
           {/* <NavBarItems /> */}
           <div style={{ marginLeft: 'auto', marginRight: 0 }}>
             <IconButton
@@ -59,6 +74,12 @@ const Navigation = () => {
             >
               {theme.palette.mode === 'dark' ? <LightMode /> : <DarkMode />}
             </IconButton>
+            {/* <IconButton
+              style={{ marginInline: 10 }}
+              onClick={() => toggleTheme()}
+            >
+              <Info />
+            </IconButton> */}
             {signinCheck.user && (
               <>
                 <IconButton
@@ -80,7 +101,7 @@ const Navigation = () => {
                       setAnchorEl(null);
                     }}
                   >
-                    <Home /> My Account
+                    <ManageAccounts /> My Account
                   </MenuItem>
                   <MenuItem
                     onClick={() => {
@@ -89,18 +110,23 @@ const Navigation = () => {
                   >
                     <BubbleChart /> MindMaps
                   </MenuItem>
-                  <Divider />
-                  <MenuItem
-                    onClick={() => {
-                      setAnchorEl(null);
-                      navigate('.');
-                      auth.signOut().then(() => {
-                        window.location.reload();
-                      });
-                    }}
-                  >
-                    <Logout /> Sign out
-                  </MenuItem>
+                  {user?.providerData.length !== 0 && (
+                    <>
+                      <Divider />
+                      <MenuItem
+                        onClick={() => {
+                          setAnchorEl(null);
+                          navigate('.');
+                          auth.signOut().then(() => {
+                            window.location.reload();
+                          });
+                        }}
+                      >
+                        <Logout />
+                        Sign Out
+                      </MenuItem>
+                    </>
+                  )}
                 </Menu>
               </>
             )}
