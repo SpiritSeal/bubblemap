@@ -58,27 +58,24 @@ const ManageMindMaps = () => {
 
   const mindmapsCollection = collection(firestore, 'mindmaps');
 
-  let mindmapsQuery = query(
+  const ownedMindMapsQuery = query(
     mindmapsCollection,
-    orderBy('metadata.updatedAt', 'desc')
+    orderBy('metadata.updatedAt', 'desc'),
+    where('permissions.owner', '==', user.uid)
   );
 
-  if (searchParams.get('filter') === 'owned') {
-    mindmapsQuery = query(
-      mindmapsQuery,
-      where('permissions.owner', '==', user.uid)
-    );
-  }
-
-  if (searchParams.get('filter') === 'shared') {
-    mindmapsQuery = query(
-      mindmapsQuery,
-      where('permissions.read', 'array-contains', user.uid)
-    );
-  }
+  const sharedMindMapsQuery = query(
+    mindmapsCollection,
+    orderBy('permissions.owner', 'desc'),
+    where('metadata.everUpdatedBy', 'array-contains', user.uid),
+    where('permissions.owner', '!=', user.uid),
+    where('permissions.isPublic', '==', true)
+  );
 
   const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
-    mindmapsQuery,
+    searchParams.get('filter') === 'shared'
+      ? sharedMindMapsQuery
+      : ownedMindMapsQuery,
     {
       idField: 'ID',
     }
@@ -214,16 +211,7 @@ const ManageMindMaps = () => {
         <br />
         <ButtonGroup variant="outlined">
           <Button
-            disabled={searchParams.get('filter') === null}
-            onClick={() => {
-              searchParams.delete('filter');
-              setSearchParams(searchParams);
-            }}
-          >
-            All MindMaps
-          </Button>
-          <Button
-            disabled={searchParams.get('filter') === 'owned'}
+            disabled={searchParams.get('filter') !== 'shared'}
             onClick={() => {
               searchParams.set('filter', 'owned');
               setSearchParams(searchParams);

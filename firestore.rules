@@ -5,7 +5,11 @@ service cloud.firestore {
       allow read, write: if false;
 
       match /mindmaps/{mindmap} {
-        allow read, write: if true;
+        allow create: if request.auth.uid != null;
+        allow delete: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner;
+        allow get: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner || resource.data.permissions.isPublic;
+        allow list: if request.auth.uid != null && (request.auth.uid == resource.data.permissions.owner || (request.auth.uid != resource.data.permissions.owner && resource.data.permissions.isPublic && request.auth.uid in resource.data.metadata.everUpdatedBy));
+        allow update: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner || (resource.data.permissions.isPublic && request.resource.data.permissions.canPublicEdit);
       }
     }
   }

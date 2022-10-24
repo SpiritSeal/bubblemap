@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import {
   doc,
   arrayRemove,
-  updateDoc,
   arrayUnion,
   writeBatch,
   serverTimestamp,
   Timestamp,
+  setDoc,
 } from 'firebase/firestore';
 import { Fab } from '@mui/material';
 import { BubbleChart } from '@mui/icons-material';
@@ -80,7 +80,7 @@ const MindMap = () => {
       },
     };
 
-    updateDoc(mindMapRef, docUpdates);
+    setDoc(mindMapRef, docUpdates, { merge: true });
     setSelectedNode(newNode);
   };
 
@@ -130,7 +130,7 @@ const MindMap = () => {
       ) as unknown as undefined,
     };
 
-    batch.update(mindMapRef, updateNodesAndMetadata);
+    batch.set(mindMapRef, updateNodesAndMetadata, { merge: true });
 
     batch.commit();
   };
@@ -164,7 +164,7 @@ const MindMap = () => {
       },
     };
 
-    batch.update(mindMapRef, newNodeUpdate);
+    batch.set(mindMapRef, newNodeUpdate, { merge: true });
 
     batch.commit();
     if (selectedNode?.id === oldNode.id) {
