@@ -4,7 +4,6 @@ import {
   ButtonGroup,
   Chip,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from '@mui/material';
 import { useFirestore, useUser } from 'reactfire';
