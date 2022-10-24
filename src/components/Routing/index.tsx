@@ -67,47 +67,45 @@ const Routing = () => {
             </>
           )}
           {signinCheck.signedIn && (
-            <Route
-              path="account"
-              element={
-                <>
-                  <Navigation />
-                  <Account />
-                  <ClaimAccount />
-                </>
-              }
-            />
-          )}
-          <Route path="/mindmaps">
-            <Route
-              index
-              element={
-                signinCheck.signedIn ? (
+            <>
+              <Route
+                path="account"
+                element={
                   <>
                     <Navigation />
-                    <ManageMindMaps />
+                    <Account />
                     <ClaimAccount />
                   </>
-                ) : (
-                  <Navigate to="/" />
-                )
-              }
-            />
-            <Route
-              path=":mindmapID"
-              element={
-                <>
-                  <MindMap />
-                  <ClaimAccount
-                    location={{
-                      horizontal: 'center',
-                      vertical: 'top',
-                    }}
-                  />
-                </>
-              }
-            />
-          </Route>
+                }
+              />
+              <Route path="/mindmaps">
+                <Route
+                  index
+                  element={
+                    <>
+                      <Navigation />
+                      <ManageMindMaps />
+                      <ClaimAccount />
+                    </>
+                  }
+                />
+                <Route
+                  path=":mindmapID"
+                  element={
+                    <>
+                      <MindMap />
+                      <ClaimAccount
+                        location={{
+                          horizontal: 'center',
+                          vertical: 'top',
+                        }}
+                      />
+                    </>
+                  }
+                />
+              </Route>
+            </>
+          )}
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>

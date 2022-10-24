@@ -1,5 +1,4 @@
 import { Timestamp } from 'firebase/firestore';
-
 import { SimulationNodeDatum } from 'd3-force';
 
 export interface node {
@@ -21,12 +20,12 @@ export interface MindMap {
     createdBy: string;
     updatedAt: Timestamp;
     updatedBy: string;
+    everUpdatedBy: string[];
   };
   permissions: {
     owner: string;
-    read?: string[];
-    write?: string[];
-    delete?: string[];
+    isPublic: boolean;
+    canPublicEdit: boolean;
   };
 }
 

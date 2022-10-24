@@ -52,33 +52,31 @@ const ManageMindMaps = () => {
   const firestore = useFirestore();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [openShareDialog, setOpenShareDialog] = useState<MindMap | null>(null);
-  // const [openDeleteMindMapConfirmation, setOpenDeleteMindMapConfirmation] =
-  //   useState<string | null>(null);
+  const [openShareDialog, setOpenShareDialog] =
+    useState<WithID<MindMap> | null>(null);
+  const [openDeleteMindMapConfirmation, setOpenDeleteMindMapConfirmation] =
+    useState<string | null>(null);
 
   const mindmapsCollection = collection(firestore, 'mindmaps');
 
-  let mindmapsQuery = query(
+  const ownedMindMapsQuery = query(
     mindmapsCollection,
-    orderBy('metadata.updatedAt', 'desc')
+    orderBy('metadata.updatedAt', 'desc'),
+    where('permissions.owner', '==', user.uid)
   );
 
-  if (searchParams.get('filter') === 'owned') {
-    mindmapsQuery = query(
-      mindmapsQuery,
-      where('permissions.owner', '==', user.uid)
-    );
-  }
-
-  if (searchParams.get('filter') === 'shared') {
-    mindmapsQuery = query(
-      mindmapsQuery,
-      where('permissions.read', 'array-contains', user.uid)
-    );
-  }
+  const sharedMindMapsQuery = query(
+    mindmapsCollection,
+    orderBy('permissions.owner', 'desc'),
+    where('metadata.everUpdatedBy', 'array-contains', user.uid),
+    where('permissions.owner', '!=', user.uid),
+    where('permissions.isPublic', '==', true)
+  );
 
   const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
-    mindmapsQuery,
+    searchParams.get('filter') === 'shared'
+      ? sharedMindMapsQuery
+      : ownedMindMapsQuery,
     {
       idField: 'ID',
     }
@@ -91,6 +89,7 @@ const ManageMindMaps = () => {
         createdBy: user.uid,
         updatedAt: serverTimestamp() as Timestamp,
         updatedBy: user.uid,
+        everUpdatedBy: [user.uid],
       },
       nodes: [
         {
@@ -101,9 +100,8 @@ const ManageMindMaps = () => {
       ],
       permissions: {
         owner: user.uid,
-        delete: [],
-        read: [],
-        write: [],
+        canPublicEdit: false,
+        isPublic: false,
       },
       title,
     };
@@ -214,16 +212,7 @@ const ManageMindMaps = () => {
         <br />
         <ButtonGroup variant="outlined">
           <Button
-            disabled={searchParams.get('filter') === null}
-            onClick={() => {
-              searchParams.delete('filter');
-              setSearchParams(searchParams);
-            }}
-          >
-            All MindMaps
-          </Button>
-          <Button
-            disabled={searchParams.get('filter') === 'owned'}
+            disabled={searchParams.get('filter') !== 'shared'}
             onClick={() => {
               searchParams.set('filter', 'owned');
               setSearchParams(searchParams);
@@ -249,177 +238,173 @@ const ManageMindMaps = () => {
           open={!!openShareDialog}
           onClose={() => setOpenShareDialog(null)}
         >
-          {openShareDialog && <ShareDialog mindmap={openShareDialog} />}
+          {openShareDialog && (
+            <ShareDialog
+              mindmap={openShareDialog}
+              handleClose={() => setOpenShareDialog(null)}
+            />
+          )}
         </Dialog>
-        {mindmaps.map((mindmap) => {
-          const [
-            openDeleteMindMapConfirmation,
-            setOpenDeleteMindMapConfirmation,
-          ] = useState<string | null>(null);
-          return (
-            <Card
-              sx={{ width: '100%', maxWidth: '345px', margin: '1rem' }}
-              elevation={2}
-              key={mindmap.ID}
-            >
-              <CardActionArea component={RouterLink} to={mindmap.ID}>
-                <CardMedia>
-                  <BubbleChart
-                    sx={{ width: '90%', height: '90%', textAlign: 'center' }}
-                  />
-                </CardMedia>
-                <CardContent>
-                  <Typography
-                    gutterBottom
-                    variant="h5"
-                    component="div"
-                    noWrap
-                    sx={{ maxWidth: '100%' }}
-                  >
-                    {mindmap.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {mindmap.permissions.owner === user.uid
-                      ? 'Owned by you'
-                      : 'Shared with you'}
-                    <br />
-                    {`${mindmap.nodes.length} node${
-                      mindmap.nodes.length !== 1 ? 's' : ''
-                    }`}
-                    {mindmap.metadata.updatedAt ? (
-                      <>
-                        <br />
-                        Last modified{' '}
-                        {mindmap.metadata.updatedAt
-                          .toDate()
-                          .toLocaleDateString()}
-                      </>
-                    ) : (
-                      <Skeleton animation="wave" />
-                    )}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-              <CardActions
-                sx={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                }}
-              >
-                <IconButton
-                  type="button"
-                  onClick={() => {
-                    // Open snackbar
-                    handleSnackbarClick('Copied to clipboard')();
-                    navigator.clipboard.writeText(
-                      `${window.location.origin}/mindmaps/${mindmap.ID}`
-                    );
-                  }}
-                  aria-label="copy link to clipboard"
-                >
-                  <LinkIcon />
-                </IconButton>
-                <Snackbar
-                  key="Link copied to clipboard"
-                  open={snackbarOpen}
-                  autoHideDuration={3000}
-                  onClose={handleSnackbarClose}
-                  TransitionProps={{ onExited: handleSnackbarExited }}
-                  message="Link copied to clipboard"
-                  // position bottom right
-                  anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'right',
-                  }}
-                  action={
-                    <IconButton
-                      aria-label="close"
-                      color="inherit"
-                      sx={{ p: 0.5 }}
-                      onClick={handleSnackbarClose}
-                    >
-                      <Close />
-                    </IconButton>
-                  }
+        {mindmaps.map((mindmap) => (
+          <Card
+            sx={{ width: '100%', maxWidth: '345px', margin: '1rem' }}
+            elevation={2}
+            key={mindmap.ID}
+          >
+            <CardActionArea component={RouterLink} to={mindmap.ID}>
+              <CardMedia>
+                <BubbleChart
+                  sx={{ width: '90%', height: '90%', textAlign: 'center' }}
                 />
-                <IconButton
-                  type="button"
-                  onClick={() => {
-                    setOpenShareDialog(mindmap);
-                  }}
-                  aria-label="open share dialog"
-                  disabled
+              </CardMedia>
+              <CardContent>
+                <Typography
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                  noWrap
+                  sx={{ maxWidth: '100%' }}
                 >
-                  <PersonAdd />
-                </IconButton>
-                <ConfirmationDialog
-                  approveButtonText="Delete MindMap"
-                  description={
+                  {mindmap.title}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {mindmap.permissions.owner === user.uid
+                    ? 'Owned by you'
+                    : 'Shared with you'}
+                  <br />
+                  {`${mindmap.nodes.length} node${
+                    mindmap.nodes.length !== 1 ? 's' : ''
+                  }`}
+                  {mindmap.metadata.updatedAt ? (
                     <>
-                      Are you sure you want to <b>permanently delete</b>{' '}
-                      <Chip
-                        component="b"
-                        clickable
-                        label={mindmap.title}
-                        onClick={() => navigate(`/mindmaps/${mindmap.ID}`)}
-                      />
-                      ? Deleted MindMaps can not be recovered.
+                      <br />
+                      Last modified{' '}
+                      {mindmap.metadata.updatedAt.toDate().toLocaleDateString()}
                     </>
-                  }
-                  isOpen={!!openDeleteMindMapConfirmation}
-                  onApprove={() => {
-                    deleteDoc(doc(firestore, 'mindmaps', mindmap.ID));
-                    setOpenDeleteMindMapConfirmation(null);
-                  }}
-                  onReject={() => setOpenDeleteMindMapConfirmation(null)}
-                  rejectButtonText="Cancel"
-                  suggestedAction="reject"
-                  title="Delete MindMap?"
-                />
-                <IconButton
-                  type="button"
-                  disabled={mindmap.permissions.owner !== user.uid}
-                  onClick={() => {
-                    setOpenDeleteMindMapConfirmation(mindmap.ID);
-                  }}
-                  aria-label="delete mindmap"
-                >
-                  <Delete />
-                </IconButton>
-                <IconButton
-                  type="button"
-                  onClick={() => {
-                    // eslint-disable-next-line no-alert
-                    const newTitle = prompt(
-                      `What would you like to rename ${mindmap.title} to?`,
-                      mindmap.title
+                  ) : (
+                    <Skeleton animation="wave" />
+                  )}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+            <CardActions
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+              }}
+            >
+              <IconButton
+                type="button"
+                onClick={() => {
+                  // Open snackbar
+                  handleSnackbarClick('Copied to clipboard')();
+                  navigator.clipboard.writeText(
+                    `${window.location.origin}/mindmaps/${mindmap.ID}`
+                  );
+                }}
+                aria-label="copy link to clipboard"
+              >
+                <LinkIcon />
+              </IconButton>
+              <Snackbar
+                key="Link copied to clipboard"
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                TransitionProps={{ onExited: handleSnackbarExited }}
+                message="Link copied to clipboard"
+                // position bottom right
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    sx={{ p: 0.5 }}
+                    onClick={handleSnackbarClose}
+                  >
+                    <Close />
+                  </IconButton>
+                }
+              />
+              <IconButton
+                type="button"
+                onClick={() => {
+                  setOpenShareDialog(mindmap);
+                }}
+                aria-label="open share dialog"
+              >
+                <PersonAdd />
+              </IconButton>
+              <ConfirmationDialog
+                approveButtonText="Delete MindMap"
+                description={
+                  <>
+                    Are you sure you want to <b>permanently delete</b>{' '}
+                    <Chip
+                      component="b"
+                      clickable
+                      label={mindmap.title}
+                      onClick={() => navigate(`/mindmaps/${mindmap.ID}`)}
+                    />
+                    ? Deleted MindMaps can not be recovered.
+                  </>
+                }
+                isOpen={openDeleteMindMapConfirmation === mindmap.ID}
+                onApprove={() => {
+                  deleteDoc(doc(firestore, 'mindmaps', mindmap.ID));
+                  setOpenDeleteMindMapConfirmation(null);
+                }}
+                onReject={() => setOpenDeleteMindMapConfirmation(null)}
+                rejectButtonText="Cancel"
+                suggestedAction="reject"
+                title="Delete MindMap?"
+              />
+              <IconButton
+                type="button"
+                disabled={mindmap.permissions.owner !== user.uid}
+                onClick={() => {
+                  setOpenDeleteMindMapConfirmation(mindmap.ID);
+                }}
+                aria-label="delete mindmap"
+              >
+                <Delete />
+              </IconButton>
+              <IconButton
+                type="button"
+                onClick={() => {
+                  // eslint-disable-next-line no-alert
+                  const newTitle = prompt(
+                    `What would you like to rename ${mindmap.title} to?`,
+                    mindmap.title
+                  );
+                  if (newTitle) {
+                    const updatedDocFields: RecursivePartial<MindMap> = {
+                      metadata: {
+                        updatedAt: serverTimestamp() as Timestamp,
+                        updatedBy: user.uid,
+                      },
+                      title: newTitle,
+                    };
+                    setDoc(
+                      doc(firestore, 'mindmaps', mindmap.ID),
+                      updatedDocFields,
+                      {
+                        merge: true,
+                      }
                     );
-                    if (newTitle) {
-                      const updatedDocFields: RecursivePartial<MindMap> = {
-                        metadata: {
-                          updatedAt: serverTimestamp() as Timestamp,
-                          updatedBy: user.uid,
-                        },
-                        title: newTitle,
-                      };
-                      setDoc(
-                        doc(firestore, 'mindmaps', mindmap.ID),
-                        updatedDocFields,
-                        {
-                          merge: true,
-                        }
-                      );
-                    }
-                  }}
-                  aria-label="rename mindmap"
-                >
-                  <DriveFileRenameOutline />
-                </IconButton>
-              </CardActions>
-            </Card>
-          );
-        })}
+                  }
+                }}
+                aria-label="rename mindmap"
+              >
+                <DriveFileRenameOutline />
+              </IconButton>
+            </CardActions>
+          </Card>
+        ))}
       </div>
       {mindmaps.length === 0 && (
         <div style={{ textAlign: 'center', margin: '1rem' }}>
