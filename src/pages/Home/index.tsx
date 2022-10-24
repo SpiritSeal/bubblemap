@@ -62,6 +62,7 @@ const HomePage = () => {
         createdBy: user.user.uid,
         updatedAt: serverTimestamp() as Timestamp,
         updatedBy: user.user.uid,
+        everUpdatedBy: [user.user.uid],
       },
       nodes: [
         {
@@ -72,9 +73,8 @@ const HomePage = () => {
       ],
       permissions: {
         owner: user.user.uid,
-        delete: [],
-        read: [],
-        write: [],
+        canPublicEdit: false,
+        isPublic: false,
       },
       title,
     };
