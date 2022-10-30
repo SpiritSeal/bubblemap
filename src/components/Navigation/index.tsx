@@ -48,6 +48,7 @@ const Navigation = () => {
               height="50"
               width="50"
               alt="Bubble Map Logo"
+              style={{ marginRight: theme.spacing(2) }}
             />
             <strong> Bubble Map</strong>
           </ButtonBase>

@@ -43,13 +43,14 @@ const HomePage = () => {
   }));
   const Logo = styled('img')(({ theme }) => ({
     flexShrink: 0,
-    width: 120,
-    height: 120,
+    width: 250,
+    height: 250,
     marginBottom: theme.spacing(2),
     [theme.breakpoints.up('md')]: {
+      margin: 50,
       marginRight: theme.spacing(8),
-      width: 195,
-      height: 175,
+      width: 350,
+      height: 350,
     },
   }));
 
@@ -99,8 +100,8 @@ const HomePage = () => {
               color="inherit"
               style={{ fontWeight: 'bold' }}
             >
-              An intuitive mind mapping tool for rapid collaborative AI-assisted
-              idea generation
+              Free, AI-Assisted
+              <br /> <b>Mind Mapping</b>
             </Typography>
             {!signInCheck.user ? (
               <Button

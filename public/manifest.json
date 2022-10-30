@@ -1,9 +1,25 @@
 {
   "short_name": "Bubble Map",
   "name": "Bubble Map",
-  "icons": [],
+  "icons": [
+    {
+      "src": "./assets/logos/Bubble Map Logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "1000x1000"
+    },
+    {
+      "src": "./assets/logos/Bubble Map Logo.png",
+      "type": "image/png",
+      "sizes": "1000x1000"
+    },
+    {
+      "src": "./assets/logos/Simple Bubble Map Logo.svg",
+      "type": "image/svg+xml",
+      "sizes": "1000x1000"
+    }
+  ],
   "start_url": ".",
-  "display": "standalone",
+  "display": "minimal-ui",
   "theme_color": "#000000",
   "background_color": "#ffffff"
 }
