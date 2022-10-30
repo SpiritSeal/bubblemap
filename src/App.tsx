@@ -128,18 +128,6 @@ const useInitFirebaseSDKs = (): {
           fetchTimeoutMillis: 10000,
         };
 
-        remoteConfigInit.defaultConfig = {
-          home_banner_enabled: false,
-          home_banner_severity: 'success',
-          home_banner_title: 'Welcome to the BASIS Scottsdale Library!',
-          home_banner_title_enabled: false,
-          home_banner_message: 'Coming 2021',
-          home_banner_button_enabled: false,
-          home_banner_button_text: 'View the Website',
-          home_banner_button_href: 'https://bsclibrary.net',
-          home_banner_icon_enabled: false,
-        };
-
         if (!isDev)
           await fetchAndActivate(remoteConfigInit).catch(console.error);
         return remoteConfigInit;
