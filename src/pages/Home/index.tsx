@@ -89,7 +89,7 @@ const HomePage = () => {
       <Box sx={{ pt: 0 }}>
         <Content maxWidth="md">
           <Logo
-            src={`${process.env.PUBLIC_URL}/assets/logos/Bubble Map Logo.svg`}
+            src={`${process.env.PUBLIC_URL}/assets/logos/Bubble Map Logo.png`}
             alt="Bubble Map Logo"
           />
           <div>
