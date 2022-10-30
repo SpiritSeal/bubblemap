@@ -16,6 +16,7 @@ import CreateAccount from '../../pages/CreateAccount';
 import Navigation from '../Navigation';
 import Account from '../../pages/Account';
 import ClaimAccount from '../ClaimAccount';
+import AnonymousAuth from './AnonymousAuth';
 
 const Routing = () => {
   const signinCheck = useSigninCheck().data;
@@ -30,7 +31,7 @@ const Routing = () => {
               <>
                 <Navigation />
                 <Home />
-                <ClaimAccount />
+                {signinCheck.signedIn && <ClaimAccount />}
               </>
             }
           />
@@ -40,7 +41,7 @@ const Routing = () => {
               <>
                 <Navigation />
                 <About />
-                <ClaimAccount />
+                {signinCheck.signedIn && <ClaimAccount />}
               </>
             }
           />
@@ -66,46 +67,44 @@ const Routing = () => {
               />
             </>
           )}
-          {signinCheck.signedIn && (
-            <>
-              <Route
-                path="account"
-                element={
-                  <>
-                    <Navigation />
-                    <Account />
-                    <ClaimAccount />
-                  </>
-                }
-              />
-              <Route path="/mindmaps">
-                <Route
-                  index
-                  element={
-                    <>
-                      <Navigation />
-                      <ManageMindMaps />
-                      <ClaimAccount />
-                    </>
-                  }
-                />
-                <Route
-                  path=":mindmapID"
-                  element={
-                    <>
-                      <MindMap />
-                      <ClaimAccount
-                        location={{
-                          horizontal: 'center',
-                          vertical: 'top',
-                        }}
-                      />
-                    </>
-                  }
-                />
-              </Route>
-            </>
-          )}
+          <Route
+            path="account"
+            element={
+              <AnonymousAuth>
+                <Navigation />
+                <Account />
+                {signinCheck.signedIn && <ClaimAccount />}
+              </AnonymousAuth>
+            }
+          />
+          <Route path="/mindmaps">
+            <Route
+              index
+              element={
+                <AnonymousAuth>
+                  <Navigation />
+                  <ManageMindMaps />
+                  {signinCheck.signedIn && <ClaimAccount />}
+                </AnonymousAuth>
+              }
+            />
+            <Route
+              path=":mindmapID"
+              element={
+                <AnonymousAuth>
+                  <MindMap />
+                  {signinCheck.signedIn && (
+                    <ClaimAccount
+                      location={{
+                        horizontal: 'center',
+                        vertical: 'top',
+                      }}
+                    />
+                  )}
+                </AnonymousAuth>
+              }
+            />
+          </Route>
           <Route path="*" element={<Navigate to="/" />} />
         </Route>
       </Routes>
