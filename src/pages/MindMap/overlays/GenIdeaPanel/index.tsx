@@ -146,6 +146,7 @@ const PersistentDrawerRight = ({
         textCache[selectedNode.id] !== selectedNode.text
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNode]);
 
   // When the panel is opened, generate ideas for the selected node
@@ -153,6 +154,7 @@ const PersistentDrawerRight = ({
     if (open) {
       generateIdeas(selectedNode.id, selectedNode.text);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleIdeaClick = (nodeID: number, idea: string) => {

@@ -119,6 +119,7 @@ const MindMapSimulationWithTransform = forwardRef(
       }
       // Set the lastNodeLockStates to the current nodeLockStates
       lastNodeLockStates.current = nodeLockStates;
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeLockStates, simulation]);
 
     const checkIfRecursiveChildrenisSelected = (
@@ -350,6 +351,7 @@ const MindMapSimulationWithTransform = forwardRef(
         setSimulation(newSimulation);
         newSimulation.restart();
       }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data.nodes]);
 
     const releaseBubble = () => {

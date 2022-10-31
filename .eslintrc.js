@@ -6,7 +6,14 @@ module.exports = {
     node: true,
   },
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'jest', 'jest-dom', 'jsx-a11y', 'prettier'],
+  plugins: [
+    '@typescript-eslint',
+    'jest',
+    'jest-dom',
+    'jsx-a11y',
+    'prettier',
+    'react-hooks',
+  ],
   extends: [
     'airbnb',
     'airbnb-typescript',
@@ -34,6 +41,8 @@ module.exports = {
       2,
       { namedComponents: 'arrow-function' },
     ],
+    'react-hooks/rules-of-hooks': 'error',
+    'react-hooks/exhaustive-deps': 'warn',
   },
   settings: {
     jest: {

@@ -172,8 +172,6 @@ const MindMap = () => {
     }
   };
 
-  if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
-
   const shortcutHandlers = {
     TOGGLE_SETTINGS: () => {
       // eslint-disable-next-line no-console
@@ -183,6 +181,8 @@ const MindMap = () => {
 
   // Get the mindmap node with id 0, which is the root node
   const rootNode = mindmap.nodes.find((o) => o.id === 0);
+
+  if (!mindmap) throw new Error('Sorry, I couldn&apos;t find that mindmap.');
 
   if (!rootNode) {
     throw new Error('Root node not found!');
