@@ -186,7 +186,7 @@ const Bubble = ({
           return;
         }
         e.stopPropagation();
-        handleAddNode();
+        handleEditNode();
       }}
     >
       <Menu
