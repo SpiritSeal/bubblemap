@@ -290,11 +290,11 @@ const PersistentDrawerRight = ({
               }}
             />
             {/* PART ONE */}
-            <ListItemSecondaryAction>
+            {/* <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="settings">
                 <SettingsSuggest />
               </IconButton>
-            </ListItemSecondaryAction>
+            </ListItemSecondaryAction> */}
           </ListItem>
           {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItemButton
