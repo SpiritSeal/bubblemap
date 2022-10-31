@@ -210,14 +210,18 @@ const Bubble = ({
             handleSetNodeLockState();
             handleInheritedHandles(e, () => {});
           }}
+          disabled={node.id === 0}
         >
-          {!locked ? `Lock Node` : `Unlock Node`}
+          {!locked && !(node.id === 0) ? `Lock Node` : `Unlock Node`}
         </MenuItem>
         <Divider />
         <MenuItem onClick={(e) => handleInheritedHandles(e, handleAddNode)}>
           Add Node
         </MenuItem>
-        <MenuItem onClick={(e) => handleInheritedHandles(e, handleDeleteNode)}>
+        <MenuItem
+          onClick={(e) => handleInheritedHandles(e, handleDeleteNode)}
+          disabled={node.id === 0}
+        >
           Delete Node
         </MenuItem>
         <MenuItem onClick={(e) => handleInheritedHandles(e, handleEditNode)}>
