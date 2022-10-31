@@ -38,9 +38,6 @@ const KeyBindsDialog = ({
   const aboutPanel = (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <Typography variant="h6">About</Typography>
-      </Grid>
-      <Grid item xs={12}>
         <Typography variant="body1">
           This is a mind map editor designed and built by Saketh Reddy and Eric
           Podol.
@@ -49,7 +46,13 @@ const KeyBindsDialog = ({
       <Grid item xs={12}>
         <Typography variant="body1">
           This project is open source. You can find the source code on{' '}
-          <a href="https://github.com/SpiritSeal/mindmap">GitHub</a>.
+          <a
+            href="https://github.com/SpiritSeal/mindmap"
+            style={{ color: 'white' }}
+          >
+            GitHub
+          </a>
+          .
         </Typography>
       </Grid>
       <Grid item xs={12}>
@@ -59,6 +62,7 @@ const KeyBindsDialog = ({
             href="mailto:
             support@bubblemap.app
           "
+            style={{ color: 'white' }}
           >
             support@bubblemap.app
           </a>
@@ -96,38 +100,42 @@ const KeyBindsDialog = ({
         <TableBody>
           {mapEntry(
             '<kbd>Ctrl</kbd> + <kbd>Enter</kbd>',
-            'Add Child Node to Selected Node'
+            'Add Bubble to Selected Bubble'
           )}
           {mapEntry(
             // Double space 'or' statements using &nbsp&nbsp
             '<kbd>Delete</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>Backspace</kbd>',
-            'Delete Selected Node'
+            'Delete Selected Bubble'
           )}
           {mapEntry(
-            // Enter -> Edit Node Text
-            '<kbd>Enter</kbd>',
-            'Edit Selected Node Text'
+            '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
+            'Edit Selected Bubble'
           )}
         </TableBody>
         <TableHead>
           <TableRow>
             <TableCell align="center" colSpan={2}>
-              <Typography variant="h6">Node Selection Manipulation</Typography>
+              <Typography variant="h6">
+                Bubble Selection Manipulation
+              </Typography>
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {mapEntry('<kbd>Up</kbd>', 'Select Parent Node')}
-          {mapEntry('<kbd>Down</kbd>', 'Select Child Node')}
+          {mapEntry('<kbd>Up</kbd>', 'Select Parent Bubble')}
+          {mapEntry('<kbd>Down</kbd>', 'Select Child Bubble')}
           {mapEntry(
             '<kbd>Left</kbd>',
-            'Select Next Sibling Node (Counter-Clockwise)'
+            'Select Next Sibling Bubble (Counter-Clockwise)'
           )}
-          {mapEntry('<kbd>Right</kbd>', 'Select Next Sibling Node (Clockwise)')}
+          {mapEntry(
+            '<kbd>Right</kbd>',
+            'Select Next Sibling Bubble (Clockwise)'
+          )}
           {/* 'Move selection to root" is '0' or 'ctrl'+'up */}
           {mapEntry(
             '<kbd>0</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>Ctrl</kbd> + <kbd>Up</kbd>',
-            'Select Root Node'
+            'Select Root Bubble'
           )}
         </TableBody>
         <TableHead>
@@ -139,11 +147,11 @@ const KeyBindsDialog = ({
             </TableCell>
           </TableRow>
         </TableHead>
-        {/* Space, 'l', or 'ctrl+l' map to Lock Node */}
+        {/* Space, 'l', or 'ctrl+l' map to Lock Bubble */}
         <TableBody>
           {mapEntry(
             '<kbd>Space</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>L</kbd>',
-            'Lock Node'
+            'Lock Bubble'
           )}
           {/* Reset Pan and Zoom back to Default */}
           {mapEntry(
@@ -179,25 +187,28 @@ const KeyBindsDialog = ({
         <TableHead>
           <TableRow>
             <TableCell align="center" colSpan={2}>
-              <Typography variant="h6">Mouse-Node Interactions</Typography>
+              <Typography variant="h6">Mouse-Bubble Interactions</Typography>
             </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {mapEntry('Left Click Node', 'Select Node')}
-          {mapEntry('Drag Node', 'Move Node')}
-          {mapEntry('Right Click Node', 'Open Context Menu')}
+          {mapEntry('Left Click Bubble', 'Select Bubble')}
+          {mapEntry('Drag Bubble', 'Move Bubble')}
+          {mapEntry('Right Click Bubble', 'Open Context Menu')}
           {/* Double Click */}
-          {mapEntry('Double Click Node', 'Edit Node Text')}
+          {mapEntry('Double Click Bubble', 'Edit Bubble Text')}
           {/* Control Click */}
           {mapEntry(
-            '<kbd>Ctrl</kbd> + Left Click Node',
-            'Add Child Node to Selected Node'
+            '<kbd>Ctrl</kbd> + Left Click Bubble',
+            'Add Bubble to Selected Bubble'
           )}
           {/* Shift Click */}
-          {mapEntry('<kbd>Shift</kbd> + Left Click Node', 'Lock Node Position')}
+          {mapEntry(
+            '<kbd>Shift</kbd> + Left Click Bubble',
+            'Lock Bubble Position'
+          )}
           {/* Alt Click */}
-          {mapEntry('<kbd>Alt</kbd> + Left Click Node', 'Delete Node')}
+          {mapEntry('<kbd>Alt</kbd> + Left Click Bubble', 'Delete Bubble')}
         </TableBody>
         {/* Mouse-Canvas Interaction */}
         <TableHead>
@@ -214,73 +225,6 @@ const KeyBindsDialog = ({
       </Table>
     </TableContainer>
   );
-
-  // const mouseShortcutsPanel = (
-  //   // table displaying an icon, the mouse actions, and corresponding shortcuts side by side
-  //   <TableContainer component={Paper}>
-  //     <Table>
-  //       <TableHead>
-  //         <TableRow>
-  //           <TableCell align="center">Icon</TableCell>
-  //           <TableCell align="center">Action</TableCell>
-  //           <TableCell align="center">Effect</TableCell>
-  //         </TableRow>
-  //       </TableHead>
-  //       <TableBody>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandle fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Left Click Node</TableCell>
-  //           <TableCell align="center">Select Node</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandle fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Drag Node</TableCell>
-  //           <TableCell align="center">Move Node</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandleIcon fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Right Click Node</TableCell>
-  //           <TableCell align="center">Open Node Menu</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandleIcon fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Double Click Node</TableCell>
-  //           <TableCell align="center">Edit Node</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandleIcon fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Control + Click Node</TableCell>
-  //           <TableCell align="center">Add Child Node</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandleIcon fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Shift + Click Node</TableCell>
-  //           <TableCell align="center">Lock Node</TableCell>
-  //         </TableRow>
-  //         <TableRow>
-  //           <TableCell align="center">
-  //             {/* <DragHandleIcon fontSize={iconSize} /> */}
-  //           </TableCell>
-  //           <TableCell align="center">Alt + Click Node</TableCell>
-  //           <TableCell align="center">Delete Node</TableCell>
-  //         </TableRow>
-  //         {/* End */}
-  //       </TableBody>
-  //     </Table>
-  //   </TableContainer>
-  // );
 
   return (
     <Dialog

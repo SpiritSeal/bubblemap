@@ -95,6 +95,7 @@ const BottomBar = ({
         updateTitle(titleRef.current);
       }
     }, 1500);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
 
   return (

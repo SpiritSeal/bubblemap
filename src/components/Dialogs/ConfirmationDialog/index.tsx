@@ -28,26 +28,36 @@ const ConfirmationDialog = ({
   suggestedAction: 'approve' | 'reject' | undefined;
 }) => (
   <Dialog open={isOpen} onClose={onReject}>
-    <DialogTitle>{title}</DialogTitle>
-    <DialogContent>
-      <DialogContentText>{description}</DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button
-        variant={suggestedAction === 'reject' ? 'contained' : 'text'}
-        onClick={onReject}
-        autoFocus={suggestedAction === 'reject'}
-      >
-        {rejectButtonText}
-      </Button>
-      <Button
-        variant={suggestedAction === 'approve' ? 'contained' : 'text'}
-        onClick={onApprove}
-        autoFocus={suggestedAction === 'approve'}
-      >
-        {approveButtonText}
-      </Button>
-    </DialogActions>
+    <form
+      onSubmit={(e) => {
+        onApprove();
+        onReject();
+        e.preventDefault();
+      }}
+    >
+      <DialogTitle>{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText>{description}</DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          variant={suggestedAction === 'reject' ? 'contained' : 'text'}
+          onClick={onReject}
+          type={suggestedAction === 'reject' ? 'submit' : 'button'}
+          autoFocus={suggestedAction === 'reject'}
+        >
+          {rejectButtonText}
+        </Button>
+        <Button
+          variant={suggestedAction === 'approve' ? 'contained' : 'text'}
+          onClick={onApprove}
+          type={suggestedAction === 'approve' ? 'submit' : 'button'}
+          autoFocus={suggestedAction === 'approve'}
+        >
+          {approveButtonText}
+        </Button>
+      </DialogActions>
+    </form>
   </Dialog>
 );
 

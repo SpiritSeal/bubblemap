@@ -45,6 +45,7 @@ import {
 import { MindMap, RecursivePartial, WithID } from '../../types';
 import ShareDialog from './ShareDialog';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
+import TextDialog from '../../components/Dialogs/TextDialog';
 
 const ManageMindMaps = () => {
   const user = useUser().data;
@@ -82,6 +83,13 @@ const ManageMindMaps = () => {
     }
   ).data as WithID<MindMap>[];
 
+  const [isCreateMindMapDialogOpen, setIsCreateMindMapDialogOpen] =
+    useState<boolean>(false);
+
+  const [isRenameMindMapDialogOpen, setIsRenameMindMapDialogOpen] = useState<
+    null | string
+  >(null);
+
   const createMindMap = (title: string) => {
     const newDocData: MindMap = {
       metadata: {
@@ -108,15 +116,6 @@ const ManageMindMaps = () => {
     addDoc(mindmapsCollection, newDocData).then((newDoc) => {
       navigate(newDoc.id);
     });
-  };
-
-  const handleCreateMindMap = () => {
-    // eslint-disable-next-line no-alert
-    const title = window.prompt('What would you like to ideate upon?')?.trim();
-    createMindMap(
-      // eslint-disable-next-line
-      title === null || title === '' ? 'Untitled Mind Map' : title!
-    );
   };
 
   // Snackbar stuff
@@ -203,11 +202,61 @@ const ManageMindMaps = () => {
           startIcon={<Add />}
           variant="contained"
           onClick={() => {
-            handleCreateMindMap();
+            setIsCreateMindMapDialogOpen(true);
           }}
         >
           New Mind Map
         </Button>
+        <TextDialog
+          approveButtonText="Create"
+          isOpen={isCreateMindMapDialogOpen}
+          onApprove={(title) => createMindMap(title)}
+          onReject={() => {
+            setIsCreateMindMapDialogOpen(false);
+          }}
+          rejectButtonText="Cancel"
+          title="Create Mind Map"
+          suggestedAction="approve"
+          textFieldProps={{
+            label: 'Title',
+          }}
+          initialValue=""
+        />
+        <TextDialog
+          approveButtonText="Rename"
+          isOpen={isRenameMindMapDialogOpen !== null}
+          onApprove={(newTitle) => {
+            const mindmap = mindmaps.find(
+              (m) => m.ID === isRenameMindMapDialogOpen
+            );
+            if (!mindmap) return;
+
+            const updatedDocFields: RecursivePartial<MindMap> = {
+              metadata: {
+                updatedAt: serverTimestamp() as Timestamp,
+                updatedBy: user.uid,
+              },
+              title: newTitle || 'Untitled Mind Map',
+            };
+            setDoc(doc(firestore, 'mindmaps', mindmap.ID), updatedDocFields, {
+              merge: true,
+            });
+          }}
+          onReject={() => {
+            setIsRenameMindMapDialogOpen(null);
+          }}
+          rejectButtonText="Cancel"
+          title="Rename Mind Map"
+          suggestedAction="approve"
+          textFieldProps={{
+            label: 'Title',
+          }}
+          initialValue={
+            mindmaps.find((m) => m.ID === isRenameMindMapDialogOpen)?.title ||
+            ''
+          }
+          updateOnInitialValueChange
+        />
         <br />
         <br />
         <ButtonGroup variant="outlined">
@@ -376,27 +425,7 @@ const ManageMindMaps = () => {
               <IconButton
                 type="button"
                 onClick={() => {
-                  // eslint-disable-next-line no-alert
-                  const newTitle = prompt(
-                    `What would you like to rename ${mindmap.title} to?`,
-                    mindmap.title
-                  );
-                  if (newTitle) {
-                    const updatedDocFields: RecursivePartial<MindMap> = {
-                      metadata: {
-                        updatedAt: serverTimestamp() as Timestamp,
-                        updatedBy: user.uid,
-                      },
-                      title: newTitle,
-                    };
-                    setDoc(
-                      doc(firestore, 'mindmaps', mindmap.ID),
-                      updatedDocFields,
-                      {
-                        merge: true,
-                      }
-                    );
-                  }
+                  setIsRenameMindMapDialogOpen(mindmap.ID);
                 }}
                 aria-label="rename mindmap"
               >
@@ -410,7 +439,7 @@ const ManageMindMaps = () => {
         <div style={{ textAlign: 'center', margin: '1rem' }}>
           <Button
             onClick={() => {
-              handleCreateMindMap();
+              setIsCreateMindMapDialogOpen(true);
             }}
           >
             You don&apos;t have any MindMaps. Create one now!

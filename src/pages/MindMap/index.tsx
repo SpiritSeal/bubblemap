@@ -28,7 +28,7 @@ import GenIdeaPanel from './overlays/GenIdeaPanel';
 const keyMap = {
   ADD_NODE: 'ctrl+enter',
   DELETE_NODE: ['del', 'backspace'],
-  EDIT_NODE_TEXT: 'enter',
+  EDIT_NODE_TEXT: 'shift+enter',
   // Not Implemented
   GENERATE_IDEAS: 'ctrl+shift+enter',
   // Not Implemented
@@ -37,8 +37,8 @@ const keyMap = {
   TOGGLE_SETTINGS: 'ctrl+shift+p',
   MOVE_SELECTION_TO_PARENT: ['up', '`'],
   MOVE_SELECTION_TO_CHILD: 'down',
-  MOVE_SELECTION_TO_NEXT_SIBLING: ['right', 'tab'],
-  MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left', 'shift+tab'],
+  MOVE_SELECTION_TO_NEXT_SIBLING: ['right'],
+  MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left'],
   MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
   RESET_VIEW: ['ctrl+0', 'home'],
   LOCK_NODE: ['l', 'ctrl+l', 'space'],
@@ -172,8 +172,6 @@ const MindMap = () => {
     }
   };
 
-  if (!mindmap) return <div>Sorry, I couldn&apos;t find that mindmap.</div>;
-
   const shortcutHandlers = {
     TOGGLE_SETTINGS: () => {
       // eslint-disable-next-line no-console
@@ -183,6 +181,8 @@ const MindMap = () => {
 
   // Get the mindmap node with id 0, which is the root node
   const rootNode = mindmap.nodes.find((o) => o.id === 0);
+
+  if (!mindmap) throw new Error('Sorry, I couldn&apos;t find that mindmap.');
 
   if (!rootNode) {
     throw new Error('Root node not found!');

@@ -5,17 +5,12 @@ import {
   List,
   Divider,
   Fab,
-  ListItemSecondaryAction,
   IconButton,
   ListItem,
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import {
-  SettingsSuggest,
-  ChevronLeft,
-  ChevronRight,
-} from '@mui/icons-material';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
@@ -146,6 +141,7 @@ const PersistentDrawerRight = ({
         textCache[selectedNode.id] !== selectedNode.text
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedNode]);
 
   // When the panel is opened, generate ideas for the selected node
@@ -153,6 +149,7 @@ const PersistentDrawerRight = ({
     if (open) {
       generateIdeas(selectedNode.id, selectedNode.text);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const handleIdeaClick = (nodeID: number, idea: string) => {
@@ -288,11 +285,11 @@ const PersistentDrawerRight = ({
               }}
             />
             {/* PART ONE */}
-            <ListItemSecondaryAction>
+            {/* <ListItemSecondaryAction>
               <IconButton edge="end" aria-label="settings">
                 <SettingsSuggest />
               </IconButton>
-            </ListItemSecondaryAction>
+            </ListItemSecondaryAction> */}
           </ListItem>
           {gpt3Cache[selectedNode.id]?.map((idea) => (
             <ListItemButton
