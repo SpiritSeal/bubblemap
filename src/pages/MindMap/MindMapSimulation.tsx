@@ -402,7 +402,8 @@ const MindMapSimulationWithTransform = forwardRef(
         if (selectedNode) setAddNodeDialogIsOpen(selectedNode.id);
       },
       handleDeleteNode() {
-        if (selectedNode) setDeleteNodeDialogOpen(selectedNode.id);
+        if (selectedNode && selectedNode.id !== 0)
+          setDeleteNodeDialogOpen(selectedNode.id);
       },
       handleEditNode() {
         if (selectedNode) setEditNodeDialogIsOpen(selectedNode.id);
@@ -423,7 +424,8 @@ const MindMapSimulationWithTransform = forwardRef(
         handleMoveSelectionToRoot();
       },
       handleToggleNodeLock() {
-        if (selectedNode) handleToggleNodeLock(selectedNode);
+        if (selectedNode && selectedNode.id !== 0)
+          handleToggleNodeLock(selectedNode);
       },
       getContext() {
         return context;

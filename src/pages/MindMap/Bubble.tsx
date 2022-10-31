@@ -1,6 +1,22 @@
 import React from 'react';
 import { SimulationNodeDatum } from 'd3-force';
-import { Divider, Menu, MenuItem, useTheme } from '@mui/material';
+import {
+  Divider,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Typography,
+  useTheme,
+} from '@mui/material';
+import {
+  AddCircle,
+  Edit,
+  Lock,
+  LockOpen,
+  RemoveCircle,
+} from '@mui/icons-material';
+
 import { localNode as nodeType } from '../../types';
 import './MindMap.css';
 
@@ -62,8 +78,8 @@ const Bubble = ({
     setContextMenu(
       contextMenu === null
         ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
+            mouseX: event.clientX,
+            mouseY: event.clientY,
           }
         : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
           // Other native context menus might behave different.
@@ -198,6 +214,11 @@ const Bubble = ({
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
             : undefined
         }
+        PaperProps={{
+          sx: {
+            maxWidth: '100%',
+          },
+        }}
       >
         <MenuItem
           onClick={(e) => {
@@ -206,20 +227,50 @@ const Bubble = ({
           }}
           disabled={node.id === 0}
         >
-          {!locked && !(node.id === 0) ? `Lock Node` : `Unlock Node`}
+          <ListItemIcon>
+            {!locked && !(node.id === 0) ? (
+              <Lock fontSize="small" />
+            ) : (
+              <LockOpen fontSize="small" />
+            )}
+          </ListItemIcon>
+          <ListItemText>
+            {!locked && !(node.id === 0) ? `Lock Bubble` : `Unlock Bubble`}
+          </ListItemText>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+            <kbd>Space</kbd>
+          </Typography>
         </MenuItem>
         <Divider />
         <MenuItem onClick={(e) => handleInheritedHandles(e, handleAddNode)}>
-          Add Node
+          <ListItemIcon>
+            <AddCircle fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Add Bubble</ListItemText>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+            <kbd>Ctrl</kbd> + <kbd>Enter</kbd>
+          </Typography>
         </MenuItem>
         <MenuItem
           onClick={(e) => handleInheritedHandles(e, handleDeleteNode)}
           disabled={node.id === 0}
         >
-          Delete Node
+          <ListItemIcon>
+            <RemoveCircle fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Delete Bubble</ListItemText>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+            <kbd>Delete</kbd>
+          </Typography>
         </MenuItem>
         <MenuItem onClick={(e) => handleInheritedHandles(e, handleEditNode)}>
-          Edit Node
+          <ListItemIcon>
+            <Edit fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Edit Bubble</ListItemText>
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
+            <kbd>Shift</kbd> + <kbd>Enter</kbd>
+          </Typography>
         </MenuItem>
       </Menu>
       <circle

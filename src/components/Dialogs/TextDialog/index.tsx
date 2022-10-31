@@ -77,7 +77,6 @@ const TextDialog = ({
           </Button>
           <Button
             variant={suggestedAction === 'approve' ? 'contained' : 'text'}
-            onClick={() => onApprove(value)}
             type={suggestedAction === 'approve' ? 'submit' : 'button'}
           >
             {approveButtonText}

@@ -210,7 +210,7 @@ const ManageMindMaps = () => {
         <TextDialog
           approveButtonText="Create"
           isOpen={isCreateMindMapDialogOpen}
-          onApprove={createMindMap}
+          onApprove={(title) => createMindMap(title)}
           onReject={() => {
             setIsCreateMindMapDialogOpen(false);
           }}
