@@ -29,6 +29,7 @@ import BubbleLink from './BubbleLink';
 import { MindMap, node, WithID } from '../../types';
 import Loading from '../../components/Loading';
 import BottomBar from './overlays/BottomBar';
+import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 
 const MindMapSimulationWithTransform = forwardRef(
   (
@@ -81,6 +82,10 @@ const MindMapSimulationWithTransform = forwardRef(
       [key: number]: boolean;
     }>({});
 
+    const [deleteNodeDialogOpen, setDeleteNodeDialogOpen] = useState<
+      null | number
+    >(null);
+
     // UseEffect Lockstate
     useEffect(() => {
       // Find the difference between the lastNodeLockStates and the current nodeLockStates
@@ -122,7 +127,7 @@ const MindMapSimulationWithTransform = forwardRef(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeLockStates, simulation]);
 
-    const checkIfRecursiveChildrenisSelected = (
+    const checkIfRecursiveChildrenIsSelected = (
       nodeTo: (SimulationNodeDatum & node) | undefined,
       nodeFrom: (SimulationNodeDatum & node) | undefined = selectedNode
     ): boolean => {
@@ -133,7 +138,7 @@ const MindMapSimulationWithTransform = forwardRef(
         if (nodeFrom.id === 0) {
           return false;
         }
-        return checkIfRecursiveChildrenisSelected(
+        return checkIfRecursiveChildrenIsSelected(
           nodeTo,
           nodes.find((n) => n.id === nodeFrom.parent)
         );
@@ -141,25 +146,26 @@ const MindMapSimulationWithTransform = forwardRef(
       return false;
     };
 
-    const handleDeleteNode = (nodeToDelete: node) => {
-      // eslint-disable-next-line no-alert
-      if (window.confirm('Are you sure you want to delete this node?')) {
-        // If the node is selected, select the parent
-        // Get the parent node
-        const parentNode = nodes.find((n) => n.id === nodeToDelete.parent);
-        if (!parentNode) {
-          return;
-        }
-        if (selectedNode?.id === nodeToDelete.id) {
-          setSelectedNode(parentNode);
-        }
-        if (checkIfRecursiveChildrenisSelected(nodeToDelete)) {
-          // Set the selected node to the parent of the node to be deleted
-          setSelectedNode(parentNode);
-        }
-        deleteNode(nodeToDelete);
+    const handleDeleteNode = (nodeIDToDelete: number) => {
+      const nodeToDelete = nodes.find((n) => n.id === nodeIDToDelete);
+      if (!nodeToDelete) return;
+      // Get the parent node
+      const parentNode = nodes.find((n) => n.id === nodeToDelete.parent);
+      if (!parentNode) {
+        return;
       }
+      // If the node is selected, select the parent
+      if (selectedNode?.id === nodeToDelete.id) {
+        setSelectedNode(parentNode);
+      }
+      if (checkIfRecursiveChildrenIsSelected(nodeToDelete)) {
+        // Set the selected node to the parent of the node to be deleted
+        setSelectedNode(parentNode);
+      }
+      deleteNode(nodeToDelete);
+      setDeleteNodeDialogOpen(null);
     };
+
     const handleEditNode = (nodeToEdit: node) => {
       // eslint-disable-next-line no-alert
       const newText = prompt('Enter new text', nodeToEdit.text);
@@ -167,6 +173,7 @@ const MindMapSimulationWithTransform = forwardRef(
         updateNode(nodeToEdit, { ...nodeToEdit, text: newText });
       }
     };
+
     const handleMoveSelectionToParent = () => {
       if (selectedNode) {
         // Get the parent of the selected node
@@ -176,6 +183,7 @@ const MindMapSimulationWithTransform = forwardRef(
         }
       }
     };
+
     const handleMoveSelectionToChild = () => {
       if (selectedNode) {
         // Get the children of the selected node
@@ -200,6 +208,7 @@ const MindMapSimulationWithTransform = forwardRef(
         }
       }
     };
+
     const handleMoveSelectionToSibling = (
       direction: 'clockwise' | 'anticlockwise'
     ) => {
@@ -250,16 +259,19 @@ const MindMapSimulationWithTransform = forwardRef(
         }
       }
     };
+
     const handleMoveSelectionToNextSibling = () => {
       if (selectedNode) {
         handleMoveSelectionToSibling('clockwise');
       }
     };
+
     const handleMoveSelectionToPreviousSibling = () => {
       if (selectedNode) {
         handleMoveSelectionToSibling('anticlockwise');
       }
     };
+
     const handleMoveSelectionToRoot = () => {
       // Get the root node
       const root = nodes.find((nodeF) => nodeF.id === 0);
@@ -267,6 +279,7 @@ const MindMapSimulationWithTransform = forwardRef(
         setSelectedNode(root);
       }
     };
+
     const handleToggleNodeLock = (nodeToToggle: node) => {
       setNodeLockStates({
         ...nodeLockStates,
@@ -397,7 +410,7 @@ const MindMapSimulationWithTransform = forwardRef(
       },
       handleDeleteNode() {
         if (selectedNode) {
-          handleDeleteNode(selectedNode);
+          setDeleteNodeDialogOpen(selectedNode.id);
         }
       },
       handleEditNode() {
@@ -446,85 +459,103 @@ const MindMapSimulationWithTransform = forwardRef(
     let nodeClicked: (SimulationNodeDatum & node) | undefined;
     if (nodes.length > 0)
       return (
-        <svg
-          style={{
-            overflow: 'visible',
-          }}
-          width={1}
-          height={1}
-          onMouseDown={(e) => {
-            // if right click
-            if (e.button === 2) {
-              return;
-            }
-            const x =
-              (e.clientX - context.state.positionX + mouseDelta.x) /
-              context.state.scale;
-            const y =
-              (e.clientY - context.state.positionY + mouseDelta.y) /
-              context.state.scale;
-            nodeClicked = simulation?.find(x, y, 15);
-            if (!nodeClicked) return;
-            nodeClicked.fx = nodeClicked.x;
-            nodeClicked.fy = nodeClicked.y;
-            setDragNodeSelected(nodeClicked);
-            setMouseDown(true);
-            setDownMouseCoords({ x: e.clientX, y: e.clientY });
-            e.stopPropagation();
-          }}
-          onMouseUp={() => {
-            releaseBubble();
-          }}
-        >
-          {links.map((link) => (
-            <BubbleLink
-              key={link.target}
-              sourceNode={nodes[link.source]}
-              targetNode={nodes[link.target]}
-            />
-          ))}
-          {nodes.map((nodeData) => {
-            const handleAddNodePD = () => {
-              handleAddNode(nodeData);
-            };
-            const handleDeleteNodePD = () => {
-              handleDeleteNode(nodeData);
-            };
-            const handleEditNodePD = () => {
-              handleEditNode(nodeData);
-            };
-            const handleSetNodeLockStatePD = (lockState?: boolean) => {
-              if (nodeData.id === 0) return;
-              if (lockState === undefined) {
-                handleSetNodeLockStatePD(!nodeLockStates[nodeData.id]);
-              } else {
-                // Update the lock state of the node in the nodeLockStates state array
-                setNodeLockStates({
-                  ...nodeLockStates,
-                  [nodeData.id]: lockState,
-                });
+        <>
+          <ConfirmationDialog
+            approveButtonText="Delete Node"
+            description="Are you sure you want to delete this node?"
+            isOpen={!!deleteNodeDialogOpen}
+            onApprove={() => {
+              if (deleteNodeDialogOpen) {
+                handleDeleteNode(deleteNodeDialogOpen);
               }
-            };
-            return (
-              <Bubble
-                key={nodeData.id}
-                node={nodeData}
-                dragging={dragNodeSelected === nodeData}
-                selected={selectedNode?.id === nodeData.id}
-                setSelectedNode={setSelectedNode}
-                mouseDown={mouseDown}
-                setMouseDown={setMouseDown}
-                downMouseCoords={downMouseCoords}
-                handleAddNode={handleAddNodePD}
-                handleDeleteNode={handleDeleteNodePD}
-                updateNode={updateNode}
-                handleEditNode={handleEditNodePD}
-                handleSetNodeLockState={handleSetNodeLockStatePD}
-                locked={nodeLockStates[nodeData.id]}
+            }}
+            onReject={() => {
+              setDeleteNodeDialogOpen(null);
+            }}
+            title="Delete Node"
+            rejectButtonText="Cancel"
+            suggestedAction="approve"
+          />
+          <svg
+            style={{
+              overflow: 'visible',
+            }}
+            width={1}
+            height={1}
+            onMouseDown={(e) => {
+              // if right click
+              if (e.button === 2) {
+                return;
+              }
+              const x =
+                (e.clientX - context.state.positionX + mouseDelta.x) /
+                context.state.scale;
+              const y =
+                (e.clientY - context.state.positionY + mouseDelta.y) /
+                context.state.scale;
+              nodeClicked = simulation?.find(x, y, 15);
+              if (!nodeClicked) return;
+              nodeClicked.fx = nodeClicked.x;
+              nodeClicked.fy = nodeClicked.y;
+              setDragNodeSelected(nodeClicked);
+              setMouseDown(true);
+              setDownMouseCoords({ x: e.clientX, y: e.clientY });
+              e.stopPropagation();
+            }}
+            onMouseUp={() => {
+              releaseBubble();
+            }}
+          >
+            {links.map((link) => (
+              <BubbleLink
+                key={link.target}
+                sourceNode={nodes[link.source]}
+                targetNode={nodes[link.target]}
               />
-            );
-          })}
-        </svg>
+            ))}
+            {nodes.map((nodeData) => {
+              const handleAddNodePD = () => {
+                handleAddNode(nodeData);
+              };
+              const handleDeleteNodePD = () => {
+                setDeleteNodeDialogOpen(nodeData.id);
+              };
+              const handleEditNodePD = () => {
+                handleEditNode(nodeData);
+              };
+              const handleSetNodeLockStatePD = (lockState?: boolean) => {
+                if (nodeData.id === 0) return;
+                if (lockState === undefined) {
+                  handleSetNodeLockStatePD(!nodeLockStates[nodeData.id]);
+                } else {
+                  // Update the lock state of the node in the nodeLockStates state array
+                  setNodeLockStates({
+                    ...nodeLockStates,
+                    [nodeData.id]: lockState,
+                  });
+                }
+              };
+              return (
+                <Bubble
+                  key={nodeData.id}
+                  node={nodeData}
+                  dragging={dragNodeSelected === nodeData}
+                  selected={selectedNode?.id === nodeData.id}
+                  setSelectedNode={setSelectedNode}
+                  mouseDown={mouseDown}
+                  setMouseDown={setMouseDown}
+                  downMouseCoords={downMouseCoords}
+                  handleAddNode={handleAddNodePD}
+                  handleDeleteNode={handleDeleteNodePD}
+                  updateNode={updateNode}
+                  handleEditNode={handleEditNodePD}
+                  handleSetNodeLockState={handleSetNodeLockStatePD}
+                  locked={nodeLockStates[nodeData.id]}
+                />
+              );
+            })}
+          </svg>
+        </>
       );
     return null;
   }
