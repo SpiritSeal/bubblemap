@@ -5,17 +5,12 @@ import {
   List,
   Divider,
   Fab,
-  ListItemSecondaryAction,
   IconButton,
   ListItem,
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import {
-  SettingsSuggest,
-  ChevronLeft,
-  ChevronRight,
-} from '@mui/icons-material';
+import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
