@@ -33,7 +33,6 @@ const Bubble = ({
   downMouseCoords,
   handleAddNode,
   handleDeleteNode,
-  updateNode,
   handleEditNode,
   handleSetNodeLockState,
   locked,
@@ -47,7 +46,6 @@ const Bubble = ({
   downMouseCoords: { x: number; y: number };
   handleAddNode: () => void;
   handleDeleteNode: () => void;
-  updateNode: (oldNode: nodeType, newNode: nodeType) => void;
   handleEditNode: () => void;
   handleSetNodeLockState: (lockState?: boolean) => void;
   locked: boolean;
@@ -188,11 +186,7 @@ const Bubble = ({
           return;
         }
         e.stopPropagation();
-        // eslint-disable-next-line no-alert
-        const newText = prompt('Enter new text', node.text);
-        if (newText) {
-          updateNode(node, { ...node, text: newText });
-        }
+        handleAddNode();
       }}
     >
       <Menu

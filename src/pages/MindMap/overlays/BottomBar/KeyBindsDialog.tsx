@@ -104,8 +104,7 @@ const KeyBindsDialog = ({
             'Delete Selected Node'
           )}
           {mapEntry(
-            // Enter -> Edit Node Text
-            '<kbd>Enter</kbd>',
+            '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
             'Edit Selected Node Text'
           )}
         </TableBody>

@@ -30,6 +30,7 @@ import { MindMap, node, WithID } from '../../types';
 import Loading from '../../components/Loading';
 import BottomBar from './overlays/BottomBar';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
+import TextDialog from '../../components/Dialogs/TextDialog';
 
 const MindMapSimulationWithTransform = forwardRef(
   (
@@ -37,13 +38,8 @@ const MindMapSimulationWithTransform = forwardRef(
       data,
       dragNodeSelected,
       setDragNodeSelected,
-      // TODO: Implement the following functions: [addNode, deleteNode, updateNode]. Remove relevant eslint-disables when done.
-      // eslint-disable-next-line
       addNode,
-      handleAddNode,
-      // eslint-disable-next-line
       deleteNode,
-      // eslint-disable-next-line
       updateNode,
       selectedNode,
       setSelectedNode,
@@ -54,7 +50,6 @@ const MindMapSimulationWithTransform = forwardRef(
         SetStateAction<(SimulationNodeDatum & node) | undefined>
       >;
       addNode: (node: { parent: number; text: string }) => void;
-      handleAddNode: (parentNode?: SimulationNodeDatum & node) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
       selectedNode: SimulationNodeDatum & node;
@@ -83,6 +78,14 @@ const MindMapSimulationWithTransform = forwardRef(
     }>({});
 
     const [deleteNodeDialogOpen, setDeleteNodeDialogOpen] = useState<
+      null | number
+    >(null);
+
+    const [editNodeDialogIsOpen, setEditNodeDialogIsOpen] = useState<
+      null | number
+    >(null);
+
+    const [addNodeDialogIsOpen, setAddNodeDialogIsOpen] = useState<
       null | number
     >(null);
 
@@ -164,14 +167,6 @@ const MindMapSimulationWithTransform = forwardRef(
       }
       deleteNode(nodeToDelete);
       setDeleteNodeDialogOpen(null);
-    };
-
-    const handleEditNode = (nodeToEdit: node) => {
-      // eslint-disable-next-line no-alert
-      const newText = prompt('Enter new text', nodeToEdit.text);
-      if (newText) {
-        updateNode(nodeToEdit, { ...nodeToEdit, text: newText });
-      }
     };
 
     const handleMoveSelectionToParent = () => {
@@ -404,47 +399,31 @@ const MindMapSimulationWithTransform = forwardRef(
         onMouseMove(e);
       },
       handleAddNode() {
-        if (selectedNode) {
-          handleAddNode(selectedNode);
-        }
+        if (selectedNode) setAddNodeDialogIsOpen(selectedNode.id);
       },
       handleDeleteNode() {
-        if (selectedNode) {
-          setDeleteNodeDialogOpen(selectedNode.id);
-        }
+        if (selectedNode) setDeleteNodeDialogOpen(selectedNode.id);
       },
       handleEditNode() {
-        if (selectedNode) {
-          handleEditNode(selectedNode);
-        }
+        if (selectedNode) setEditNodeDialogIsOpen(selectedNode.id);
       },
       handleMoveSelectionToParent() {
-        if (selectedNode) {
-          handleMoveSelectionToParent();
-        }
+        if (selectedNode) handleMoveSelectionToParent();
       },
       handleMoveSelectionToChild() {
-        if (selectedNode) {
-          handleMoveSelectionToChild();
-        }
+        if (selectedNode) handleMoveSelectionToChild();
       },
       handleMoveSelectionToNextSibling() {
-        if (selectedNode) {
-          handleMoveSelectionToNextSibling();
-        }
+        if (selectedNode) handleMoveSelectionToNextSibling();
       },
       handleMoveSelectionToPreviousSibling() {
-        if (selectedNode) {
-          handleMoveSelectionToPreviousSibling();
-        }
+        if (selectedNode) handleMoveSelectionToPreviousSibling();
       },
       handleMoveSelectionToRoot() {
         handleMoveSelectionToRoot();
       },
       handleToggleNodeLock() {
-        if (selectedNode) {
-          handleToggleNodeLock(selectedNode);
-        }
+        if (selectedNode) handleToggleNodeLock(selectedNode);
       },
       getContext() {
         return context;
@@ -463,7 +442,7 @@ const MindMapSimulationWithTransform = forwardRef(
           <ConfirmationDialog
             approveButtonText="Delete Node"
             description="Are you sure you want to delete this node?"
-            isOpen={!!deleteNodeDialogOpen}
+            isOpen={!(deleteNodeDialogOpen === null)}
             onApprove={() => {
               if (deleteNodeDialogOpen) {
                 handleDeleteNode(deleteNodeDialogOpen);
@@ -474,6 +453,47 @@ const MindMapSimulationWithTransform = forwardRef(
             }}
             title="Delete Node"
             rejectButtonText="Cancel"
+            suggestedAction="approve"
+          />
+          <TextDialog
+            approveButtonText="Edit Node"
+            rejectButtonText="Cancel"
+            title="Edit Node"
+            initialValue={
+              nodes.find((n) => n.id === editNodeDialogIsOpen)?.text
+            }
+            onApprove={(newText) => {
+              const oldNode = nodes.find((n) => n.id === editNodeDialogIsOpen);
+              if (!oldNode) return;
+              const newNode = { ...oldNode, text: newText };
+              updateNode(oldNode, newNode);
+            }}
+            isOpen={!(editNodeDialogIsOpen === null)}
+            onReject={() => {
+              setEditNodeDialogIsOpen(null);
+            }}
+            updateOnInitialValueChange
+            suggestedAction="approve"
+          />
+          <TextDialog
+            approveButtonText="Add Bubble"
+            rejectButtonText="Cancel"
+            title="Add Bubble"
+            onApprove={(newText) => {
+              if (
+                addNodeDialogIsOpen === null ||
+                nodes.find((n) => n.id === addNodeDialogIsOpen) === undefined
+              )
+                return;
+              addNode({
+                parent: addNodeDialogIsOpen,
+                text: newText || 'New Bubble',
+              });
+            }}
+            isOpen={!(addNodeDialogIsOpen === null)}
+            onReject={() => {
+              setAddNodeDialogIsOpen(null);
+            }}
             suggestedAction="approve"
           />
           <svg
@@ -513,47 +533,30 @@ const MindMapSimulationWithTransform = forwardRef(
                 targetNode={nodes[link.target]}
               />
             ))}
-            {nodes.map((nodeData) => {
-              const handleAddNodePD = () => {
-                handleAddNode(nodeData);
-              };
-              const handleDeleteNodePD = () => {
-                setDeleteNodeDialogOpen(nodeData.id);
-              };
-              const handleEditNodePD = () => {
-                handleEditNode(nodeData);
-              };
-              const handleSetNodeLockStatePD = (lockState?: boolean) => {
-                if (nodeData.id === 0) return;
-                if (lockState === undefined) {
-                  handleSetNodeLockStatePD(!nodeLockStates[nodeData.id]);
-                } else {
+            {nodes.map((nodeData) => (
+              <Bubble
+                key={nodeData.id}
+                node={nodeData}
+                dragging={dragNodeSelected === nodeData}
+                selected={selectedNode?.id === nodeData.id}
+                setSelectedNode={setSelectedNode}
+                mouseDown={mouseDown}
+                setMouseDown={setMouseDown}
+                downMouseCoords={downMouseCoords}
+                handleAddNode={() => setAddNodeDialogIsOpen(nodeData.id)}
+                handleDeleteNode={() => setDeleteNodeDialogOpen(nodeData.id)}
+                handleEditNode={() => setEditNodeDialogIsOpen(nodeData.id)}
+                handleSetNodeLockState={(lockState?: boolean) => {
+                  if (nodeData.id === 0) return;
                   // Update the lock state of the node in the nodeLockStates state array
                   setNodeLockStates({
                     ...nodeLockStates,
-                    [nodeData.id]: lockState,
+                    [nodeData.id]: lockState ?? !nodeLockStates[nodeData.id],
                   });
-                }
-              };
-              return (
-                <Bubble
-                  key={nodeData.id}
-                  node={nodeData}
-                  dragging={dragNodeSelected === nodeData}
-                  selected={selectedNode?.id === nodeData.id}
-                  setSelectedNode={setSelectedNode}
-                  mouseDown={mouseDown}
-                  setMouseDown={setMouseDown}
-                  downMouseCoords={downMouseCoords}
-                  handleAddNode={handleAddNodePD}
-                  handleDeleteNode={handleDeleteNodePD}
-                  updateNode={updateNode}
-                  handleEditNode={handleEditNodePD}
-                  handleSetNodeLockState={handleSetNodeLockStatePD}
-                  locked={nodeLockStates[nodeData.id]}
-                />
-              );
-            })}
+                }}
+                locked={nodeLockStates[nodeData.id]}
+              />
+            ))}
           </svg>
         </>
       );
@@ -583,18 +586,9 @@ const MindMapSimulation = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const childRef = useRef<any>();
 
-  const handleAddNode = (parentNode?: SimulationNodeDatum & node) => {
-    if (!parentNode) return;
-    // eslint-disable-next-line no-alert
-    const newText = prompt('Enter new text', '');
-    if (newText) {
-      addNode({ parent: parentNode.id, text: newText });
-    }
-  };
-
   const shortcutHandlers = {
     ADD_NODE: (e?: KeyboardEvent) => {
-      handleAddNode(selectedNode);
+      childRef.current.handleAddNode();
       e?.preventDefault();
     },
     DELETE_NODE: (e?: KeyboardEvent) => {
@@ -687,7 +681,6 @@ const MindMapSimulation = ({
               dragNodeSelected={dragNodeSelected}
               setDragNodeSelected={setDragNodeSelected}
               addNode={addNode}
-              handleAddNode={handleAddNode}
               deleteNode={deleteNode}
               updateNode={updateNode}
               selectedNode={selectedNode}
@@ -698,7 +691,7 @@ const MindMapSimulation = ({
       </div>
       <BottomBar
         data={data}
-        handleAddNode={handleAddNode}
+        handleAddNode={() => childRef.current.handleAddNode()}
         selectedNode={selectedNode}
         resetCanvas={resetCanvas}
       />
