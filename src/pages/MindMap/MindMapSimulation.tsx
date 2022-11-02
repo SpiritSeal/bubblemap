@@ -502,8 +502,8 @@ const MindMapSimulationWithTransform = forwardRef(
             style={{
               overflow: 'visible',
             }}
-            width={1}
-            height={1}
+            width={5}
+            height={5}
             onMouseDown={(e) => {
               // if right click
               if (e.button === 2) {
