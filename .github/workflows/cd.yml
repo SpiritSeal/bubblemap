@@ -70,7 +70,7 @@ jobs:
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: deploy -P testing
+          args: deploy -P testing --force
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
 
@@ -78,6 +78,6 @@ jobs:
         if: '!github.event.release.prerelease'
         uses: w9jds/firebase-action@master
         with:
-          args: deploy -P app
+          args: deploy -P app --force
         env:
           GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUBBLEMAP_APP }}'
