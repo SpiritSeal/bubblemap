@@ -89,6 +89,52 @@ const MindMapSimulationWithTransform = forwardRef(
       null | number
     >(null);
 
+    // Create a state for the temporarily locked node
+    const [tempLockedNode, setTempLockedNode] = useState<null | number>(null);
+
+    // Create a useEffect for all of the NodeDialogIsOpen states
+    useEffect(() => {
+      // If all the NodeDialogIsOpen states are false, remove tempLockedNode from nodeLockStates if it exists
+      if (
+        !deleteNodeDialogOpen &&
+        !editNodeDialogIsOpen &&
+        !addNodeDialogIsOpen
+      ) {
+        if (tempLockedNode) {
+          setNodeLockStates((prev) => {
+            const newState = { ...prev };
+            newState[tempLockedNode] = false;
+            return newState;
+          });
+          setTempLockedNode(null);
+        }
+      }
+      // If any of the NodeDialogIsOpen states have a number, check if that number is in nodeLockStates
+      // If it is not, set tempLockedNode to that number and add it to nodeLockStates
+      else if (
+        deleteNodeDialogOpen ||
+        editNodeDialogIsOpen ||
+        addNodeDialogIsOpen
+      ) {
+        const nodeID =
+          deleteNodeDialogOpen ||
+          editNodeDialogIsOpen ||
+          addNodeDialogIsOpen ||
+          0;
+        if (!nodeLockStates[nodeID]) {
+          setTempLockedNode(nodeID);
+          setNodeLockStates((prev) => ({ ...prev, [nodeID]: true }));
+        }
+      }
+    }, [
+      setDeleteNodeDialogOpen,
+      editNodeDialogIsOpen,
+      addNodeDialogIsOpen,
+      deleteNodeDialogOpen,
+      tempLockedNode,
+      nodeLockStates,
+    ]);
+
     // UseEffect Lockstate
     useEffect(() => {
       // Find the difference between the lastNodeLockStates and the current nodeLockStates
