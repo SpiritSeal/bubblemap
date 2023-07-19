@@ -100,16 +100,16 @@ const KeyBindsDialog = ({
         <TableBody>
           {mapEntry(
             '<kbd>Ctrl</kbd> + <kbd>Enter</kbd>',
-            'Add Bubble to Selected Bubble'
+            'Add Bubble to Selected Bubble',
           )}
           {mapEntry(
             // Double space 'or' statements using &nbsp&nbsp
             '<kbd>Delete</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>Backspace</kbd>',
-            'Delete Selected Bubble'
+            'Delete Selected Bubble',
           )}
           {mapEntry(
             '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
-            'Edit Selected Bubble'
+            'Edit Selected Bubble',
           )}
         </TableBody>
         <TableHead>
@@ -126,16 +126,16 @@ const KeyBindsDialog = ({
           {mapEntry('<kbd>Down</kbd>', 'Select Child Bubble')}
           {mapEntry(
             '<kbd>Left</kbd>',
-            'Select Next Sibling Bubble (Counter-Clockwise)'
+            'Select Next Sibling Bubble (Counter-Clockwise)',
           )}
           {mapEntry(
             '<kbd>Right</kbd>',
-            'Select Next Sibling Bubble (Clockwise)'
+            'Select Next Sibling Bubble (Clockwise)',
           )}
           {/* 'Move selection to root" is '0' or 'ctrl'+'up */}
           {mapEntry(
             '<kbd>0</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>Ctrl</kbd> + <kbd>Up</kbd>',
-            'Select Root Bubble'
+            'Select Root Bubble',
           )}
         </TableBody>
         <TableHead>
@@ -151,12 +151,12 @@ const KeyBindsDialog = ({
         <TableBody>
           {mapEntry(
             '<kbd>Space</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>L</kbd>',
-            'Lock Bubble'
+            'Lock Bubble',
           )}
           {/* Reset Pan and Zoom back to Default */}
           {mapEntry(
             '<kbd>Home</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>Ctrl</kbd> + <kbd>0</kbd>',
-            'Reset Pan and Zoom'
+            'Reset Pan and Zoom',
           )}
         </TableBody>
         <TableHead>
@@ -170,12 +170,12 @@ const KeyBindsDialog = ({
           {/* Toggle Idea Generation Panel (ctrl+shift+s) */}
           {mapEntry(
             '<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd>',
-            'Toggle Idea Generation Panel'
+            'Toggle Idea Generation Panel',
           )}
           {/* Manually Regenerate Ideas (ctrl+shift+enter) */}
           {mapEntry(
             '<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd>',
-            'Manually Regenerate Ideas'
+            'Manually Regenerate Ideas',
           )}
         </TableBody>
       </Table>
@@ -200,12 +200,12 @@ const KeyBindsDialog = ({
           {/* Control Click */}
           {mapEntry(
             '<kbd>Ctrl</kbd> + Left Click Bubble',
-            'Add Bubble to Selected Bubble'
+            'Add Bubble to Selected Bubble',
           )}
           {/* Shift Click */}
           {mapEntry(
             '<kbd>Shift</kbd> + Left Click Bubble',
-            'Lock Bubble Position'
+            'Lock Bubble Position',
           )}
           {/* Alt Click */}
           {mapEntry('<kbd>Alt</kbd> + Left Click Bubble', 'Delete Bubble')}

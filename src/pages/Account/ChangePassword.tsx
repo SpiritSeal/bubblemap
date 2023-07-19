@@ -32,7 +32,7 @@ const ChangePassword = ({ user }: { user: User }) => {
           e.preventDefault();
           reauthenticateWithCredential(
             user,
-            EmailAuthProvider.credential(user?.email || '', currentPassword)
+            EmailAuthProvider.credential(user?.email || '', currentPassword),
           )
             .then(async () => {
               await updatePassword(user, newPassword)
