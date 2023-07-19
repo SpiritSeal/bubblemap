@@ -118,7 +118,7 @@ const Navigation = () => {
         <Toolbar>
           <ButtonBase onClick={() => navigate('/')}>
             <img
-              src={`${process.env.PUBLIC_URL}/assets/logos/Simple Bubble Map Logo.png`}
+              src="/assets/logos/Simple Bubble Map Logo.png"
               height="50"
               width="50"
               alt="Bubble Map Logo"

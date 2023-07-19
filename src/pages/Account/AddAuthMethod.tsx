@@ -44,17 +44,17 @@ const AddAuthMethod = () => {
                 .catch((err) => {
                   if (err.code === 'auth/email-already-in-use') {
                     setError(
-                      'An account already exists with this email. Please sign in or reset your password instead.'
+                      'An account already exists with this email. Please sign in or reset your password instead.',
                     );
                   } else if (err.code === 'auth/weak-password') {
                     setError('Please enter a stronger password.');
                   } else if (err.code === 'auth/invalid-email') {
                     setError(
-                      'This email is invalid. Please enter a valid email.'
+                      'This email is invalid. Please enter a valid email.',
                     );
                   } else {
                     setError(
-                      'Uh oh. Something went wrong. Please try again later.'
+                      'Uh oh. Something went wrong. Please try again later.',
                     );
                   }
                 });

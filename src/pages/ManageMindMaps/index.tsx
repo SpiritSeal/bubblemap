@@ -63,7 +63,7 @@ const ManageMindMaps = () => {
   const ownedMindMapsQuery = query(
     mindmapsCollection,
     orderBy('metadata.updatedAt', 'desc'),
-    where('permissions.owner', '==', user.uid)
+    where('permissions.owner', '==', user.uid),
   );
 
   const sharedMindMapsQuery = query(
@@ -71,7 +71,7 @@ const ManageMindMaps = () => {
     orderBy('permissions.owner', 'desc'),
     where('metadata.everUpdatedBy', 'array-contains', user.uid),
     where('permissions.owner', '!=', user.uid),
-    where('permissions.isPublic', '==', true)
+    where('permissions.isPublic', '==', true),
   );
 
   const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
@@ -80,7 +80,7 @@ const ManageMindMaps = () => {
       : ownedMindMapsQuery,
     {
       idField: 'ID',
-    }
+    },
   ).data as WithID<MindMap>[];
 
   const [isCreateMindMapDialogOpen, setIsCreateMindMapDialogOpen] =
@@ -125,7 +125,7 @@ const ManageMindMaps = () => {
   }
 
   const [snackPack, setSnackPack] = React.useState<readonly SnackbarMessage[]>(
-    []
+    [],
   );
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState<
@@ -227,7 +227,7 @@ const ManageMindMaps = () => {
           isOpen={isRenameMindMapDialogOpen !== null}
           onApprove={(newTitle) => {
             const mindmap = mindmaps.find(
-              (m) => m.ID === isRenameMindMapDialogOpen
+              (m) => m.ID === isRenameMindMapDialogOpen,
             );
             if (!mindmap) return;
 
@@ -349,7 +349,7 @@ const ManageMindMaps = () => {
                   // Open snackbar
                   handleSnackbarClick('Copied to clipboard')();
                   navigator.clipboard.writeText(
-                    `${window.location.origin}/mindmaps/${mindmap.ID}`
+                    `${window.location.origin}/mindmaps/${mindmap.ID}`,
                   );
                 }}
                 aria-label="copy link to clipboard"

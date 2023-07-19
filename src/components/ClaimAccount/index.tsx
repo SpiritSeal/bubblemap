@@ -15,7 +15,7 @@ export const useDoesUserHaveMindMaps = () => {
 
   const ownedMindmapsQuery = query(
     collection(firestore, 'mindmaps'),
-    where('permissions.owner', '==', user.uid)
+    where('permissions.owner', '==', user.uid),
   );
 
   const ownedMindmaps = useFirestoreCollection(ownedMindmapsQuery).data;
