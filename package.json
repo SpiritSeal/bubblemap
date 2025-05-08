@@ -7,7 +7,7 @@
     "@emotion/styled": "^11.10.5",
     "@kokarn/react-zoom-pan-pinch": "^2.1.5",
     "@mui/icons-material": "^5.11.0",
-    "@mui/material": "^5.11.8",
+    "@mui/material": "^7.0.0",
     "d3-force": "^3.0.0",
     "dotenv": "^16.0.3",
     "firebase": "^9.17.1",
