@@ -5,10 +5,12 @@ Firebase config, and dependencies. Last real activity on `main` was June 2023
 (repo created March 2022). This is a prioritized plan to get the project
 secure, deployable, and back on a maintainable footing.
 
-## STATUS as of 2026-07-05 — read this first
+## STATUS as of 2026-07-06 — read this first
 
-Sections 0, 2, 3 (mostly), and 6 below are **done** on the `revival` branch
-(PR open against `main`). Completed there:
+Sections 0, 1, 2, 3 (mostly), 6, and 7.1 below are **done** on the
+`revival` branch — **draft PR #199**, deliberately ONE big PR for the whole
+revival; keep it draft until the waves land. This file moved from the repo
+root to `changelog/` per review feedback on the PR. Completed so far:
 
 - `release-0.2.0` (Vite migration) merged; CRA fully gone.
 - **Node 24 everywhere**: functions `engines`, all CI workflows, `.nvmrc`,
@@ -29,6 +31,38 @@ Sections 0, 2, 3 (mostly), and 6 below are **done** on the `revival` branch
 - Backlog triage done: issues **#188–#198** filed (one per work item below),
   #133/#135 closed as obsolete, #160 superseded-comment posted.
 
+**Wave 1 — done 2026-07-06 (all CI green):**
+
+- **#188 Firestore rules rewritten** (§1a fix): public-edit eligibility read
+  from `resource.data`, auth required on every read/write, non-owners can't
+  touch `permissions`, create must set owner/createdBy/everUpdatedBy to the
+  caller's uid, full schema validation, owners can't transfer ownership.
+  22 rules unit tests in `src/firestore.rules.test.ts` run in CI via the
+  emulator (`@firebase/rules-unit-testing` pinned `^2` for the firebase 9
+  hold — bump to v5 with #191). **Rules not yet deployed to prod** — deploy
+  `firebase deploy --only firestore:rules` early if the PR sits for long.
+- **#189 `.env` hygiene**: `.env` untracked/gitignored; the (public,
+  client-visible) values live in `.env.example`; `cd.yml`/`preview.yml` do
+  `cp .env.example .env` before building (Vite reads `.env` at build time).
+- **#192 react-hotkeys → react-hotkeys-hook 5**; bindings centralized in
+  `src/pages/MindMap/keybindings.ts`. v5 matches on `KeyboardEvent.code`
+  ('backquote', not '`'). Should close #147 — verify in the manual
+  click-through.
+- **#194 service worker — decision: keep PWA.** `vite-plugin-pwa` configured
+  (registerType `autoUpdate`, manifest moved from `public/manifest.json`
+  into `vite.config.js`). Deleted `public/service-worker.js`,
+  `src/serviceWorker.js`, `public/offline.html`. The old prod worker was
+  network-first for navigations, so the new `/sw.js` registration replaces
+  it at the same scope; `index.tsx` deletes the orphaned `offline` cache.
+- **Cherry-picks: nothing to pick.** `145-fix-delete-mindmap-confirmation`'s
+  fix already landed on `main` via #146 (delete dialog is ID-scoped), and
+  `no-logout-if-no-account` was superseded by #152's anonymous-user
+  handling; the `145` branch tip (`334a91b`) would actually regress the
+  permissions schema to the old read/write/delete arrays. Both remote
+  branches are safe to delete.
+- Bonus: fixed the Home page logo (last `process.env.PUBLIC_URL`, undefined
+  under Vite).
+
 **Deliberate dependency holds — do not "fix" blindly:** firebase 9
 (reactfire pins `^9` → #191), eslint 8 + @typescript-eslint 6 + airbnb
 (no flat-config support, §5), react 18 (take 19 with the MUI pass, #193),
@@ -37,30 +71,40 @@ peer cap), openai 3 (deleted by #190), @types/node 24 (matches runtime).
 
 ### Next steps, in order (each maps to a GitHub issue)
 
-1. **Wave 1 — #188 Firestore rules fix + rules unit tests** (security
-   critical; see §1a), then #189 `.env` hygiene, #192 react-hotkeys
-   replacement (likely closes #147), #194 service-worker decision.
-   Cherry-pick `145-fix-delete-mindmap-confirmation` and
-   `no-logout-if-no-account` in the same pass. All emulator/CI verifiable.
+1. ~~**Wave 1**~~ — done, see STATUS above.
 2. **Wave 2 — #195 write model** (recommendation: `crypto.randomUUID()`
-   node IDs + Firestore transactions; decide before undo), then **#190
-   Groq swap** (code + emulator tests can land before the key exists;
-   deploy needs the `GROQ_API_KEY` secret set by a human).
+   node IDs + Firestore transactions; decide before undo — note the new
+   rules validate `nodes` as a list of ≤5000 entries but don't constrain
+   node shape, so an ID-type change doesn't need a rules change), then
+   **#190 Groq swap** (code + emulator tests can land before the key
+   exists; deploy needs the `GROQ_API_KEY` secret set by a human).
 3. **Wave 3 — #191 reactfire removal + firebase 12** (also fix the
-   rules-of-hooks bug in `src/pages/MindMap/index.tsx` and delete the
-   unused Storage/Remote Config inits in `App.tsx`), then **#193 MUI
-   major + React 19** bundled.
+   rules-of-hooks bug in `src/pages/MindMap/index.tsx`, delete the
+   unused Storage/Remote Config inits in `App.tsx`, and bump
+   `@firebase/rules-unit-testing` 2 → 5 with the firebase major), then
+   **#193 MUI major + React 19** bundled.
 4. **Wave 4 — product**: #197 export, #198 undo (unblocked by #195),
    #196 privacy policy + footer (draft; human review required, COPPA).
 
 **Human-only checklist (blockers for the waves above):**
 
 - [ ] Manual click-through of the canvas (pan/zoom/drag/hotkeys) after the
-      zoom-fork migration — nothing has physically dragged a bubble yet.
+      zoom-fork migration and the hotkeys swap — nothing has physically
+      dragged a bubble yet; also confirms #147 so #192 can close it.
 - [ ] Create a Groq API key; `npx firebase-tools functions:secrets:set GROQ_API_KEY`.
 - [ ] Firebase console: verify App Check enforcement is ON for Firestore,
       and API-key HTTP-referrer restrictions on both projects.
 - [ ] Read the privacy policy draft before it ships.
+- [ ] Optional: deploy the fixed Firestore rules ahead of the PR merge
+      (`firebase deploy --only firestore:rules`) — the prod hole is live
+      until then.
+- [ ] Optional: delete the superseded `145-fix-delete-mindmap-confirmation`
+      and `no-logout-if-no-account` remote branches.
+
+**Dev-environment notes (local machine):** the Firebase emulators need a
+JDK 21+ (installed via `brew install openjdk@21`, keg-only at
+`/opt/homebrew/opt/openjdk@21` — set `JAVA_HOME`); use `nvm use` (Node 24)
+before npm/firebase commands — the login shell may default to Node 16.
 
 Parallelism note: #196 and #197 touch mostly new files and can run in
 isolated worktrees alongside spine work; everything else collides in
