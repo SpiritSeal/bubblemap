@@ -22,7 +22,8 @@ import {
   TransformWrapper,
   TransformComponent,
   useTransformContext,
-} from '@kokarn/react-zoom-pan-pinch';
+  useControls,
+} from 'react-zoom-pan-pinch';
 import './MindMap.css';
 import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
@@ -334,6 +335,7 @@ const MindMapSimulationWithTransform = forwardRef(
     const [mouseDelta] = useState({ x: 0, y: 0 });
 
     const context = useTransformContext();
+    const controls = useControls();
 
     useEffect(() => {
       if (JSON.stringify(data.nodes) !== JSON.stringify(priorDataNodes)) {
@@ -428,11 +430,11 @@ const MindMapSimulationWithTransform = forwardRef(
     const onMouseMove = (e: MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (dragNodeSelected && dragNodeSelected.id !== 0) {
         dragNodeSelected.fx =
-          (e.clientX - context.state.positionX + mouseDelta.x) /
-          context.state.scale;
+          (e.clientX - context.transformState.positionX + mouseDelta.x) /
+          context.transformState.scale;
         dragNodeSelected.fy =
-          (e.clientY - context.state.positionY + mouseDelta.y) /
-          context.state.scale;
+          (e.clientY - context.transformState.positionY + mouseDelta.y) /
+          context.transformState.scale;
         simulation?.alpha(1).restart();
       }
     };
@@ -474,7 +476,13 @@ const MindMapSimulationWithTransform = forwardRef(
           handleToggleNodeLock(selectedNode);
       },
       getContext() {
-        return context;
+        // Shim matching the shape resetCanvas expects (the old fork exposed
+        // state/setTransform directly on the context)
+        return {
+          instance: context,
+          state: context.transformState,
+          setTransform: controls.setTransform,
+        };
       },
       restartSimulation() {
         if (simulation) simulation.alpha(1).restart();
@@ -556,11 +564,11 @@ const MindMapSimulationWithTransform = forwardRef(
                 return;
               }
               const x =
-                (e.clientX - context.state.positionX + mouseDelta.x) /
-                context.state.scale;
+                (e.clientX - context.transformState.positionX + mouseDelta.x) /
+                context.transformState.scale;
               const y =
-                (e.clientY - context.state.positionY + mouseDelta.y) /
-                context.state.scale;
+                (e.clientY - context.transformState.positionY + mouseDelta.y) /
+                context.transformState.scale;
               nodeClicked = simulation?.find(x, y, 15);
               if (!nodeClicked) return;
               nodeClicked.fx = nodeClicked.x;

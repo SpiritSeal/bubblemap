@@ -5,7 +5,6 @@
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
-    "@kokarn/react-zoom-pan-pinch": "^2.1.5",
     "@mui/icons-material": "^5.18.0",
     "@mui/material": "^5.18.0",
     "d3-force": "^3.0.0",
@@ -13,19 +12,9 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hotkeys": "^2.0.0",
-    "react-router-dom": "^6.30.4",
+    "react-router-dom": "^7.18.1",
     "react-zoom-pan-pinch": "^3.7.0",
     "reactfire": "^4.2.3"
-  },
-  "overrides": {
-    "react-zoom-pan-pinch": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    },
-    "@kokarn/react-zoom-pan-pinch": {
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0"
-    }
   },
   "scripts": {
     "start": "echo 'Loading.... This will take a few minutes.' && npm run tsc && npm-run-all --parallel dev:emulators dev:react tsc:watch",
