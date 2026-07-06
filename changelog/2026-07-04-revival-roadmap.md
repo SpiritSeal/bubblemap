@@ -81,12 +81,23 @@ reattaches to root, delete reparents direct children one level up.
 transaction write shape. No rules change needed. **#198 undo is now
 unblocked**; its natural unit is "one committed transaction".
 
+**Wave 2, part 2 — #190 Groq swap, done 2026-07-06** (commit `36d439d`):
+`gpt3.ts` now calls Groq's OpenAI-compatible chat endpoint via plain
+`fetch` (model `llama-3.1-8b-instant`); `openai@3` deleted, no SDK. Key
+is the `GROQ_API_KEY` Functions secret (same pattern as the old
+`OPENAI_SECRET`); on any failure — missing key, bad input, quota, API
+error — the function logs and returns `[]` and the panel falls back to
+Datamuse (emulator-verified, incl. a real Groq 401 with a fake key).
+The callable keeps its deployed name `gpt3` (a rename needs a client
+change + an interactive function-delete on deploy); UI header renamed
+to "AI Ideas". `datamuse` no longer declares the OpenAI secret.
+**Not live until a human sets the secret** (checklist below); after the
+first deploy, `OPENAI_SECRET` can be destroyed.
+
 ### Next steps, in order (each maps to a GitHub issue)
 
 1. ~~**Wave 1**~~ — done, see STATUS above.
-2. **Wave 2** — ~~#195 write model~~ done (see above), then
-   **#190 Groq swap** (code + emulator tests can land before the key
-   exists; deploy needs the `GROQ_API_KEY` secret set by a human).
+2. ~~**Wave 2** — #195 write model, #190 Groq swap~~ — done, see above.
 3. **Wave 3 — #191 reactfire removal + firebase 12** (also fix the
    rules-of-hooks bug in `src/pages/MindMap/index.tsx`, delete the
    unused Storage/Remote Config inits in `App.tsx`, and bump
