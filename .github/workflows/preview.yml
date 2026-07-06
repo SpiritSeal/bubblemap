@@ -30,6 +30,9 @@ jobs:
       - name: TSC
         run: npm run tsc
 
+      - name: Create .env from .env.example
+        run: cp .env.example .env
+
       - name: Build React
         run: npm run build
 

@@ -195,3 +195,8 @@ tsconfig.tsbuildinfo
 .vscode/
 
 *.secret
+
+# Local environment files (copy from .env.example)
+.env
+.env.local
+.env.*.local
