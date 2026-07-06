@@ -248,8 +248,8 @@ const KeyBindsDialog = ({
             selectedTab === 0
               ? 'About'
               : selectedTab === 1
-              ? 'Mouse Shortcuts'
-              : 'Keyboard Shortcuts'
+                ? 'Mouse Shortcuts'
+                : 'Keyboard Shortcuts'
           }
         </Typography>
       </DialogTitle>
