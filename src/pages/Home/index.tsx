@@ -10,6 +10,7 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { MindMap } from '../../types';
+import { createRootNode } from '../../nodeOps';
 
 const HomePage = () => {
   const auth = useAuth();
@@ -65,13 +66,7 @@ const HomePage = () => {
         updatedBy: user.user.uid,
         everUpdatedBy: [user.user.uid],
       },
-      nodes: [
-        {
-          parent: 0,
-          text: title,
-          id: 0,
-        },
-      ],
+      nodes: [createRootNode(title)],
       permissions: {
         owner: user.user.uid,
         canPublicEdit: false,

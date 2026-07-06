@@ -16,6 +16,8 @@ import {
   initializeTestEnvironment,
   RulesTestEnvironment,
 } from '@firebase/rules-unit-testing';
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
 import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest';
 
 const OWNER = 'owner-uid';
@@ -250,6 +252,49 @@ describe.skipIf(!process.env.FIRESTORE_EMULATOR_HOST)(
               },
               { merge: true },
             ),
+        );
+      });
+
+      // The MindMap editor writes node changes inside a transaction as a
+      // full `nodes` list plus dot-path metadata updates (see commitNodes in
+      // src/pages/MindMap/index.tsx). Keep the rules accepting that shape.
+      const transactionShapedWrite = (uid: string) => ({
+        nodes: [
+          { parent: '0', text: 'root', id: '0' },
+          { parent: '0', text: 'new idea', id: 'b28cbbe6-uuid-style-id' },
+        ],
+        'metadata.updatedAt': firebase.firestore.FieldValue.serverTimestamp(),
+        'metadata.updatedBy': uid,
+        'metadata.everUpdatedBy': firebase.firestore.FieldValue.arrayUnion(uid),
+      });
+
+      it("allows the owner's transaction-shaped node write", async () => {
+        await seed('map1', baseMap());
+        await assertSucceeds(
+          as(OWNER)
+            .collection('mindmaps')
+            .doc('map1')
+            .update(transactionShapedWrite(OWNER)),
+        );
+      });
+
+      it("allows a public editor's transaction-shaped node write", async () => {
+        await seed('map1', publicEditable());
+        await assertSucceeds(
+          as(STRANGER)
+            .collection('mindmaps')
+            .doc('map1')
+            .update(transactionShapedWrite(STRANGER)),
+        );
+      });
+
+      it("denies a stranger's transaction-shaped write on a view-only map", async () => {
+        await seed('map1', publicViewOnly());
+        await assertFails(
+          as(STRANGER)
+            .collection('mindmaps')
+            .doc('map1')
+            .update(transactionShapedWrite(STRANGER)),
         );
       });
 

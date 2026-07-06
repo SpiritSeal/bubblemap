@@ -1,12 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   doc,
-  arrayRemove,
   arrayUnion,
-  writeBatch,
+  runTransaction,
   serverTimestamp,
-  Timestamp,
-  setDoc,
 } from 'firebase/firestore';
 import { Fab } from '@mui/material';
 import { BubbleChart } from '@mui/icons-material';
@@ -14,13 +11,15 @@ import { useFirestore, useFirestoreDocData, useUser } from 'reactfire';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHotkeys } from 'react-hotkeys-hook';
 import { SimulationNodeDatum } from 'd3-force';
+import { MindMap as MindMapType, node, WithID } from '../../types';
 import {
-  localNode,
-  MindMap as MindMapType,
-  node,
-  RecursivePartial,
-  WithID,
-} from '../../types';
+  mintNodeID,
+  normalizeNodes,
+  ROOT_NODE_ID,
+  withNodeAdded,
+  withNodeDeleted,
+  withNodeUpdated,
+} from '../../nodeOps';
 import MindMapSimulation from './MindMapSimulation';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
 import keyBindings from './keybindings';
@@ -35,119 +34,51 @@ const MindMap = () => {
   const mindmap = useFirestoreDocData(mindMapRef, { idField: 'ID' })
     .data as WithID<MindMapType>;
 
-  const addNode = ({ parent, text }: { parent: number; text: string }) => {
+  // All node ops go through a transaction: read a fresh copy of the doc,
+  // transform its (normalized) node list, write the whole list back. This
+  // avoids the arrayRemove/arrayUnion failure modes where a stale local
+  // copy silently duplicated or resurrected nodes under concurrent edits.
+  const commitNodes = (transform: (nodes: node[]) => node[]) => {
     if (!user) return;
+    runTransaction(firestore, async (transaction) => {
+      const snapshot = await transaction.get(mindMapRef);
+      if (!snapshot.exists()) throw new Error('MindMap no longer exists');
+      transaction.update(mindMapRef, {
+        nodes: transform(normalizeNodes(snapshot.data().nodes)),
+        'metadata.updatedAt': serverTimestamp(),
+        'metadata.updatedBy': user.uid,
+        'metadata.everUpdatedBy': arrayUnion(user.uid),
+      });
+    }).catch((error) => console.error('Failed to save mindmap change', error));
+  };
 
-    const newID =
-      mindmap.nodes.length > 0
-        ? Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1
-        : 0;
-
-    if (Number.isNaN(newID))
-      throw new Error(`New ID not a number! New ID: ${newID}`);
+  const addNode = ({ parent, text }: { parent: string; text: string }) => {
+    if (!user) return;
 
     const newNode: node = {
       parent,
       text,
-      id: newID,
+      id: mintNodeID(),
     };
 
-    const docUpdates: RecursivePartial<MindMapType> = {
-      nodes: arrayUnion(newNode) as unknown as undefined,
-      metadata: {
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-      },
-    };
-
-    setDoc(mindMapRef, docUpdates, { merge: true });
+    commitNodes((nodes) => withNodeAdded(nodes, newNode));
     setSelectedNode(newNode);
   };
 
-  const stripInputNodeProperties = (inputNode: localNode): node => ({
-    parent: inputNode.parent,
-    text: inputNode.text,
-    id: inputNode.id,
-  });
-
-  const getChildren = (nodeTarget: node): node[] =>
-    mindmap.nodes.filter((o) => o.parent === nodeTarget.id);
-
   const deleteNode = (nodeToDelete: node) => {
-    if (!user) return;
-
-    if (nodeToDelete.id === 0) return;
-
-    const nodeToDeleteParentID = nodeToDelete.parent;
-
-    const children = getChildren(nodeToDelete);
-    const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
-
-    const batch = writeBatch(firestore);
-
-    const removeNodes: Partial<MindMapType> = {
-      nodes: arrayRemove(
-        ...[strippedNodeToDelete, ...children.map(stripInputNodeProperties)],
-      ) as unknown as undefined,
-    };
-
-    batch.update(mindMapRef, removeNodes);
-
-    const updateNodesAndMetadata: RecursivePartial<MindMapType> = {
-      metadata: {
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-      },
-      nodes: arrayUnion(
-        ...[
-          // update all children's parent to nodeToDeleteParentID
-          ...children.map(stripInputNodeProperties).map((o) => ({
-            ...o,
-            parent: nodeToDeleteParentID,
-          })),
-        ],
-      ) as unknown as undefined,
-    };
-
-    batch.set(mindMapRef, updateNodesAndMetadata, { merge: true });
-
-    batch.commit();
+    if (nodeToDelete.id === ROOT_NODE_ID) return;
+    commitNodes((nodes) => withNodeDeleted(nodes, nodeToDelete.id));
   };
 
   const updateNode = (oldNode: node, newNode: node) => {
-    if (!user) return;
-
-    const batch = writeBatch(firestore);
     if (oldNode.id !== newNode.id) {
       console.warn(
         'Node ID changed, funny things might happen, so blocking update',
       );
       return;
     }
-    const oldNodeUpdate: RecursivePartial<MindMapType> = {
-      nodes: arrayRemove(
-        stripInputNodeProperties(oldNode),
-      ) as unknown as undefined,
-    };
 
-    batch.update(mindMapRef, oldNodeUpdate);
-
-    const newNodeUpdate: RecursivePartial<MindMapType> = {
-      nodes: arrayUnion(
-        stripInputNodeProperties(newNode),
-      ) as unknown as undefined,
-      metadata: {
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-      },
-    };
-
-    batch.set(mindMapRef, newNodeUpdate, { merge: true });
-
-    batch.commit();
+    commitNodes((nodes) => withNodeUpdated(nodes, newNode));
     if (selectedNode?.id === oldNode.id) {
       setSelectedNode(newNode);
     }
@@ -159,10 +90,12 @@ const MindMap = () => {
     console.log('Toggle Settings');
   });
 
-  // Get the mindmap node with id 0, which is the root node
-  const rootNode = mindmap.nodes.find((o) => o.id === 0);
+  // Legacy documents store numeric node IDs; normalize once per snapshot.
+  const nodes = useMemo(() => normalizeNodes(mindmap?.nodes), [mindmap]);
 
-  if (!mindmap) throw new Error('Sorry, I couldn&apos;t find that mindmap.');
+  if (!mindmap) throw new Error("Sorry, I couldn't find that mindmap.");
+
+  const rootNode = nodes.find((o) => o.id === ROOT_NODE_ID);
 
   if (!rootNode) {
     throw new Error('Root node not found!');
@@ -175,7 +108,7 @@ const MindMap = () => {
   return (
     <div style={{ margin: 0, padding: 0 }}>
       <MindMapSimulation
-        data={mindmap}
+        data={{ ...mindmap, nodes }}
         addNode={addNode}
         deleteNode={deleteNode}
         updateNode={updateNode}

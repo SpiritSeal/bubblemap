@@ -43,6 +43,7 @@ import {
   where,
 } from 'firebase/firestore';
 import { MindMap, RecursivePartial, WithID } from '../../types';
+import { createRootNode } from '../../nodeOps';
 import ShareDialog from './ShareDialog';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 import TextDialog from '../../components/Dialogs/TextDialog';
@@ -99,13 +100,7 @@ const ManageMindMaps = () => {
         updatedBy: user.uid,
         everUpdatedBy: [user.uid],
       },
-      nodes: [
-        {
-          parent: 0,
-          text: title,
-          id: 0,
-        },
-      ],
+      nodes: [createRootNode(title)],
       permissions: {
         owner: user.uid,
         canPublicEdit: false,

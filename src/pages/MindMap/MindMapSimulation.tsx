@@ -28,6 +28,7 @@ import './MindMap.css';
 import Bubble from './Bubble';
 import BubbleLink from './BubbleLink';
 import { MindMap, node, WithID } from '../../types';
+import { normalizeNodes, ROOT_NODE_ID } from '../../nodeOps';
 import Loading from '../../components/Loading';
 import BottomBar from './overlays/BottomBar';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
@@ -51,7 +52,7 @@ const MindMapSimulationWithTransform = forwardRef(
       setDragNodeSelected: Dispatch<
         SetStateAction<(SimulationNodeDatum & node) | undefined>
       >;
-      addNode: (node: { parent: number; text: string }) => void;
+      addNode: (node: { parent: string; text: string }) => void;
       deleteNode: (node: node) => void;
       updateNode: (oldNode: node, newNode: node) => void;
       selectedNode: SimulationNodeDatum & node;
@@ -72,27 +73,27 @@ const MindMapSimulationWithTransform = forwardRef(
 
     // Create a state to store the lockstates of all the nodes
     const [nodeLockStates, setNodeLockStates] = useState<{
-      [key: number]: boolean;
+      [key: string]: boolean;
     }>({});
     // lastNodeLockStates is used to store the previous state of nodeLockStates
     const lastNodeLockStates = useRef<{
-      [key: number]: boolean;
+      [key: string]: boolean;
     }>({});
 
     const [deleteNodeDialogOpen, setDeleteNodeDialogOpen] = useState<
-      null | number
+      null | string
     >(null);
 
     const [editNodeDialogIsOpen, setEditNodeDialogIsOpen] = useState<
-      null | number
+      null | string
     >(null);
 
     const [addNodeDialogIsOpen, setAddNodeDialogIsOpen] = useState<
-      null | number
+      null | string
     >(null);
 
     // Create a state for the temporarily locked node
-    const [tempLockedNode, setTempLockedNode] = useState<null | number>(null);
+    const [tempLockedNode, setTempLockedNode] = useState<null | string>(null);
 
     // Create a useEffect for all of the NodeDialogIsOpen states
     useEffect(() => {
@@ -119,10 +120,10 @@ const MindMapSimulationWithTransform = forwardRef(
         addNodeDialogIsOpen
       ) {
         const nodeID =
-          deleteNodeDialogOpen ||
-          editNodeDialogIsOpen ||
-          addNodeDialogIsOpen ||
-          0;
+          deleteNodeDialogOpen ??
+          editNodeDialogIsOpen ??
+          addNodeDialogIsOpen ??
+          ROOT_NODE_ID;
         if (!nodeLockStates[nodeID]) {
           setTempLockedNode(nodeID);
           setNodeLockStates((prev) => ({ ...prev, [nodeID]: true }));
@@ -141,32 +142,30 @@ const MindMapSimulationWithTransform = forwardRef(
     useEffect(() => {
       // Find the difference between the lastNodeLockStates and the current nodeLockStates
       const difference = Object.keys(nodeLockStates).filter(
-        (key) =>
-          nodeLockStates[Number(key)] !==
-          lastNodeLockStates.current[Number(key)],
+        (key) => nodeLockStates[key] !== lastNodeLockStates.current[key],
       );
       // If the difference is not empty, find nodes that now have a lockstate of false
       if (difference.length > 0) {
         const unlockedNodes = difference.filter(
-          (key) => nodeLockStates[Number(key)] === false,
+          (key) => nodeLockStates[key] === false,
         );
         // Set their fx and fy to null
         unlockedNodes.forEach((key) => {
           // Get the node with the id of the key
-          const nodeUnlocked = nodes.find((o) => o.id === parseInt(key, 10));
-          if (nodeUnlocked && nodeUnlocked.id !== 0) {
+          const nodeUnlocked = nodes.find((o) => o.id === key);
+          if (nodeUnlocked && nodeUnlocked.id !== ROOT_NODE_ID) {
             nodeUnlocked.fx = null;
             nodeUnlocked.fy = null;
           }
         });
         // Find those nodes that now have a lockstate of true
         const lockedNodes = difference.filter(
-          (key) => nodeLockStates[Number(key)] === true,
+          (key) => nodeLockStates[key] === true,
         );
         // Set their fx and fy to their current x and y
         lockedNodes.forEach((key) => {
           // Get the node with the id of the key
-          const nodeLocked = nodes.find((o) => o.id === parseInt(key, 10));
+          const nodeLocked = nodes.find((o) => o.id === key);
           if (nodeLocked) {
             nodeLocked.fx = nodeLocked.x;
             nodeLocked.fy = nodeLocked.y;
@@ -186,7 +185,7 @@ const MindMapSimulationWithTransform = forwardRef(
         if (nodeFrom.id === nodeTo.id) {
           return true;
         }
-        if (nodeFrom.id === 0) {
+        if (nodeFrom.id === ROOT_NODE_ID) {
           return false;
         }
         return checkIfRecursiveChildrenIsSelected(
@@ -197,7 +196,7 @@ const MindMapSimulationWithTransform = forwardRef(
       return false;
     };
 
-    const handleDeleteNode = (nodeIDToDelete: number) => {
+    const handleDeleteNode = (nodeIDToDelete: string) => {
       const nodeToDelete = nodes.find((n) => n.id === nodeIDToDelete);
       if (!nodeToDelete) return;
       // Get the parent node
@@ -234,8 +233,8 @@ const MindMapSimulationWithTransform = forwardRef(
           (nodeF) => nodeF.parent === selectedNode.id,
         );
         // If selectedNode is the root, remove the root from the children
-        if (selectedNode.id === 0) {
-          children = children.filter((nodeF) => nodeF.id !== 0);
+        if (selectedNode.id === ROOT_NODE_ID) {
+          children = children.filter((nodeF) => nodeF.id !== ROOT_NODE_ID);
         }
         // Get the child with the most children
         const child = children.reduce(
@@ -261,7 +260,7 @@ const MindMapSimulationWithTransform = forwardRef(
         if (parent) {
           // Get the children of the parent
           const children = nodes.filter(
-            (nodeF) => nodeF.parent === parent.id && nodeF.id !== 0,
+            (nodeF) => nodeF.parent === parent.id && nodeF.id !== ROOT_NODE_ID,
           );
           // Keep the children that have x and y values
           const childrenWithCoords = children.filter(
@@ -317,7 +316,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
     const handleMoveSelectionToRoot = () => {
       // Get the root node
-      const root = nodes.find((nodeF) => nodeF.id === 0);
+      const root = nodes.find((nodeF) => nodeF.id === ROOT_NODE_ID);
       if (root) {
         setSelectedNode(root);
       }
@@ -340,30 +339,26 @@ const MindMapSimulationWithTransform = forwardRef(
 
     useEffect(() => {
       if (JSON.stringify(data.nodes) !== JSON.stringify(priorDataNodes)) {
-        const newNodesRaw = JSON.parse(JSON.stringify(data.nodes)) as node[];
+        // normalizeNodes validates entries and returns fresh copies, so the
+        // simulation can mutate them without touching the Firestore data.
+        const newNodesRaw = normalizeNodes(data.nodes);
 
         const newNodes: (SimulationNodeDatum & node)[] = [];
 
         newNodesRaw.forEach((newNode) => {
-          if (
-            typeof newNode.id === 'number' &&
-            typeof newNode.parent === 'number' &&
-            typeof newNode.text === 'string'
-          ) {
-            const oldNode = nodes?.find((o) => o.id === newNode.id) || [];
-            if (newNode.id === 0) {
-              newNodes.push({
-                ...oldNode,
-                ...newNode,
-                fx: 0,
-                fy: 0,
-              });
-            } else {
-              newNodes.push({
-                ...oldNode,
-                ...newNode,
-              });
-            }
+          const oldNode = nodes?.find((o) => o.id === newNode.id);
+          if (newNode.id === ROOT_NODE_ID) {
+            newNodes.push({
+              ...oldNode,
+              ...newNode,
+              fx: 0,
+              fy: 0,
+            });
+          } else {
+            newNodes.push({
+              ...oldNode,
+              ...newNode,
+            });
           }
         });
 
@@ -413,7 +408,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
     const releaseBubble = () => {
       if (dragNodeSelected) {
-        if (dragNodeSelected.id === 0) {
+        if (dragNodeSelected.id === ROOT_NODE_ID) {
           setDragNodeSelected(undefined);
         } else {
           dragNodeSelected.x = dragNodeSelected?.fx ?? 0;
@@ -429,7 +424,7 @@ const MindMapSimulationWithTransform = forwardRef(
     };
 
     const onMouseMove = (e: MouseEvent<HTMLDivElement, MouseEvent>) => {
-      if (dragNodeSelected && dragNodeSelected.id !== 0) {
+      if (dragNodeSelected && dragNodeSelected.id !== ROOT_NODE_ID) {
         dragNodeSelected.fx =
           (e.clientX - context.state.positionX + mouseDelta.x) /
           context.state.scale;
@@ -451,7 +446,7 @@ const MindMapSimulationWithTransform = forwardRef(
         if (selectedNode) setAddNodeDialogIsOpen(selectedNode.id);
       },
       handleDeleteNode() {
-        if (selectedNode && selectedNode.id !== 0)
+        if (selectedNode && selectedNode.id !== ROOT_NODE_ID)
           setDeleteNodeDialogOpen(selectedNode.id);
       },
       handleEditNode() {
@@ -473,7 +468,7 @@ const MindMapSimulationWithTransform = forwardRef(
         handleMoveSelectionToRoot();
       },
       handleToggleNodeLock() {
-        if (selectedNode && selectedNode.id !== 0)
+        if (selectedNode && selectedNode.id !== ROOT_NODE_ID)
           handleToggleNodeLock(selectedNode);
       },
       getContext() {
@@ -604,7 +599,7 @@ const MindMapSimulationWithTransform = forwardRef(
                 handleDeleteNode={() => setDeleteNodeDialogOpen(nodeData.id)}
                 handleEditNode={() => setEditNodeDialogIsOpen(nodeData.id)}
                 handleSetNodeLockState={(lockState?: boolean) => {
-                  if (nodeData.id === 0) return;
+                  if (nodeData.id === ROOT_NODE_ID) return;
                   // Update the lock state of the node in the nodeLockStates state array
                   setNodeLockStates({
                     ...nodeLockStates,
@@ -630,7 +625,7 @@ const MindMapSimulation = ({
   setSelectedNode,
 }: {
   data: WithID<MindMap>;
-  addNode: (node: { parent: number; text: string }) => void;
+  addNode: (node: { parent: string; text: string }) => void;
   deleteNode: (node: node) => void;
   updateNode: (oldNode: node, newNode: node) => void;
   selectedNode: SimulationNodeDatum & node;

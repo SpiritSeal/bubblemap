@@ -45,7 +45,7 @@ const PersistentDrawerRight = ({
 }: {
   selectedNode: SimulationNodeDatum & node;
   data: MindMap;
-  addNode: ({ parent, text }: { parent: number; text: string }) => void;
+  addNode: ({ parent, text }: { parent: string; text: string }) => void;
 }) => {
   const functions = useFunctions();
 
@@ -67,16 +67,16 @@ const PersistentDrawerRight = ({
   const [input, setInput] = useState('');
 
   const [textCache, setTextCache] = useState<{
-    [key: number]: string | undefined;
+    [key: string]: string | undefined;
   }>({});
   const [datamuseCache, setDatamuseCache] = useState<{
-    [key: number]: string[] | undefined;
+    [key: string]: string[] | undefined;
   }>({});
   const [gpt3Cache, setGpt3Cache] = useState<{
-    [key: number]: string[] | undefined;
+    [key: string]: string[] | undefined;
   }>({});
 
-  const genIdeaDatamuse = async (nodeID: number, prompt: string) => {
+  const genIdeaDatamuse = async (nodeID: string, prompt: string) => {
     const genIdea = httpsCallable(functions, 'datamuse');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
@@ -87,7 +87,7 @@ const PersistentDrawerRight = ({
     }
   };
 
-  const genIdeaGPT3 = async (nodeID: number, prompt: string) => {
+  const genIdeaGPT3 = async (nodeID: string, prompt: string) => {
     const genIdea = httpsCallable(functions, 'gpt3');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
@@ -100,7 +100,7 @@ const PersistentDrawerRight = ({
 
   // Generate Ideas has an optional parameter, 'force', which is a boolean and defaults to false
   const generateIdeas = async (
-    nodeID: number,
+    nodeID: string,
     prompt: string,
     force = false,
   ) => {
@@ -153,7 +153,7 @@ const PersistentDrawerRight = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const handleIdeaClick = (nodeID: number, idea: string) => {
+  const handleIdeaClick = (nodeID: string, idea: string) => {
     addNode({ parent: nodeID, text: idea });
   };
 
