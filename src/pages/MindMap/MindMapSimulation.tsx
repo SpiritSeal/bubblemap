@@ -430,11 +430,11 @@ const MindMapSimulationWithTransform = forwardRef(
     const onMouseMove = (e: MouseEvent<HTMLDivElement, MouseEvent>) => {
       if (dragNodeSelected && dragNodeSelected.id !== 0) {
         dragNodeSelected.fx =
-          (e.clientX - context.transformState.positionX + mouseDelta.x) /
-          context.transformState.scale;
+          (e.clientX - context.state.positionX + mouseDelta.x) /
+          context.state.scale;
         dragNodeSelected.fy =
-          (e.clientY - context.transformState.positionY + mouseDelta.y) /
-          context.transformState.scale;
+          (e.clientY - context.state.positionY + mouseDelta.y) /
+          context.state.scale;
         simulation?.alpha(1).restart();
       }
     };
@@ -480,7 +480,7 @@ const MindMapSimulationWithTransform = forwardRef(
         // state/setTransform directly on the context)
         return {
           instance: context,
-          state: context.transformState,
+          state: context.state,
           setTransform: controls.setTransform,
         };
       },
@@ -564,11 +564,11 @@ const MindMapSimulationWithTransform = forwardRef(
                 return;
               }
               const x =
-                (e.clientX - context.transformState.positionX + mouseDelta.x) /
-                context.transformState.scale;
+                (e.clientX - context.state.positionX + mouseDelta.x) /
+                context.state.scale;
               const y =
-                (e.clientY - context.transformState.positionY + mouseDelta.y) /
-                context.transformState.scale;
+                (e.clientY - context.state.positionY + mouseDelta.y) /
+                context.state.scale;
               nodeClicked = simulation?.find(x, y, 15);
               if (!nodeClicked) return;
               nodeClicked.fx = nodeClicked.x;
