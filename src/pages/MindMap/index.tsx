@@ -107,7 +107,7 @@ const MindMap = () => {
 
     const removeNodes: Partial<MindMapType> = {
       nodes: arrayRemove(
-        ...[strippedNodeToDelete, ...children.map(stripInputNodeProperties)]
+        ...[strippedNodeToDelete, ...children.map(stripInputNodeProperties)],
       ) as unknown as undefined,
     };
 
@@ -126,7 +126,7 @@ const MindMap = () => {
             ...o,
             parent: nodeToDeleteParentID,
           })),
-        ]
+        ],
       ) as unknown as undefined,
     };
 
@@ -141,13 +141,13 @@ const MindMap = () => {
     const batch = writeBatch(firestore);
     if (oldNode.id !== newNode.id) {
       console.warn(
-        'Node ID changed, funny things might happen, so blocking update'
+        'Node ID changed, funny things might happen, so blocking update',
       );
       return;
     }
     const oldNodeUpdate: RecursivePartial<MindMapType> = {
       nodes: arrayRemove(
-        stripInputNodeProperties(oldNode)
+        stripInputNodeProperties(oldNode),
       ) as unknown as undefined,
     };
 
@@ -155,7 +155,7 @@ const MindMap = () => {
 
     const newNodeUpdate: RecursivePartial<MindMapType> = {
       nodes: arrayUnion(
-        stripInputNodeProperties(newNode)
+        stripInputNodeProperties(newNode),
       ) as unknown as undefined,
       metadata: {
         updatedAt: serverTimestamp() as Timestamp,
@@ -189,7 +189,7 @@ const MindMap = () => {
   }
 
   const [selectedNode, setSelectedNode] = useState<SimulationNodeDatum & node>(
-    rootNode
+    rootNode,
   );
 
   return (

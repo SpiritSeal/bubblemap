@@ -55,7 +55,7 @@ const MindMapSimulationWithTransform = forwardRef(
       selectedNode: SimulationNodeDatum & node;
       setSelectedNode: Dispatch<SetStateAction<SimulationNodeDatum & node>>;
     },
-    ref
+    ref,
   ) => {
     const [simulation, setSimulation] = useState<Simulation<
       SimulationNodeDatum & node,
@@ -65,7 +65,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
     const [nodes, setNodes] = useState<(SimulationNodeDatum & node)[]>([]);
     const [links, setLinks] = useState<{ source: number; target: number }[]>(
-      []
+      [],
     );
 
     // Create a state to store the lockstates of all the nodes
@@ -141,12 +141,12 @@ const MindMapSimulationWithTransform = forwardRef(
       const difference = Object.keys(nodeLockStates).filter(
         (key) =>
           nodeLockStates[Number(key)] !==
-          lastNodeLockStates.current[Number(key)]
+          lastNodeLockStates.current[Number(key)],
       );
       // If the difference is not empty, find nodes that now have a lockstate of false
       if (difference.length > 0) {
         const unlockedNodes = difference.filter(
-          (key) => nodeLockStates[Number(key)] === false
+          (key) => nodeLockStates[Number(key)] === false,
         );
         // Set their fx and fy to null
         unlockedNodes.forEach((key) => {
@@ -159,7 +159,7 @@ const MindMapSimulationWithTransform = forwardRef(
         });
         // Find those nodes that now have a lockstate of true
         const lockedNodes = difference.filter(
-          (key) => nodeLockStates[Number(key)] === true
+          (key) => nodeLockStates[Number(key)] === true,
         );
         // Set their fx and fy to their current x and y
         lockedNodes.forEach((key) => {
@@ -178,7 +178,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
     const checkIfRecursiveChildrenIsSelected = (
       nodeTo: (SimulationNodeDatum & node) | undefined,
-      nodeFrom: (SimulationNodeDatum & node) | undefined = selectedNode
+      nodeFrom: (SimulationNodeDatum & node) | undefined = selectedNode,
     ): boolean => {
       if (nodeFrom && nodeTo) {
         if (nodeFrom.id === nodeTo.id) {
@@ -189,7 +189,7 @@ const MindMapSimulationWithTransform = forwardRef(
         }
         return checkIfRecursiveChildrenIsSelected(
           nodeTo,
-          nodes.find((n) => n.id === nodeFrom.parent)
+          nodes.find((n) => n.id === nodeFrom.parent),
         );
       }
       return false;
@@ -229,7 +229,7 @@ const MindMapSimulationWithTransform = forwardRef(
       if (selectedNode) {
         // Get the children of the selected node
         let children = nodes.filter(
-          (nodeF) => nodeF.parent === selectedNode.id
+          (nodeF) => nodeF.parent === selectedNode.id,
         );
         // If selectedNode is the root, remove the root from the children
         if (selectedNode.id === 0) {
@@ -242,7 +242,7 @@ const MindMapSimulationWithTransform = forwardRef(
             nodes.filter((nodeF) => nodeF.parent === prev.id).length
               ? curr
               : prev,
-          children[0]
+          children[0],
         );
         if (child) {
           setSelectedNode(child);
@@ -251,7 +251,7 @@ const MindMapSimulationWithTransform = forwardRef(
     };
 
     const handleMoveSelectionToSibling = (
-      direction: 'clockwise' | 'anticlockwise'
+      direction: 'clockwise' | 'anticlockwise',
     ) => {
       if (selectedNode) {
         // Get the parent of the selected node
@@ -259,11 +259,11 @@ const MindMapSimulationWithTransform = forwardRef(
         if (parent) {
           // Get the children of the parent
           const children = nodes.filter(
-            (nodeF) => nodeF.parent === parent.id && nodeF.id !== 0
+            (nodeF) => nodeF.parent === parent.id && nodeF.id !== 0,
           );
           // Keep the children that have x and y values
           const childrenWithCoords = children.filter(
-            (nodeF) => nodeF.x && nodeF.y
+            (nodeF) => nodeF.x && nodeF.y,
           );
           // Sort the children in clockwise order
           childrenWithCoords.sort((a, b) => {
@@ -284,7 +284,7 @@ const MindMapSimulationWithTransform = forwardRef(
           });
           // Get the index of the selected node in the sorted array
           const index = childrenWithCoords.findIndex(
-            (nodeF) => nodeF.id === selectedNode.id
+            (nodeF) => nodeF.id === selectedNode.id,
           );
           // Get the next node in the sorted array
           const nextNode =
@@ -367,10 +367,10 @@ const MindMapSimulationWithTransform = forwardRef(
         const newLinks: { source: number; target: number }[] = newNodes.map(
           (nodeForLink, nodeForLinkIndex) => ({
             source: newNodes.findIndex(
-              (item) => item.id === nodeForLink.parent
+              (item) => item.id === nodeForLink.parent,
             ),
             target: nodeForLinkIndex,
-          })
+          }),
         );
 
         const newSimulation: Simulation<SimulationNodeDatum & node, undefined> =
@@ -378,7 +378,7 @@ const MindMapSimulationWithTransform = forwardRef(
             .force('collide', forceCollide(15))
             .force(
               'charge',
-              forceManyBody().strength(-100)
+              forceManyBody().strength(-100),
             ) as unknown as Simulation<SimulationNodeDatum & node, undefined>;
 
         newSimulation.on('tick', () => {
@@ -393,7 +393,7 @@ const MindMapSimulationWithTransform = forwardRef(
 
         newSimulation.force(
           'link',
-          forceLink(JSON.parse(JSON.stringify(newLinks)))
+          forceLink(JSON.parse(JSON.stringify(newLinks))),
         );
 
         newSimulation.alphaTarget(0);
@@ -609,7 +609,7 @@ const MindMapSimulationWithTransform = forwardRef(
         </>
       );
     return null;
-  }
+  },
 );
 
 const MindMapSimulation = ({

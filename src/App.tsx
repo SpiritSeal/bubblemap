@@ -47,27 +47,27 @@ import { ThemeContextProvider } from './contexts/MUITheme';
 import Routing from './components/Routing';
 import Loading from './components/Loading';
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = import.meta.env.MODE !== 'production';
 const isPreview = !(window.location.host === 'bubblemap.app');
 
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
 const firebaseConfigPreview = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY_DEV,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN_DEV,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID_DEV,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET_DEV,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID_DEV,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID_DEV,
-  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID_DEV,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY_DEV,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_DEV,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID_DEV,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_DEV,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID_DEV,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID_DEV,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID_DEV,
 };
 
 const useInitFirebaseSDKs = (): {
@@ -86,7 +86,7 @@ const useInitFirebaseSDKs = (): {
       if (isDev) connectFirestoreEmulator(firestoreInit, 'localhost', 8080);
       return firestoreInit;
     },
-    { suspense: false }
+    { suspense: false },
   );
 
   const { status: useInitFunctionsStatus, data: functions } = useInitFunctions(
@@ -95,7 +95,7 @@ const useInitFirebaseSDKs = (): {
       if (isDev) connectFunctionsEmulator(functionsInit, 'localhost', 5001);
       return functionsInit;
     },
-    { suspense: false }
+    { suspense: false },
   );
 
   const { status: useInitStorageStatus, data: storage } = useInitStorage(
@@ -104,7 +104,7 @@ const useInitFirebaseSDKs = (): {
       if (isDev) connectStorageEmulator(storageInit, 'localhost', 9199);
       return storageInit;
     },
-    { suspense: false }
+    { suspense: false },
   );
 
   const { status: useInitAuthStatus, data: auth } = useInitAuth(
@@ -116,7 +116,7 @@ const useInitFirebaseSDKs = (): {
         });
       return authInit;
     },
-    { suspense: false }
+    { suspense: false },
   );
 
   const { status: useInitRemoteConfigStatus, data: remoteConfig } =
@@ -132,17 +132,17 @@ const useInitFirebaseSDKs = (): {
           await fetchAndActivate(remoteConfigInit).catch(console.error);
         return remoteConfigInit;
       },
-      { suspense: false }
+      { suspense: false },
     );
 
   const app = useFirebaseApp();
 
   useEffect(() => {
     if (!isDev) {
-      if (process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY)
+      if (import.meta.env.VITE_RECAPTCHA_PUBLIC_KEY)
         initializeAppCheck(app, {
           provider: new ReCaptchaV3Provider(
-            process.env.REACT_APP_RECAPTCHA_PUBLIC_KEY
+            import.meta.env.VITE_RECAPTCHA_PUBLIC_KEY,
           ),
           isTokenAutoRefreshEnabled: true,
         });

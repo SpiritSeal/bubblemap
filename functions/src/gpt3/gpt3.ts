@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as functions from 'firebase-functions';
 import { Configuration, OpenAIApi } from 'openai';
-
-/* eslint-disable @typescript-eslint/no-var-requires */
-// const cowsay = require('cowsay');
+import { logger } from 'firebase-functions';
 
 const openai_key = process.env.OPENAI_SECRET;
 
@@ -37,9 +35,13 @@ const gpt3 = functions
   .runWith({ secrets: ['OPENAI_SECRET'] })
   .region('us-west2')
   .https.onCall(async (data) => {
+    // Check openai_key is not undefined, if it is, return empty result and log in functions log an error
+    if (openai_key === undefined) {
+      logger.error('OPENAI_SECRET is undefined');
+      return [];
+    }
+
     const result = await genIdeaOAI(data.data);
-    // console.log(cowsay.say({ text: 'Success!' }));
-    // console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
     return result;
   });
 

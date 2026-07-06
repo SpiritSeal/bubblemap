@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -5713,7 +5713,7 @@
     <script>
       document.addEventListener(
         'contextmenu',
-        getSelectHandler(title2ElementMap)
+        getSelectHandler(title2ElementMap),
       );
       document.addEventListener('mouseover', getHoverHandler(title2ElementMap));
       document.addEventListener('keydown', keyboardEventHandler);
@@ -5817,7 +5817,7 @@
 
           return nodeListToArray(pEdges).reduce(
             addEdgeToMap(title2NodeMap),
-            {}
+            {},
           );
         }
         /**
@@ -5911,7 +5911,7 @@
 
       function resetNodesAndEdges() {
         nodeListToArray(document.querySelectorAll('.current')).forEach(
-          removeHighlight
+          removeHighlight,
         );
       }
 

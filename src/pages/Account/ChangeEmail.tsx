@@ -33,7 +33,7 @@ const ChangeEmail = ({ user }: { user: User }) => {
           e.preventDefault();
           reauthenticateWithCredential(
             user,
-            EmailAuthProvider.credential(user?.email || '', password)
+            EmailAuthProvider.credential(user?.email || '', password),
           )
             .then(async () => {
               await updateEmail(user, email)

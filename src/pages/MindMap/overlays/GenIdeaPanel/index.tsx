@@ -101,7 +101,7 @@ const PersistentDrawerRight = ({
   const generateIdeas = async (
     nodeID: number,
     prompt: string,
-    force = false
+    force = false,
   ) => {
     // If the prompt is empty, then don't do anything
     if (prompt === '') {
@@ -138,7 +138,7 @@ const PersistentDrawerRight = ({
       generateIdeas(
         selectedNode.id,
         selectedNode.text,
-        textCache[selectedNode.id] !== selectedNode.text
+        textCache[selectedNode.id] !== selectedNode.text,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

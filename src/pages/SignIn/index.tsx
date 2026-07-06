@@ -79,7 +79,7 @@ const SignIn = () => {
                   auth,
                   rememberMe
                     ? indexedDBLocalPersistence
-                    : browserSessionPersistence
+                    : browserSessionPersistence,
                 ).then(async () => {
                   await signInWithEmailAndPassword(auth, email, password).catch(
                     (err) => {
@@ -92,7 +92,7 @@ const SignIn = () => {
                       } else if (err.code === 'auth/invalid-email') {
                         setError('Please enter a valid email');
                       }
-                    }
+                    },
                   );
                 });
               }}
