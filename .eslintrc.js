@@ -51,5 +51,8 @@ module.exports = {
     jest: {
       version: 'latest',
     },
+    // ESM-only packages resolved via package.json "exports", which
+    // eslint-plugin-import's node resolver cannot follow
+    'import/core-modules': ['vite', '@vitejs/plugin-react'],
   },
 };
