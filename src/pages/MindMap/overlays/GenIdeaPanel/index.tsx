@@ -274,10 +274,10 @@ const PersistentDrawerRight = ({
               ))}
           <Divider />
           <Divider />
-          {/* List the gpt3 cache for the currently selected node */}
+          {/* List the AI-idea cache for the currently selected node */}
           <ListItem>
             <ListItemText
-              primary="GPT3"
+              primary="AI Ideas"
               primaryTypographyProps={{
                 variant: 'h6',
                 color: 'textPrimary',

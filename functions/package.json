@@ -16,8 +16,7 @@
   "dependencies": {
     "compromise": "^14.15.1",
     "firebase-admin": "^13.0.0",
-    "firebase-functions": "^7.2.5",
-    "openai": "^3.3.0"
+    "firebase-functions": "^7.2.5"
   },
   "private": true,
   "devDependencies": {

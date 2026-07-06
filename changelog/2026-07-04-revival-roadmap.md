@@ -69,13 +69,22 @@ root to `changelog/` per review feedback on the PR. Completed so far:
 TS 5.9 not 6.0 (parser support), firebase-admin 13 (firebase-functions 7
 peer cap), openai 3 (deleted by #190), @types/node 24 (matches runtime).
 
+**Wave 2, part 1 — #195 write model, done 2026-07-06** (commit `620f362`):
+`crypto.randomUUID()` string node IDs + all node ops through a single
+`runTransaction` wrapper (read fresh doc → pure transform → write back).
+Pure helpers + `ROOT_NODE_ID = '0'` live in `src/nodeOps.ts`;
+`normalizeNodes()` coerces legacy numeric IDs to strings on read, so old
+maps keep working and get persisted as strings on first edit. Concurrent
+semantics: update-of-deleted no-ops (no resurrection), add-under-deleted
+reattaches to root, delete reparents direct children one level up.
+16 unit tests (`src/nodeOps.test.ts`) + 3 rules tests locking in the
+transaction write shape. No rules change needed. **#198 undo is now
+unblocked**; its natural unit is "one committed transaction".
+
 ### Next steps, in order (each maps to a GitHub issue)
 
 1. ~~**Wave 1**~~ — done, see STATUS above.
-2. **Wave 2 — #195 write model** (recommendation: `crypto.randomUUID()`
-   node IDs + Firestore transactions; decide before undo — note the new
-   rules validate `nodes` as a list of ≤5000 entries but don't constrain
-   node shape, so an ID-type change doesn't need a rules change), then
+2. **Wave 2** — ~~#195 write model~~ done (see above), then
    **#190 Groq swap** (code + emulator tests can land before the key
    exists; deploy needs the `GROQ_API_KEY` secret set by a human).
 3. **Wave 3 — #191 reactfire removal + firebase 12** (also fix the
