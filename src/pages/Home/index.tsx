@@ -88,10 +88,7 @@ const HomePage = () => {
     <div>
       <Box sx={{ pt: 0 }}>
         <Content maxWidth="md">
-          <Logo
-            src="/assets/logos/Bubble Map Logo.png"
-            alt="Bubble Map Logo"
-          />
+          <Logo src="/assets/logos/Bubble Map Logo.png" alt="Bubble Map Logo" />
           <div>
             <Title>Bubble Map</Title>
             <Typography
