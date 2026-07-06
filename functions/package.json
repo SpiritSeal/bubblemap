@@ -10,18 +10,17 @@
     "logs": "firebase functions:log"
   },
   "engines": {
-    "node": "18"
+    "node": "24"
   },
   "main": "lib/index.js",
   "dependencies": {
-    "compromise": "^14.9.0",
-    "cowsay": "^1.5.0",
-    "firebase-admin": "^11.10.1",
-    "firebase-functions": "^4.4.1",
+    "compromise": "^14.15.1",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^7.2.5",
     "openai": "^3.3.0"
   },
   "private": true,
   "devDependencies": {
-    "typescript": "^5.1.6"
+    "typescript": "^5.9.3"
   }
 }

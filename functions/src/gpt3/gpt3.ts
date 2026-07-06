@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import { Configuration, OpenAIApi } from 'openai';
-import { logger } from 'firebase-functions';
+import { logger } from 'firebase-functions/logger';
 
 const openai_key = process.env.OPENAI_SECRET;
 

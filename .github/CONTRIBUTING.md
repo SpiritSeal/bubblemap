@@ -4,8 +4,8 @@
 
 1. Ensure you have the following installed:
 
-   - Node.JS v20
-   - Node Package Manager v10
+   - Node.JS v24
+   - Node Package Manager v11
    - Firebase CLI
 
 1. Clone the repo

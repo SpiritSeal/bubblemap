@@ -108,7 +108,7 @@ const HomePage = () => {
                 style={{ marginTop: 10 }}
                 onClick={async () => {
                   signInAnonymously(auth).then((user) =>
-                    createMindMap('Untitled MindMap', user)
+                    createMindMap('Untitled MindMap', user),
                   );
                 }}
                 variant="contained"
