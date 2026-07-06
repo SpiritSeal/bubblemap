@@ -14,8 +14,9 @@ import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
 import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { MindMap, node } from '../../../../types';
+import keyBindings from '../../keybindings';
 
 const drawerWidthPercent = '20%';
 // Calculate the width of the drawer based on the percentage
@@ -156,27 +157,25 @@ const PersistentDrawerRight = ({
     addNode({ parent: nodeID, text: idea });
   };
 
-  const shortcutHandlers = {
-    TOGGLE_SIDE_MENU: () => {
-      if (open) {
-        handleDrawerClose();
-      } else {
-        handleDrawerOpen();
-      }
-    },
-    GENERATE_IDEAS: () => {
-      if (open) {
-        generateIdeas(selectedNode.id, selectedNode.text, true);
-      }
-      if (!open) {
-        handleDrawerOpen();
-      }
-    },
-  };
+  useHotkeys(keyBindings.TOGGLE_SIDE_MENU, () => {
+    if (open) {
+      handleDrawerClose();
+    } else {
+      handleDrawerOpen();
+    }
+  });
+
+  useHotkeys(keyBindings.GENERATE_IDEAS, () => {
+    if (open) {
+      generateIdeas(selectedNode.id, selectedNode.text, true);
+    }
+    if (!open) {
+      handleDrawerOpen();
+    }
+  });
 
   return (
     <div>
-      <GlobalHotKeys handlers={shortcutHandlers} />
       <Fab
         variant="extended"
         sx={{

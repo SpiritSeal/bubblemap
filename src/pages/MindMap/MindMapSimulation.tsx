@@ -9,7 +9,7 @@ import React, {
   useImperativeHandle,
   MouseEvent,
 } from 'react';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { useHotkeys } from 'react-hotkeys-hook';
 import {
   forceSimulation,
   forceLink,
@@ -32,6 +32,7 @@ import Loading from '../../components/Loading';
 import BottomBar from './overlays/BottomBar';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 import TextDialog from '../../components/Dialogs/TextDialog';
+import keyBindings from './keybindings';
 
 const MindMapSimulationWithTransform = forwardRef(
   (
@@ -642,49 +643,6 @@ const MindMapSimulation = ({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const childRef = useRef<any>();
 
-  const shortcutHandlers = {
-    ADD_NODE: (e?: KeyboardEvent) => {
-      childRef.current.handleAddNode();
-      e?.preventDefault();
-    },
-    DELETE_NODE: (e?: KeyboardEvent) => {
-      childRef.current.handleDeleteNode();
-      e?.preventDefault();
-    },
-    EDIT_NODE_TEXT: (e?: KeyboardEvent) => {
-      childRef.current.handleEditNode();
-      e?.preventDefault();
-    },
-    MOVE_SELECTION_TO_PARENT: (e?: KeyboardEvent) => {
-      childRef.current.handleMoveSelectionToParent();
-      e?.preventDefault();
-    },
-    MOVE_SELECTION_TO_CHILD: (e?: KeyboardEvent) => {
-      childRef.current.handleMoveSelectionToChild();
-      e?.preventDefault();
-    },
-    MOVE_SELECTION_TO_NEXT_SIBLING: (e?: KeyboardEvent) => {
-      childRef.current.handleMoveSelectionToNextSibling();
-      e?.preventDefault();
-    },
-    MOVE_SELECTION_TO_PREVIOUS_SIBLING: (e?: KeyboardEvent) => {
-      childRef.current.handleMoveSelectionToPreviousSibling();
-      e?.preventDefault();
-    },
-    MOVE_SELECTION_TO_ROOT: (e?: KeyboardEvent) => {
-      childRef.current.handleMoveSelectionToRoot();
-      e?.preventDefault();
-    },
-    LOCK_NODE: (e?: KeyboardEvent) => {
-      childRef.current.handleToggleNodeLock();
-      e?.preventDefault();
-    },
-    RESET_VIEW: (e?: KeyboardEvent) => {
-      resetCanvas();
-      e?.preventDefault();
-    },
-  };
-
   const resetCanvas = () => {
     const context = childRef.current.getContext();
     const { contentComponent, wrapperComponent } = context.instance;
@@ -703,8 +661,56 @@ const MindMapSimulation = ({
     childRef.current.restartSimulation();
   };
 
+  const hotkeyOptions = { preventDefault: true };
+  useHotkeys(
+    keyBindings.ADD_NODE,
+    () => childRef.current.handleAddNode(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.DELETE_NODE,
+    () => childRef.current.handleDeleteNode(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.EDIT_NODE_TEXT,
+    () => childRef.current.handleEditNode(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.MOVE_SELECTION_TO_PARENT,
+    () => childRef.current.handleMoveSelectionToParent(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.MOVE_SELECTION_TO_CHILD,
+    () => childRef.current.handleMoveSelectionToChild(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.MOVE_SELECTION_TO_NEXT_SIBLING,
+    () => childRef.current.handleMoveSelectionToNextSibling(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.MOVE_SELECTION_TO_PREVIOUS_SIBLING,
+    () => childRef.current.handleMoveSelectionToPreviousSibling(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.MOVE_SELECTION_TO_ROOT,
+    () => childRef.current.handleMoveSelectionToRoot(),
+    hotkeyOptions,
+  );
+  useHotkeys(
+    keyBindings.LOCK_NODE,
+    () => childRef.current.handleToggleNodeLock(),
+    hotkeyOptions,
+  );
+  useHotkeys(keyBindings.RESET_VIEW, () => resetCanvas(), hotkeyOptions);
+
   return (
-    <GlobalHotKeys handlers={shortcutHandlers} allowChanges>
+    <>
       <div
         onMouseLeave={() => childRef?.current?.releaseBubble()}
         onMouseMove={(e) => childRef?.current?.onMouseMove(e)}
@@ -751,7 +757,7 @@ const MindMapSimulation = ({
         selectedNode={selectedNode}
         resetCanvas={resetCanvas}
       />
-    </GlobalHotKeys>
+    </>
   );
 };
 

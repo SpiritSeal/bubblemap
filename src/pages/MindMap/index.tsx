@@ -12,8 +12,7 @@ import { Fab } from '@mui/material';
 import { BubbleChart } from '@mui/icons-material';
 import { useFirestore, useFirestoreDocData, useUser } from 'reactfire';
 import { useNavigate, useParams } from 'react-router-dom';
-// You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
-import { GlobalHotKeys } from 'react-hotkeys';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { SimulationNodeDatum } from 'd3-force';
 import {
   localNode,
@@ -24,25 +23,7 @@ import {
 } from '../../types';
 import MindMapSimulation from './MindMapSimulation';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
-
-const keyMap = {
-  ADD_NODE: 'ctrl+enter',
-  DELETE_NODE: ['del', 'backspace'],
-  EDIT_NODE_TEXT: 'shift+enter',
-  // Not Implemented
-  GENERATE_IDEAS: 'ctrl+shift+enter',
-  // Not Implemented
-  TOGGLE_SIDE_MENU: 'ctrl+shift+s',
-  // Not Implemented
-  TOGGLE_SETTINGS: 'ctrl+shift+p',
-  MOVE_SELECTION_TO_PARENT: ['up', '`'],
-  MOVE_SELECTION_TO_CHILD: 'down',
-  MOVE_SELECTION_TO_NEXT_SIBLING: ['right'],
-  MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left'],
-  MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
-  RESET_VIEW: ['ctrl+0', 'home'],
-  LOCK_NODE: ['l', 'ctrl+l', 'space'],
-};
+import keyBindings from './keybindings';
 
 const MindMap = () => {
   const { mindmapID } = useParams();
@@ -172,12 +153,11 @@ const MindMap = () => {
     }
   };
 
-  const shortcutHandlers = {
-    TOGGLE_SETTINGS: () => {
-      // eslint-disable-next-line no-console
-      console.log('Toggle Settings');
-    },
-  };
+  // Not Implemented
+  useHotkeys(keyBindings.TOGGLE_SETTINGS, () => {
+    // eslint-disable-next-line no-console
+    console.log('Toggle Settings');
+  });
 
   // Get the mindmap node with id 0, which is the root node
   const rootNode = mindmap.nodes.find((o) => o.id === 0);
@@ -194,33 +174,31 @@ const MindMap = () => {
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <GlobalHotKeys keyMap={keyMap} handlers={shortcutHandlers}>
-        <MindMapSimulation
-          data={mindmap}
-          addNode={addNode}
-          deleteNode={deleteNode}
-          updateNode={updateNode}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-        />
-        <GenIdeaPanel
-          selectedNode={selectedNode}
-          data={mindmap}
-          addNode={addNode}
-        />
-        <Fab
-          variant="extended"
-          sx={{
-            left: 20,
-            top: 20,
-            position: 'fixed',
-          }}
-          onClick={() => navigate('/mindmaps')}
-        >
-          <BubbleChart />
-          MindMaps
-        </Fab>
-      </GlobalHotKeys>
+      <MindMapSimulation
+        data={mindmap}
+        addNode={addNode}
+        deleteNode={deleteNode}
+        updateNode={updateNode}
+        selectedNode={selectedNode}
+        setSelectedNode={setSelectedNode}
+      />
+      <GenIdeaPanel
+        selectedNode={selectedNode}
+        data={mindmap}
+        addNode={addNode}
+      />
+      <Fab
+        variant="extended"
+        sx={{
+          left: 20,
+          top: 20,
+          position: 'fixed',
+        }}
+        onClick={() => navigate('/mindmaps')}
+      >
+        <BubbleChart />
+        MindMaps
+      </Fab>
     </div>
   );
 };
