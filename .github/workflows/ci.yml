@@ -80,6 +80,12 @@ jobs:
             package-lock.json
             functions/package-lock.json
 
+      - name: Setup Java (required by Firebase emulators)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Cache Firebase Emulators
         uses: actions/cache@v4
         with:
