@@ -5,6 +5,67 @@ Firebase config, and dependencies. Last real activity on `main` was June 2023
 (repo created March 2022). This is a prioritized plan to get the project
 secure, deployable, and back on a maintainable footing.
 
+## STATUS as of 2026-07-05 — read this first
+
+Sections 0, 2, 3 (mostly), and 6 below are **done** on the `revival` branch
+(PR open against `main`). Completed there:
+
+- `release-0.2.0` (Vite migration) merged; CRA fully gone.
+- **Node 24 everywhere**: functions `engines`, all CI workflows, `.nvmrc`,
+  CONTRIBUTING.md. 24 is Cloud Functions' max GA runtime — do not bump to
+  a non-LTS Current release (26) for the functions runtime.
+- CI/CD on `actions/*@v4`; archived `upload-release-asset` and unpinned
+  `w9jds/firebase-action@master` replaced (release assets via
+  `softprops/action-gh-release@v2`, deploys via `firebase-tools` directly).
+- Deps: firebase-functions 7 (v1 subpath imports) + firebase-admin 13,
+  TS 5.9, vite 8 / vitest 4 / plugin-react 6 / PWA plugin 1.x,
+  react-router-dom 7, MUI 5.18, react 18.3, testing-library 16,
+  react-zoom-pan-pinch migrated from the dead `@kokarn` fork to upstream v4
+  (v4 exposes `context.state`, like the fork). Removed: `ai.ts`,
+  `gpt3_parent.ts`, `cowsay`, `dotenv`, both peer-override blocks.
+- Audit: root 113 → 18 findings, functions 36 → 15; the rest trace to the
+  deliberate holds below.
+- 24 stale `snyk-*` remote branches deleted.
+- Backlog triage done: issues **#188–#198** filed (one per work item below),
+  #133/#135 closed as obsolete, #160 superseded-comment posted.
+
+**Deliberate dependency holds — do not "fix" blindly:** firebase 9
+(reactfire pins `^9` → #191), eslint 8 + @typescript-eslint 6 + airbnb
+(no flat-config support, §5), react 18 (take 19 with the MUI pass, #193),
+TS 5.9 not 6.0 (parser support), firebase-admin 13 (firebase-functions 7
+peer cap), openai 3 (deleted by #190), @types/node 24 (matches runtime).
+
+### Next steps, in order (each maps to a GitHub issue)
+
+1. **Wave 1 — #188 Firestore rules fix + rules unit tests** (security
+   critical; see §1a), then #189 `.env` hygiene, #192 react-hotkeys
+   replacement (likely closes #147), #194 service-worker decision.
+   Cherry-pick `145-fix-delete-mindmap-confirmation` and
+   `no-logout-if-no-account` in the same pass. All emulator/CI verifiable.
+2. **Wave 2 — #195 write model** (recommendation: `crypto.randomUUID()`
+   node IDs + Firestore transactions; decide before undo), then **#190
+   Groq swap** (code + emulator tests can land before the key exists;
+   deploy needs the `GROQ_API_KEY` secret set by a human).
+3. **Wave 3 — #191 reactfire removal + firebase 12** (also fix the
+   rules-of-hooks bug in `src/pages/MindMap/index.tsx` and delete the
+   unused Storage/Remote Config inits in `App.tsx`), then **#193 MUI
+   major + React 19** bundled.
+4. **Wave 4 — product**: #197 export, #198 undo (unblocked by #195),
+   #196 privacy policy + footer (draft; human review required, COPPA).
+
+**Human-only checklist (blockers for the waves above):**
+
+- [ ] Manual click-through of the canvas (pan/zoom/drag/hotkeys) after the
+      zoom-fork migration — nothing has physically dragged a bubble yet.
+- [ ] Create a Groq API key; `npx firebase-tools functions:secrets:set GROQ_API_KEY`.
+- [ ] Firebase console: verify App Check enforcement is ON for Firestore,
+      and API-key HTTP-referrer restrictions on both projects.
+- [ ] Read the privacy policy draft before it ships.
+
+Parallelism note: #196 and #197 touch mostly new files and can run in
+isolated worktrees alongside spine work; everything else collides in
+`src/pages/MindMap/` and should stay sequential.
+
 ## Where the project actually stands today
 
 Verified, not guessed:
