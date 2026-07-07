@@ -100,8 +100,9 @@ first deploy, `OPENAI_SECRET` can be destroyed.
 2. ~~**Wave 2** — #195 write model, #190 Groq swap~~ — done, see above.
 3. ~~**Wave 3** — #191 reactfire removal + firebase 12, #193 MUI 9 +
    React 19~~ — done, see below.
-4. **Wave 4 — product**: #197 export, #198 undo (unblocked by #195),
-   #196 privacy policy + footer (draft; human review required, COPPA).
+4. ~~**Wave 4 — product**: #197 export, #198 undo, #196 privacy policy +
+   footer~~ — done, see below. **All planned waves are now complete**;
+   what remains is the human-only checklist, then un-drafting PR #199.
 
 **Wave 3, part 1 — #191 reactfire removal + firebase 12, done 2026-07-06**
 (commit `d0597dd`): reactfire (dead since Aug 2023, pinned firebase `^9`)
@@ -144,6 +145,35 @@ unchanged. **Visual smoke check of all routes is folded into the
 existing manual click-through item below** — the theme toggle and
 MindMap chrome especially.
 
+**Wave 4 — #197 export, #198 undo, #196 privacy + footer, done 2026-07-06**
+(three commits, one per issue):
+
+- **#197 export**: Export menu (download icon) in the map bottom bar —
+  PNG, SVG, Markdown outline, filenames from the map title. SVG clones
+  the live canvas `<svg>`, crops to the full map via `getBBox()` (not
+  just the viewport), strips app-CSS classes/styles, and inlines
+  background + font; PNG rasterizes that SVG at 2x (capped 4096px).
+  Markdown (`mindMapToMarkdown` in `src/pages/MindMap/export.ts`) walks
+  from the root with cycle protection; orphaned nodes are emitted at top
+  level rather than dropped. Read-only — works on view-only maps.
+- **#198 undo**: session-local, Ctrl/Cmd+Z (`mod+z`; documented in the
+  help dialog). `commitNodes` records a per-node before/after diff
+  (`diffNodes`) per committed transaction onto an in-memory stack
+  (max 100); undo pops one entry and inverts it in a new transaction
+  (`withChangesUndone`), where each piece applies only if the node still
+  matches the state the recorded op left it in — newer remote edits win,
+  conflicted pieces are skipped, never resurrected. Undoing a delete
+  restores the node and its reparented children. Undo transactions are
+  not recorded (no redo). Stack clears on refresh — documented behavior.
+- **#196 privacy + footer**: `/privacy` page **(DRAFT — human review
+  required before prod, see checklist)** covering auth incl. anonymous
+  guest accounts, Firestore content/edit history, Groq + Datamuse
+  suggestion calls, Analytics/Perf, App Check reCAPTCHA v3, COPPA
+  posture (no ads, no selling, parental contact). Footer (privacy,
+  GitHub, contact, award) on all `Navigation` routes; deliberately
+  absent on the map canvas. Anonymous-account auto-cleanup is a console
+  toggle — human checklist item below.
+
 **Human-only checklist (blockers for the waves above):**
 
 - [ ] Manual click-through of the canvas (pan/zoom/drag/hotkeys) after the
@@ -152,11 +182,21 @@ MindMap chrome especially.
       **Now also covers Wave 3**: all routes on MUI 9 + React 19 (theme
       toggle, dialogs/menus, Account grids) and the reactfire-removal
       auth/data flows (anonymous sign-in, claim-account snackbar,
-      mindmap list loading states).
+      mindmap list loading states). **And Wave 4**: the three export
+      formats on a real map (PNG/SVG crop + fonts, Markdown structure),
+      undo across add/edit/delete incl. a two-tab conflict check, and
+      the footer on every marketing route / absent on the canvas.
 - [ ] Create a Groq API key; `npx firebase-tools functions:secrets:set GROQ_API_KEY`.
 - [ ] Firebase console: verify App Check enforcement is ON for Firestore,
       and API-key HTTP-referrer restrictions on both projects.
-- [ ] Read the privacy policy draft before it ships.
+- [ ] **Read and edit the privacy policy draft (`/privacy`,
+      `src/pages/PrivacyPolicy/index.tsx`) before it ships** — it makes
+      operational commitments (deletion via support@bubblemap.app,
+      anonymous-account cleanup, COPPA handling) that a human must stand
+      behind; counsel review if being careful. Record the review on PR #199.
+- [ ] Firebase console: enable auto-deletion of stale anonymous accounts
+      (Authentication → Settings → User account management), which the
+      policy draft now promises.
 - [ ] Optional: deploy the fixed Firestore rules ahead of the PR merge
       (`firebase deploy --only firestore:rules`) — the prod hole is live
       until then.
