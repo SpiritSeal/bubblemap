@@ -63,11 +63,11 @@ root to `changelog/` per review feedback on the PR. Completed so far:
 - Bonus: fixed the Home page logo (last `process.env.PUBLIC_URL`, undefined
   under Vite).
 
-**Deliberate dependency holds — do not "fix" blindly:** firebase 9
-(reactfire pins `^9` → #191), eslint 8 + @typescript-eslint 6 + airbnb
-(no flat-config support, §5), react 18 (take 19 with the MUI pass, #193),
-TS 5.9 not 6.0 (parser support), firebase-admin 13 (firebase-functions 7
-peer cap), openai 3 (deleted by #190), @types/node 24 (matches runtime).
+**Deliberate dependency holds — do not "fix" blindly:** eslint 8 +
+@typescript-eslint 6 + airbnb (no flat-config support, §5), TS 5.9 not 6.0
+(parser support), firebase-admin 13 (firebase-functions 7 peer cap),
+@types/node 24 (matches runtime). Resolved by later waves: firebase 9 →
+12 and react 18 → 19 (Wave 3), openai 3 deleted (#190).
 
 **Wave 2, part 1 — #195 write model, done 2026-07-06** (commit `620f362`):
 `crypto.randomUUID()` string node IDs + all node ops through a single
@@ -98,19 +98,61 @@ first deploy, `OPENAI_SECRET` can be destroyed.
 
 1. ~~**Wave 1**~~ — done, see STATUS above.
 2. ~~**Wave 2** — #195 write model, #190 Groq swap~~ — done, see above.
-3. **Wave 3 — #191 reactfire removal + firebase 12** (also fix the
-   rules-of-hooks bug in `src/pages/MindMap/index.tsx`, delete the
-   unused Storage/Remote Config inits in `App.tsx`, and bump
-   `@firebase/rules-unit-testing` 2 → 5 with the firebase major), then
-   **#193 MUI major + React 19** bundled.
+3. ~~**Wave 3** — #191 reactfire removal + firebase 12, #193 MUI 9 +
+   React 19~~ — done, see below.
 4. **Wave 4 — product**: #197 export, #198 undo (unblocked by #195),
    #196 privacy policy + footer (draft; human review required, COPPA).
+
+**Wave 3, part 1 — #191 reactfire removal + firebase 12, done 2026-07-06**
+(commit `d0597dd`): reactfire (dead since Aug 2023, pinned firebase `^9`)
+replaced by `src/firebase/index.tsx` — module-level singleton SDK init
+(app → App Check → auth/firestore/functions, emulator wiring, analytics/
+perf in prod) plus the hooks the app actually uses: `useAuth`/
+`useFirestore`/`useFunctions` (instance getters), `useUser`/
+`useSigninCheck` (single app-wide `onIdTokenChanged` subscription behind
+`FirebaseUserProvider`, which blocks render until initial auth state is
+known — `onIdTokenChanged` rather than `onAuthStateChanged` so
+provider-link/profile changes re-render, which the Account page needs),
+and `useFirestoreDocData`/`useFirestoreCollection`/
+`useFirestoreCollectionData` (`onSnapshot` with a `{ status, data }`
+shape and `queryEqual`-stable resubscription so callers can build
+queries inline). Also done in the same pass, per §3/§8: unused Storage +
+Remote Config inits deleted (with `remoteconfig.template.json` and its
+`firebase.json` block); the MindMap rules-of-hooks bug fixed by
+splitting loader/`LoadedMindMap` — a missing or permission-denied doc
+now shows the intended friendly message instead of a raw TypeError;
+Navigation/ManageMindMaps handle the now-explicit collection loading
+state (reactfire's suspense previously hid it). firebase 9 → 12,
+`@firebase/rules-unit-testing` 2 → 5, lockfile regenerated (the old lock
+still carried reactfire's `^9` pin).
+
+**Wave 3, part 2 — #193 MUI 9 + React 19, done 2026-07-06** (commit
+`1630982`): **go decision** — MUI skipped v8 entirely; v9 (9.2) still
+defaults to emotion (pigment-css is an optional peer) and supports
+React 19, so we took the latest major directly instead of parking on
+6/7. Churn was small: `@mui/codemod deprecations/all` handled the
+slotProps consolidation (TextField `inputProps`/`InputProps`, Snackbar
+`TransitionProps`, ListItemText `primaryTypographyProps`, Drawer
+`PaperProps`); manual fixes for Menu `PaperProps`, InputBase
+`inputProps`, and the nine legacy `Grid item xs/sm` usages → v9 `size`
+prop (GridLegacy is removed). React 19 needed exactly one code change
+(`useRef` initial value in MindMapSimulation). All peers (router 7,
+zoom-pan-pinch 4, hotkeys-hook 5, testing-library 16) declare React 19
+support. Audit baseline after both parts: root 11 findings (5 moderate,
+6 high), all transitive through dev-only `firebase-tools`; functions
+unchanged. **Visual smoke check of all routes is folded into the
+existing manual click-through item below** — the theme toggle and
+MindMap chrome especially.
 
 **Human-only checklist (blockers for the waves above):**
 
 - [ ] Manual click-through of the canvas (pan/zoom/drag/hotkeys) after the
       zoom-fork migration and the hotkeys swap — nothing has physically
       dragged a bubble yet; also confirms #147 so #192 can close it.
+      **Now also covers Wave 3**: all routes on MUI 9 + React 19 (theme
+      toggle, dialogs/menus, Account grids) and the reactfire-removal
+      auth/data flows (anonymous sign-in, claim-account snackbar,
+      mindmap list loading states).
 - [ ] Create a Groq API key; `npx firebase-tools functions:secrets:set GROQ_API_KEY`.
 - [ ] Firebase console: verify App Check enforcement is ON for Firestore,
       and API-key HTTP-referrer restrictions on both projects.
