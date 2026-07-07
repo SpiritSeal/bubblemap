@@ -91,20 +91,22 @@ const PrivacyPolicy = () => (
 
     <Section title="What we do not do">
       <Paragraph>
-        We do not sell your data. We do not show ads. We do not use your mind
-        map content for advertising or to train AI models. Data is shared only
-        with the service providers named above, as needed to run the app.
+        We do not sell your data. We do not use your mind map content for
+        advertising or to train AI models. Any ads that may appear on the site
+        do not receive your data: we do not share your personal information or
+        mind map content with advertising partners. Data is shared only with the
+        service providers named above, as needed to run the app.
       </Paragraph>
     </Section>
 
     <Section title="Children's privacy">
       <Paragraph>
         Bubble Map is designed to be usable by students. We only collect the
-        minimum information needed to operate the service, we do not show ads,
-        and we do not knowingly collect personal information from children under
-        13 beyond what the features above require. If you are a parent or
-        guardian and would like to review or delete your child&apos;s
-        information, contact us at{' '}
+        minimum information needed to operate the service, we do not share
+        personal information with advertisers, and we do not knowingly collect
+        personal information from children under 13 beyond what the features
+        above require. If you are a parent or guardian and would like to review
+        or delete your child&apos;s information, contact us at{' '}
         <a href="mailto:support@bubblemap.app">support@bubblemap.app</a> and we
         will handle it promptly.
       </Paragraph>
@@ -112,16 +114,19 @@ const PrivacyPolicy = () => (
 
     <Section title="Deleting your data">
       <Paragraph>
-        You can delete individual mind maps from within the app. To delete your
-        account and its data entirely, email{' '}
-        <a href="mailto:support@bubblemap.app">support@bubblemap.app</a>.
+        You can delete individual mind maps from within the app, and you can
+        delete your account from the Account page. Deleting your account does
+        not automatically delete the maps you created, so delete those first —
+        or email{' '}
+        <a href="mailto:support@bubblemap.app">support@bubblemap.app</a> and we
+        will remove everything for you.
       </Paragraph>
     </Section>
 
     <Section title="Changes to this policy">
       <Paragraph>
         If this policy changes, we will update this page and the date at the
-        top. Significant changes will be called out on the home page.
+        top.
       </Paragraph>
     </Section>
   </Container>
