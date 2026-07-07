@@ -1,228 +1,199 @@
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   doc,
-  arrayRemove,
   arrayUnion,
-  writeBatch,
+  runTransaction,
   serverTimestamp,
-  Timestamp,
-  setDoc,
 } from 'firebase/firestore';
 import { Fab } from '@mui/material';
 import { BubbleChart } from '@mui/icons-material';
-import { useFirestore, useFirestoreDocData, useUser } from 'reactfire';
 import { useNavigate, useParams } from 'react-router-dom';
-// You can use getApplicationKeyMap from react-hotkeys to get the keymaps for the application
-import { GlobalHotKeys } from 'react-hotkeys';
+import { useHotkeys } from 'react-hotkeys-hook';
 import { SimulationNodeDatum } from 'd3-force';
+import { useFirestore, useFirestoreDocData, useUser } from '../../firebase';
+import { MindMap as MindMapType, node, WithID } from '../../types';
 import {
-  localNode,
-  MindMap as MindMapType,
-  node,
-  RecursivePartial,
-  WithID,
-} from '../../types';
+  diffNodes,
+  mintNodeID,
+  NodeChange,
+  normalizeNodes,
+  ROOT_NODE_ID,
+  withChangesUndone,
+  withNodeAdded,
+  withNodeDeleted,
+  withNodeUpdated,
+} from '../../nodeOps';
 import MindMapSimulation from './MindMapSimulation';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
+import Loading from '../../components/Loading';
+import keyBindings from './keybindings';
 
-const keyMap = {
-  ADD_NODE: 'ctrl+enter',
-  DELETE_NODE: ['del', 'backspace'],
-  EDIT_NODE_TEXT: 'shift+enter',
-  // Not Implemented
-  GENERATE_IDEAS: 'ctrl+shift+enter',
-  // Not Implemented
-  TOGGLE_SIDE_MENU: 'ctrl+shift+s',
-  // Not Implemented
-  TOGGLE_SETTINGS: 'ctrl+shift+p',
-  MOVE_SELECTION_TO_PARENT: ['up', '`'],
-  MOVE_SELECTION_TO_CHILD: 'down',
-  MOVE_SELECTION_TO_NEXT_SIBLING: ['right'],
-  MOVE_SELECTION_TO_PREVIOUS_SIBLING: ['left'],
-  MOVE_SELECTION_TO_ROOT: ['0', 'ctrl+up'],
-  RESET_VIEW: ['ctrl+0', 'home'],
-  LOCK_NODE: ['l', 'ctrl+l', 'space'],
-};
+// Undo entries kept per session; oldest entries fall off past this depth.
+const MAX_UNDO_DEPTH = 100;
 
-const MindMap = () => {
-  const { mindmapID } = useParams();
+const LoadedMindMap = ({ mindmap }: { mindmap: WithID<MindMapType> }) => {
   const navigate = useNavigate();
-
   const firestore = useFirestore();
   const user = useUser().data;
-  const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
-  const mindmap = useFirestoreDocData(mindMapRef, { idField: 'ID' })
-    .data as WithID<MindMapType>;
+  const mindMapRef = doc(firestore, `mindmaps/${mindmap.ID}`);
 
-  const addNode = ({ parent, text }: { parent: number; text: string }) => {
-    if (!user) return;
+  // Legacy documents store numeric node IDs; normalize once per snapshot.
+  const nodes = useMemo(() => normalizeNodes(mindmap.nodes), [mindmap]);
 
-    const newID =
-      mindmap.nodes.length > 0
-        ? Math.max(...mindmap.nodes.map((o) => o.id), 0) + 1
-        : 0;
+  const rootNode = nodes.find((o) => o.id === ROOT_NODE_ID);
 
-    if (Number.isNaN(newID))
-      throw new Error(`New ID not a number! New ID: ${newID}`);
+  const [selectedNode, setSelectedNode] = useState<SimulationNodeDatum & node>(
+    () => {
+      if (!rootNode) throw new Error('Root node not found!');
+      return rootNode;
+    },
+  );
 
-    const newNode: node = {
-      parent,
-      text,
-      id: newID,
-    };
-
-    const docUpdates: RecursivePartial<MindMapType> = {
-      nodes: arrayUnion(newNode) as unknown as undefined,
-      metadata: {
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-      },
-    };
-
-    setDoc(mindMapRef, docUpdates, { merge: true });
-    setSelectedNode(newNode);
-  };
-
-  const stripInputNodeProperties = (inputNode: localNode): node => ({
-    parent: inputNode.parent,
-    text: inputNode.text,
-    id: inputNode.id,
+  // Not Implemented
+  useHotkeys(keyBindings.TOGGLE_SETTINGS, () => {
+    // eslint-disable-next-line no-console
+    console.log('Toggle Settings');
   });
 
-  const getChildren = (nodeTarget: node): node[] =>
-    mindmap.nodes.filter((o) => o.parent === nodeTarget.id);
+  // Session-local undo: one entry per committed transaction, newest last.
+  // Deliberately a ref, not state — nothing renders from it, and pushes
+  // happen from async transaction callbacks. Cleared on refresh/navigation.
+  const undoStackRef = useRef<NodeChange[][]>([]);
 
-  const deleteNode = (nodeToDelete: node) => {
+  // All node ops go through a transaction: read a fresh copy of the doc,
+  // transform its (normalized) node list, write the whole list back. This
+  // avoids the arrayRemove/arrayUnion failure modes where a stale local
+  // copy silently duplicated or resurrected nodes under concurrent edits.
+  const commitNodes = (
+    transform: (currentNodes: node[]) => node[],
+    recordUndo = true,
+  ) => {
     if (!user) return;
-
-    if (nodeToDelete.id === 0) return;
-
-    const nodeToDeleteParentID = nodeToDelete.parent;
-
-    const children = getChildren(nodeToDelete);
-    const strippedNodeToDelete = stripInputNodeProperties(nodeToDelete);
-
-    const batch = writeBatch(firestore);
-
-    const removeNodes: Partial<MindMapType> = {
-      nodes: arrayRemove(
-        ...[strippedNodeToDelete, ...children.map(stripInputNodeProperties)]
-      ) as unknown as undefined,
-    };
-
-    batch.update(mindMapRef, removeNodes);
-
-    const updateNodesAndMetadata: RecursivePartial<MindMapType> = {
-      metadata: {
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-      },
-      nodes: arrayUnion(
-        ...[
-          // update all children's parent to nodeToDeleteParentID
-          ...children.map(stripInputNodeProperties).map((o) => ({
-            ...o,
-            parent: nodeToDeleteParentID,
-          })),
-        ]
-      ) as unknown as undefined,
-    };
-
-    batch.set(mindMapRef, updateNodesAndMetadata, { merge: true });
-
-    batch.commit();
+    // The transaction body can retry; only the last run's diff is kept, and
+    // it is pushed onto the undo stack only after the commit succeeds.
+    let committedChanges: NodeChange[] = [];
+    runTransaction(firestore, async (transaction) => {
+      const snapshot = await transaction.get(mindMapRef);
+      if (!snapshot.exists()) throw new Error('MindMap no longer exists');
+      const currentNodes = normalizeNodes(snapshot.data().nodes);
+      const nextNodes = transform(currentNodes);
+      committedChanges = recordUndo ? diffNodes(currentNodes, nextNodes) : [];
+      transaction.update(mindMapRef, {
+        nodes: nextNodes,
+        'metadata.updatedAt': serverTimestamp(),
+        'metadata.updatedBy': user.uid,
+        'metadata.everUpdatedBy': arrayUnion(user.uid),
+      });
+    })
+      .then(() => {
+        if (committedChanges.length === 0) return;
+        undoStackRef.current.push(committedChanges);
+        if (undoStackRef.current.length > MAX_UNDO_DEPTH) {
+          undoStackRef.current.shift();
+        }
+      })
+      .catch((error) => console.error('Failed to save mindmap change', error));
   };
 
-  const updateNode = (oldNode: node, newNode: node) => {
-    if (!user) return;
-
-    const batch = writeBatch(firestore);
-    if (oldNode.id !== newNode.id) {
-      console.warn(
-        'Node ID changed, funny things might happen, so blocking update'
-      );
-      return;
-    }
-    const oldNodeUpdate: RecursivePartial<MindMapType> = {
-      nodes: arrayRemove(
-        stripInputNodeProperties(oldNode)
-      ) as unknown as undefined,
-    };
-
-    batch.update(mindMapRef, oldNodeUpdate);
-
-    const newNodeUpdate: RecursivePartial<MindMapType> = {
-      nodes: arrayUnion(
-        stripInputNodeProperties(newNode)
-      ) as unknown as undefined,
-      metadata: {
-        updatedAt: serverTimestamp() as Timestamp,
-        updatedBy: user.uid,
-        everUpdatedBy: arrayUnion(user.uid) as unknown as string[],
-      },
-    };
-
-    batch.set(mindMapRef, newNodeUpdate, { merge: true });
-
-    batch.commit();
-    if (selectedNode?.id === oldNode.id) {
-      setSelectedNode(newNode);
-    }
+  const undo = () => {
+    const entry = undoStackRef.current.pop();
+    if (!entry) return;
+    // Conflicted pieces no-op inside withChangesUndone; a fully-conflicted
+    // entry is simply dropped rather than resurrecting stale content.
+    commitNodes(
+      (currentNodes) => withChangesUndone(currentNodes, entry),
+      false,
+    );
   };
 
-  const shortcutHandlers = {
-    TOGGLE_SETTINGS: () => {
-      // eslint-disable-next-line no-console
-      console.log('Toggle Settings');
-    },
-  };
-
-  // Get the mindmap node with id 0, which is the root node
-  const rootNode = mindmap.nodes.find((o) => o.id === 0);
-
-  if (!mindmap) throw new Error('Sorry, I couldn&apos;t find that mindmap.');
+  useHotkeys(keyBindings.UNDO, undo, { preventDefault: true });
 
   if (!rootNode) {
     throw new Error('Root node not found!');
   }
 
-  const [selectedNode, setSelectedNode] = useState<SimulationNodeDatum & node>(
-    rootNode
-  );
+  const addNode = ({ parent, text }: { parent: string; text: string }) => {
+    if (!user) return;
+
+    const newNode: node = {
+      parent,
+      text,
+      id: mintNodeID(),
+    };
+
+    commitNodes((currentNodes) => withNodeAdded(currentNodes, newNode));
+    setSelectedNode(newNode);
+  };
+
+  const deleteNode = (nodeToDelete: node) => {
+    if (nodeToDelete.id === ROOT_NODE_ID) return;
+    commitNodes((currentNodes) =>
+      withNodeDeleted(currentNodes, nodeToDelete.id),
+    );
+  };
+
+  const updateNode = (oldNode: node, newNode: node) => {
+    if (oldNode.id !== newNode.id) {
+      console.warn(
+        'Node ID changed, funny things might happen, so blocking update',
+      );
+      return;
+    }
+
+    commitNodes((currentNodes) => withNodeUpdated(currentNodes, newNode));
+    if (selectedNode?.id === oldNode.id) {
+      setSelectedNode(newNode);
+    }
+  };
 
   return (
     <div style={{ margin: 0, padding: 0 }}>
-      <GlobalHotKeys keyMap={keyMap} handlers={shortcutHandlers}>
-        <MindMapSimulation
-          data={mindmap}
-          addNode={addNode}
-          deleteNode={deleteNode}
-          updateNode={updateNode}
-          selectedNode={selectedNode}
-          setSelectedNode={setSelectedNode}
-        />
-        <GenIdeaPanel
-          selectedNode={selectedNode}
-          data={mindmap}
-          addNode={addNode}
-        />
-        <Fab
-          variant="extended"
-          sx={{
-            left: 20,
-            top: 20,
-            position: 'fixed',
-          }}
-          onClick={() => navigate('/mindmaps')}
-        >
-          <BubbleChart />
-          MindMaps
-        </Fab>
-      </GlobalHotKeys>
+      <MindMapSimulation
+        data={{ ...mindmap, nodes }}
+        addNode={addNode}
+        deleteNode={deleteNode}
+        updateNode={updateNode}
+        selectedNode={selectedNode}
+        setSelectedNode={setSelectedNode}
+      />
+      <GenIdeaPanel
+        selectedNode={selectedNode}
+        data={mindmap}
+        addNode={addNode}
+      />
+      <Fab
+        variant="extended"
+        sx={{
+          left: 20,
+          top: 20,
+          position: 'fixed',
+        }}
+        onClick={() => navigate('/mindmaps')}
+      >
+        <BubbleChart />
+        MindMaps
+      </Fab>
     </div>
   );
+};
+
+const MindMap = () => {
+  const { mindmapID } = useParams();
+  const firestore = useFirestore();
+
+  const mindMapRef = doc(firestore, `mindmaps/${mindmapID}`);
+  const { status, data: mindmap } = useFirestoreDocData<WithID<MindMapType>>(
+    mindMapRef,
+    { idField: 'ID' },
+  );
+
+  if (status === 'loading') return <Loading />;
+
+  // Missing document or permission-denied both land here; surface the
+  // friendly message through the error boundary instead of a raw TypeError.
+  if (!mindmap) throw new Error("Sorry, I couldn't find that mindmap.");
+
+  return <LoadedMindMap mindmap={mindmap} />;
 };
 
 export default MindMap;

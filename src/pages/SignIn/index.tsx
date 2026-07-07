@@ -13,8 +13,6 @@ import {
 } from '@mui/material';
 import { Google } from '@mui/icons-material';
 
-import { useAuth } from 'reactfire';
-
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -25,6 +23,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../firebase';
 
 const SignIn = () => {
   const auth = useAuth();
@@ -79,7 +78,7 @@ const SignIn = () => {
                   auth,
                   rememberMe
                     ? indexedDBLocalPersistence
-                    : browserSessionPersistence
+                    : browserSessionPersistence,
                 ).then(async () => {
                   await signInWithEmailAndPassword(auth, email, password).catch(
                     (err) => {
@@ -92,7 +91,7 @@ const SignIn = () => {
                       } else if (err.code === 'auth/invalid-email') {
                         setError('Please enter a valid email');
                       }
-                    }
+                    },
                   );
                 });
               }}

@@ -1,46 +1,81 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import * as functions from 'firebase-functions';
-import { Configuration, OpenAIApi } from 'openai';
+import * as functions from 'firebase-functions/v1';
+import { logger } from 'firebase-functions/logger';
 
-/* eslint-disable @typescript-eslint/no-var-requires */
-// const cowsay = require('cowsay');
+// Groq's chat-completions endpoint is OpenAI-compatible; one small feature,
+// one provider, no SDK needed (issue #190). Node 24 provides global fetch.
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+const GROQ_MODEL = 'llama-3.1-8b-instant';
 
-const openai_key = process.env.OPENAI_SECRET;
+// Split the model's reply into up to 3 clean, lowercase, deduped ideas.
+function formatIdeas(reply: string): string[] {
+  const ideas = reply
+    .split('\n')
+    .map((line) =>
+      line
+        .replace(/^[\s\d.\-*•]+/, '')
+        .trim()
+        .toLowerCase(),
+    )
+    .filter((line) => line !== '');
+  return [...new Set(ideas)].slice(0, 3);
+}
 
-const configuration = new Configuration({
-  apiKey: openai_key,
-});
-const openai = new OpenAIApi(configuration);
-
-async function genIdeaOAI(text: string) {
-  const response = await openai.createCompletion({
-    model: 'gpt-3.5-turbo',
-    prompt: `Single word or very short phrase related to ${text}`,
-    temperature: 0.5,
-    max_tokens: 6 * 3,
-    n: 3,
-    presence_penalty: 1.9,
+async function genIdeasGroq(text: string, apiKey: string): Promise<string[]> {
+  const response = await fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [
+        {
+          role: 'system',
+          content:
+            'You suggest ideas for a mind map. Reply with exactly 3 ' +
+            'suggestions, one per line, each a single word or very short ' +
+            'phrase. No numbering, no punctuation, no commentary.',
+        },
+        { role: 'user', content: `Ideas related to: ${text}` },
+      ],
+      temperature: 0.5,
+      max_tokens: 60,
+    }),
   });
-  return formatIdeaOAI(response.data);
+  if (!response.ok) {
+    throw new Error(
+      `Groq API error ${response.status}: ${await response.text()}`,
+    );
+  }
+  const body = (await response.json()) as {
+    choices?: { message?: { content?: string } }[];
+  };
+  return formatIdeas(body.choices?.[0]?.message?.content ?? '');
 }
 
-function formatIdeaOAI(idea: any) {
-  // builds an array of strings from the OpenAI response
-  // trim the whitespace and lowercase all the strings
-  let ideas = idea.choices.map((item: any) => item.text.trim().toLowerCase());
-  // remove duplicates
-  ideas = ideas.filter((item: any, pos: any) => ideas.indexOf(item) === pos);
-  return ideas;
-}
-
+// Still exported/deployed as `gpt3`: renaming a callable would need a client
+// change plus an interactive function-delete confirmation on deploy. The one
+// shared key is a free-tier tradeoff — see issue #190; on any failure
+// (missing key, quota burst, API error) we return [] and the client falls
+// back to Datamuse suggestions.
 const gpt3 = functions
-  .runWith({ secrets: ['OPENAI_SECRET'] })
+  .runWith({ secrets: ['GROQ_API_KEY'] })
   .region('us-west2')
   .https.onCall(async (data) => {
-    const result = await genIdeaOAI(data.data);
-    // console.log(cowsay.say({ text: 'Success!' }));
-    // console.log(cowsay.say({ text: `OpenAI Thinks: ${result[0]}` }));
-    return result;
+    const apiKey = process.env.GROQ_API_KEY;
+    const prompt: unknown = data?.data;
+    if (typeof prompt !== 'string' || prompt.trim() === '') return [];
+    if (!apiKey) {
+      logger.error('GROQ_API_KEY is not set; returning no AI ideas');
+      return [];
+    }
+    try {
+      return await genIdeasGroq(prompt, apiKey);
+    } catch (error) {
+      logger.error('Groq idea generation failed', error);
+      return [];
+    }
   });
 
 export default gpt3;

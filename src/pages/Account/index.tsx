@@ -1,5 +1,4 @@
 import React, { SyntheticEvent, useState } from 'react';
-import { useUser } from 'reactfire';
 import { deleteUser, getIdToken, unlink } from 'firebase/auth';
 import {
   Accordion,
@@ -13,6 +12,7 @@ import {
 } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 import { useSearchParams } from 'react-router-dom';
+import { useUser } from '../../firebase';
 
 import ChangeEmail from './ChangeEmail';
 import ChangePassword from './ChangePassword';

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, TextField, Divider } from '@mui/material';
 import { Google } from '@mui/icons-material';
-import { useUser } from 'reactfire';
 import {
   sendEmailVerification,
   GoogleAuthProvider,
@@ -9,6 +8,7 @@ import {
   EmailAuthProvider,
   linkWithCredential,
 } from 'firebase/auth';
+import { useUser } from '../../firebase';
 
 const AddAuthMethod = () => {
   const user = useUser().data;
@@ -44,17 +44,17 @@ const AddAuthMethod = () => {
                 .catch((err) => {
                   if (err.code === 'auth/email-already-in-use') {
                     setError(
-                      'An account already exists with this email. Please sign in or reset your password instead.'
+                      'An account already exists with this email. Please sign in or reset your password instead.',
                     );
                   } else if (err.code === 'auth/weak-password') {
                     setError('Please enter a stronger password.');
                   } else if (err.code === 'auth/invalid-email') {
                     setError(
-                      'This email is invalid. Please enter a valid email.'
+                      'This email is invalid. Please enter a valid email.',
                     );
                   } else {
                     setError(
-                      'Uh oh. Something went wrong. Please try again later.'
+                      'Uh oh. Something went wrong. Please try again later.',
                     );
                   }
                 });

@@ -2,13 +2,13 @@ import { Timestamp } from 'firebase/firestore';
 import { SimulationNodeDatum } from 'd3-force';
 
 export interface node {
-  parent: number;
+  parent: string;
   text: string;
-  id: number;
+  id: string;
 }
 
 export interface localNode extends node, SimulationNodeDatum {
-  children?: number[];
+  children?: string[];
   selected?: boolean;
 }
 

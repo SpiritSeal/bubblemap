@@ -1,16 +1,69 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Deny anything not explicitly allowed below.
     match /{document=**} {
       allow read, write: if false;
+    }
 
-      match /mindmaps/{mindmap} {
-        allow create: if request.auth.uid != null;
-        allow delete: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner;
-        allow get: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner || resource.data.permissions.isPublic;
-        allow list: if request.auth.uid != null && (request.auth.uid == resource.data.permissions.owner || (request.auth.uid != resource.data.permissions.owner && resource.data.permissions.isPublic && request.auth.uid in resource.data.metadata.everUpdatedBy));
-        allow update: if request.auth.uid != null && request.auth.uid == resource.data.permissions.owner || (resource.data.permissions.isPublic && request.resource.data.permissions.canPublicEdit);
+    match /mindmaps/{mindmapId} {
+      function isSignedIn() {
+        return request.auth != null;
       }
+      function isOwner() {
+        return isSignedIn() && request.auth.uid == resource.data.permissions.owner;
+      }
+      function existingPerms() {
+        return resource.data.permissions;
+      }
+      function incoming() {
+        return request.resource.data;
+      }
+      // request.resource.data is the post-write document, so this also
+      // validates the result of merge/partial updates.
+      function isValidMindMap() {
+        return incoming().keys().hasOnly(['title', 'nodes', 'metadata', 'permissions'])
+          && incoming().keys().hasAll(['title', 'nodes', 'metadata', 'permissions'])
+          && incoming().title is string
+          && incoming().title.size() <= 500
+          && incoming().nodes is list
+          && incoming().nodes.size() <= 5000
+          && incoming().metadata is map
+          && incoming().metadata.everUpdatedBy is list
+          && incoming().permissions is map
+          && incoming().permissions.keys().hasOnly(['owner', 'isPublic', 'canPublicEdit'])
+          && incoming().permissions.keys().hasAll(['owner', 'isPublic', 'canPublicEdit'])
+          && incoming().permissions.owner is string
+          && incoming().permissions.isPublic is bool
+          && incoming().permissions.canPublicEdit is bool;
+      }
+
+      allow get: if isOwner() || (isSignedIn() && resource.data.permissions.isPublic);
+
+      allow list: if isOwner()
+        || (isSignedIn()
+            && resource.data.permissions.isPublic
+            && request.auth.uid in resource.data.metadata.everUpdatedBy);
+
+      allow create: if isSignedIn()
+        && isValidMindMap()
+        && incoming().permissions.owner == request.auth.uid
+        && incoming().metadata.createdBy == request.auth.uid
+        && incoming().metadata.everUpdatedBy == [request.auth.uid];
+
+      allow update: if isValidMindMap()
+        && (
+          // The owner may change anything except give the map away.
+          (isOwner() && incoming().permissions.owner == existingPerms().owner)
+          // Public editors qualify via the EXISTING document's flags
+          // (never the incoming payload) and may not touch permissions.
+          || (isSignedIn()
+              && existingPerms().isPublic
+              && existingPerms().canPublicEdit
+              && incoming().permissions == existingPerms())
+        );
+
+      allow delete: if isOwner();
     }
   }
 }

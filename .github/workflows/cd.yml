@@ -9,26 +9,20 @@ jobs:
     name: Upload Build and Deploy to Firebase
     if: github.repository_owner == 'SpiritSeal'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-
-      - name: Cache node modules
-        uses: actions/cache@v2
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: |
+            package-lock.json
+            functions/package-lock.json
 
       - name: Install ./ Dependencies
         run: npm ci --prefer-offline --no-audit
@@ -39,6 +33,9 @@ jobs:
       - name: TSC
         run: npm run tsc
 
+      - name: Create .env from .env.example
+        run: cp .env.example .env
+
       - name: Build React
         run: npm run build
 
@@ -47,37 +44,26 @@ jobs:
           zip -r build.zip build
           tar -czf build.tar.gz build
 
-      - name: Upload .zip Build Asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload Build Assets to Release
+        uses: softprops/action-gh-release@v2
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build.zip
-          asset_name: build.zip
-          asset_content_type: application/zip
+          files: |
+            build.zip
+            build.tar.gz
 
-      - name: Upload .tar.gz Build Asset
-        uses: actions/upload-release-asset@v1
+      - name: Deploy to Firebase (testing)
+        run: |
+          echo "$GCP_SA_KEY" > "$RUNNER_TEMP/gcp_sa_key.json"
+          npx firebase-tools deploy -P testing --force
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build.tar.gz
-          asset_name: build.tar.gz
-          asset_content_type: application/gzip
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp_sa_key.json
 
-      - name: Deploy to Firebase
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy -P testing --force
-        env:
-          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MIND_MAP_TESTING }}'
-
-      - name: Deploy to Firebase
+      - name: Deploy to Firebase (production)
         if: '!github.event.release.prerelease'
-        uses: w9jds/firebase-action@master
-        with:
-          args: deploy -P app --force
+        run: |
+          echo "$GCP_SA_KEY" > "$RUNNER_TEMP/gcp_sa_key.json"
+          npx firebase-tools deploy -P app --force
         env:
-          GCP_SA_KEY: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUBBLEMAP_APP }}'
+          GCP_SA_KEY: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_BUBBLEMAP_APP }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/gcp_sa_key.json

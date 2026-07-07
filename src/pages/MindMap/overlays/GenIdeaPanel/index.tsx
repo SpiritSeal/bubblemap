@@ -12,10 +12,11 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
-import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
-import { GlobalHotKeys } from 'react-hotkeys';
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useFunctions } from '../../../../firebase';
 import { MindMap, node } from '../../../../types';
+import keyBindings from '../../keybindings';
 
 const drawerWidthPercent = '20%';
 // Calculate the width of the drawer based on the percentage
@@ -44,7 +45,7 @@ const PersistentDrawerRight = ({
 }: {
   selectedNode: SimulationNodeDatum & node;
   data: MindMap;
-  addNode: ({ parent, text }: { parent: number; text: string }) => void;
+  addNode: ({ parent, text }: { parent: string; text: string }) => void;
 }) => {
   const functions = useFunctions();
 
@@ -66,16 +67,16 @@ const PersistentDrawerRight = ({
   const [input, setInput] = useState('');
 
   const [textCache, setTextCache] = useState<{
-    [key: number]: string | undefined;
+    [key: string]: string | undefined;
   }>({});
   const [datamuseCache, setDatamuseCache] = useState<{
-    [key: number]: string[] | undefined;
+    [key: string]: string[] | undefined;
   }>({});
   const [gpt3Cache, setGpt3Cache] = useState<{
-    [key: number]: string[] | undefined;
+    [key: string]: string[] | undefined;
   }>({});
 
-  const genIdeaDatamuse = async (nodeID: number, prompt: string) => {
+  const genIdeaDatamuse = async (nodeID: string, prompt: string) => {
     const genIdea = httpsCallable(functions, 'datamuse');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
@@ -86,7 +87,7 @@ const PersistentDrawerRight = ({
     }
   };
 
-  const genIdeaGPT3 = async (nodeID: number, prompt: string) => {
+  const genIdeaGPT3 = async (nodeID: string, prompt: string) => {
     const genIdea = httpsCallable(functions, 'gpt3');
     const result = await genIdea({ data: prompt });
     const ideas = result.data;
@@ -99,9 +100,9 @@ const PersistentDrawerRight = ({
 
   // Generate Ideas has an optional parameter, 'force', which is a boolean and defaults to false
   const generateIdeas = async (
-    nodeID: number,
+    nodeID: string,
     prompt: string,
-    force = false
+    force = false,
   ) => {
     // If the prompt is empty, then don't do anything
     if (prompt === '') {
@@ -138,7 +139,7 @@ const PersistentDrawerRight = ({
       generateIdeas(
         selectedNode.id,
         selectedNode.text,
-        textCache[selectedNode.id] !== selectedNode.text
+        textCache[selectedNode.id] !== selectedNode.text,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -152,31 +153,30 @@ const PersistentDrawerRight = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  const handleIdeaClick = (nodeID: number, idea: string) => {
+  const handleIdeaClick = (nodeID: string, idea: string) => {
     addNode({ parent: nodeID, text: idea });
   };
 
-  const shortcutHandlers = {
-    TOGGLE_SIDE_MENU: () => {
-      if (open) {
-        handleDrawerClose();
-      } else {
-        handleDrawerOpen();
-      }
-    },
-    GENERATE_IDEAS: () => {
-      if (open) {
-        generateIdeas(selectedNode.id, selectedNode.text, true);
-      }
-      if (!open) {
-        handleDrawerOpen();
-      }
-    },
-  };
+  useHotkeys(keyBindings.TOGGLE_SIDE_MENU, () => {
+    if (open) {
+      handleDrawerClose();
+    } else {
+      handleDrawerOpen();
+    }
+  });
+
+  useHotkeys(keyBindings.GENERATE_IDEAS, () => {
+    if (open) {
+      generateIdeas(selectedNode.id, selectedNode.text, true);
+    }
+    if (!open) {
+      handleDrawerOpen();
+    }
+  });
 
   return (
+    // </Box>
     <div>
-      <GlobalHotKeys handlers={shortcutHandlers} />
       <Fab
         variant="extended"
         sx={{
@@ -190,9 +190,6 @@ const PersistentDrawerRight = ({
         Idea Menu
       </Fab>
       <Drawer
-        PaperProps={{
-          elevation: 0,
-        }}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -203,6 +200,11 @@ const PersistentDrawerRight = ({
         variant="persistent"
         anchor="right"
         open={open}
+        slotProps={{
+          paper: {
+            elevation: 0,
+          },
+        }}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -216,11 +218,13 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary={input}
-              primaryTypographyProps={{
-                variant: 'h5',
-                align: 'center',
-                color: 'textPrimary',
-                style: { fontStyle: 'italic' },
+              slotProps={{
+                primary: {
+                  variant: 'h5',
+                  align: 'center',
+                  color: 'textPrimary',
+                  style: { fontStyle: 'italic' },
+                },
               }}
             />
           </ListItem>
@@ -229,9 +233,11 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary="Datamuse"
-              primaryTypographyProps={{
-                variant: 'h6',
-                color: 'textPrimary',
+              slotProps={{
+                primary: {
+                  variant: 'h6',
+                  color: 'textPrimary',
+                },
               }}
             />
             {/* PART ONE */}
@@ -248,10 +254,12 @@ const PersistentDrawerRight = ({
             >
               <ListItemText
                 primary={idea}
-                primaryTypographyProps={{
-                  align: 'center',
-                  color: 'textPrimary',
-                  style: { fontStyle: 'italic' },
+                slotProps={{
+                  primary: {
+                    align: 'center',
+                    color: 'textPrimary',
+                    style: { fontStyle: 'italic' },
+                  },
                 }}
               />
             </ListItemButton>
@@ -264,24 +272,28 @@ const PersistentDrawerRight = ({
                 <ListItem key={value + index}>
                   <ListItemText
                     primary="Loading..."
-                    primaryTypographyProps={{
-                      //   variant: 'h6',
-                      align: 'center',
-                      color: 'textPrimary',
-                      style: { fontStyle: 'italic' },
+                    slotProps={{
+                      primary: {
+                        //   variant: 'h6',
+                        align: 'center',
+                        color: 'textPrimary',
+                        style: { fontStyle: 'italic' },
+                      },
                     }}
                   />
                 </ListItem>
               ))}
           <Divider />
           <Divider />
-          {/* List the gpt3 cache for the currently selected node */}
+          {/* List the AI-idea cache for the currently selected node */}
           <ListItem>
             <ListItemText
-              primary="GPT3"
-              primaryTypographyProps={{
-                variant: 'h6',
-                color: 'textPrimary',
+              primary="AI Ideas"
+              slotProps={{
+                primary: {
+                  variant: 'h6',
+                  color: 'textPrimary',
+                },
               }}
             />
             {/* PART ONE */}
@@ -298,11 +310,13 @@ const PersistentDrawerRight = ({
             >
               <ListItemText
                 primary={idea}
-                primaryTypographyProps={{
-                  //   variant: 'h6',
-                  align: 'center',
-                  color: 'textPrimary',
-                  style: { fontStyle: 'italic' },
+                slotProps={{
+                  primary: {
+                    //   variant: 'h6',
+                    align: 'center',
+                    color: 'textPrimary',
+                    style: { fontStyle: 'italic' },
+                  },
                 }}
               />
             </ListItemButton>
@@ -316,10 +330,12 @@ const PersistentDrawerRight = ({
                 <ListItem key={index}>
                   <ListItemText
                     primary="Loading..."
-                    primaryTypographyProps={{
-                      align: 'center',
-                      color: 'textPrimary',
-                      style: { fontStyle: 'italic' },
+                    slotProps={{
+                      primary: {
+                        align: 'center',
+                        color: 'textPrimary',
+                        style: { fontStyle: 'italic' },
+                      },
                     }}
                   />
                 </ListItem>
@@ -327,7 +343,6 @@ const PersistentDrawerRight = ({
         </List>
       </Drawer>
     </div>
-    // </Box>
   );
 };
 

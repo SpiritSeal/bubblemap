@@ -45,10 +45,14 @@ module.exports = {
     'react/require-default-props': 'off',
     'react-hooks/rules-of-hooks': 'error',
     'react-hooks/exhaustive-deps': 'warn',
+    'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
   },
   settings: {
     jest: {
       version: 'latest',
     },
+    // ESM-only packages resolved via package.json "exports", which
+    // eslint-plugin-import's node resolver cannot follow
+    'import/core-modules': ['vite', '@vitejs/plugin-react'],
   },
 };

@@ -29,7 +29,6 @@ import {
   useSearchParams,
   Link as RouterLink,
 } from 'react-router-dom';
-import { useFirestore, useFirestoreCollectionData, useUser } from 'reactfire';
 import {
   addDoc,
   collection,
@@ -42,10 +41,17 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
+import {
+  useFirestore,
+  useFirestoreCollectionData,
+  useUser,
+} from '../../firebase';
 import { MindMap, RecursivePartial, WithID } from '../../types';
+import { createRootNode } from '../../nodeOps';
 import ShareDialog from './ShareDialog';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 import TextDialog from '../../components/Dialogs/TextDialog';
+import Loading from '../../components/Loading';
 
 const ManageMindMaps = () => {
   const user = useUser().data;
@@ -63,7 +69,7 @@ const ManageMindMaps = () => {
   const ownedMindMapsQuery = query(
     mindmapsCollection,
     orderBy('metadata.updatedAt', 'desc'),
-    where('permissions.owner', '==', user.uid)
+    where('permissions.owner', '==', user.uid),
   );
 
   const sharedMindMapsQuery = query(
@@ -71,17 +77,17 @@ const ManageMindMaps = () => {
     orderBy('permissions.owner', 'desc'),
     where('metadata.everUpdatedBy', 'array-contains', user.uid),
     where('permissions.owner', '!=', user.uid),
-    where('permissions.isPublic', '==', true)
+    where('permissions.isPublic', '==', true),
   );
 
-  const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
+  const { data: mindmaps } = useFirestoreCollectionData<WithID<MindMap>>(
     searchParams.get('filter') === 'shared'
       ? sharedMindMapsQuery
       : ownedMindMapsQuery,
     {
       idField: 'ID',
-    }
-  ).data as WithID<MindMap>[];
+    },
+  );
 
   const [isCreateMindMapDialogOpen, setIsCreateMindMapDialogOpen] =
     useState<boolean>(false);
@@ -99,13 +105,7 @@ const ManageMindMaps = () => {
         updatedBy: user.uid,
         everUpdatedBy: [user.uid],
       },
-      nodes: [
-        {
-          parent: 0,
-          text: title,
-          id: 0,
-        },
-      ],
+      nodes: [createRootNode(title)],
       permissions: {
         owner: user.uid,
         canPublicEdit: false,
@@ -125,7 +125,7 @@ const ManageMindMaps = () => {
   }
 
   const [snackPack, setSnackPack] = React.useState<readonly SnackbarMessage[]>(
-    []
+    [],
   );
   const [snackbarOpen, setSnackbarOpen] = React.useState(false);
   const [messageInfo, setMessageInfo] = React.useState<
@@ -155,6 +155,8 @@ const ManageMindMaps = () => {
   const handleSnackbarExited = () => {
     setMessageInfo(undefined);
   };
+
+  if (!mindmaps) return <Loading />;
 
   return (
     <Paper
@@ -227,7 +229,7 @@ const ManageMindMaps = () => {
           isOpen={isRenameMindMapDialogOpen !== null}
           onApprove={(newTitle) => {
             const mindmap = mindmaps.find(
-              (m) => m.ID === isRenameMindMapDialogOpen
+              (m) => m.ID === isRenameMindMapDialogOpen,
             );
             if (!mindmap) return;
 
@@ -349,7 +351,7 @@ const ManageMindMaps = () => {
                   // Open snackbar
                   handleSnackbarClick('Copied to clipboard')();
                   navigator.clipboard.writeText(
-                    `${window.location.origin}/mindmaps/${mindmap.ID}`
+                    `${window.location.origin}/mindmaps/${mindmap.ID}`,
                   );
                 }}
                 aria-label="copy link to clipboard"
@@ -361,7 +363,6 @@ const ManageMindMaps = () => {
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={handleSnackbarClose}
-                TransitionProps={{ onExited: handleSnackbarExited }}
                 message="Link copied to clipboard"
                 // position bottom right
                 anchorOrigin={{
@@ -378,6 +379,9 @@ const ManageMindMaps = () => {
                     <Close />
                   </IconButton>
                 }
+                slotProps={{
+                  transition: { onExited: handleSnackbarExited },
+                }}
               />
               <IconButton
                 type="button"

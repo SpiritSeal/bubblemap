@@ -196,4 +196,7 @@ tsconfig.tsbuildinfo
 
 *.secret
 
-.runtimeconfig.json
+# Local environment files (copy from .env.example)
+.env
+.env.local
+.env.*.local

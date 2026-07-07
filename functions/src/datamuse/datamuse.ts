@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as functions from 'firebase-functions';
+import * as functions from 'firebase-functions/v1';
 import * as https from 'https';
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const nlp = require('compromise/three');
-// const cowsay = require('cowsay');
 
 // This method attempts to extract the greatest possible value keywords from the text
 function extractKeywords(input: string) {
@@ -133,14 +132,10 @@ function formatIdeaDM(idea: any) {
   return ideas;
 }
 
-const datamuse = functions
-  .runWith({ secrets: ['OPENAI_SECRET'] })
-  .region('us-west2')
-  .https.onCall(async (data) => {
-    const resultDM = await genIdeaDM(data.data);
-    // console.log(cowsay.say({ text: 'Success!' }));
-    // console.log(cowsay.say({ text: `Datamuse Thinks: ${resultDM[0]}` }));
-    return resultDM;
-  });
+// Datamuse is a public API; this function never needed the OpenAI secret.
+const datamuse = functions.region('us-west2').https.onCall(async (data) => {
+  const resultDM = await genIdeaDM(data.data);
+  return resultDM;
+});
 
 export default datamuse;

@@ -4,7 +4,7 @@ import { PaletteMode, ThemeOptions, useMediaQuery } from '@mui/material';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 const getDesignTokens: (mode: PaletteMode) => ThemeOptions = (
-  mode: PaletteMode
+  mode: PaletteMode,
 ) => ({
   typography: {
     fontFamily: 'Inter, sans-serif',
@@ -42,7 +42,7 @@ export const ThemeContextProvider = ({ children }: { children: ReactNode }) => {
     noSsr: true,
   });
   const [theme, setTheme] = useState<'light' | 'dark'>(
-    prefersDarkMode ? 'dark' : 'light'
+    prefersDarkMode ? 'dark' : 'light',
   );
   // eslint-disable-next-line react/jsx-no-constructed-context-values
   const toggleTheme = () => {

@@ -1,26 +1,26 @@
 import React from 'react';
 import { Alert, Button, Snackbar, SnackbarOrigin } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useFirestore, useFirestoreCollection, useUser } from 'reactfire';
 import { collection, query, where } from 'firebase/firestore';
+import { useFirestore, useFirestoreCollection, useUser } from '../../firebase';
 
 /*
  * User must exist when calling this hook
- * Will return true if the user has mindmaps
+ * Will return true if the user has mindmaps, or undefined while loading
  */
-export const useDoesUserHaveMindMaps = () => {
+export const useDoesUserHaveMindMaps = (): boolean | undefined => {
   const user = useUser().data;
   if (!user) throw new Error('A user must exist.');
   const firestore = useFirestore();
 
   const ownedMindmapsQuery = query(
     collection(firestore, 'mindmaps'),
-    where('permissions.owner', '==', user.uid)
+    where('permissions.owner', '==', user.uid),
   );
 
   const ownedMindmaps = useFirestoreCollection(ownedMindmapsQuery).data;
 
-  return !ownedMindmaps.empty;
+  return ownedMindmaps === undefined ? undefined : !ownedMindmaps.empty;
 };
 
 // eslint-disable-next-line react/require-default-props

@@ -26,14 +26,13 @@ const ChangeEmail = ({ user }: { user: User }) => {
     <div>
       <h4>Change Email</h4>
       {error && <h5 style={{ textAlign: 'center' }}>{error}</h5>}
-
       <form
         noValidate
         onSubmit={async (e) => {
           e.preventDefault();
           reauthenticateWithCredential(
             user,
-            EmailAuthProvider.credential(user?.email || '', password)
+            EmailAuthProvider.credential(user?.email || '', password),
           )
             .then(async () => {
               await updateEmail(user, email)
@@ -62,7 +61,7 @@ const ChangeEmail = ({ user }: { user: User }) => {
       >
         <Grid container spacing={2}>
           {user.email && (
-            <Grid item xs={12} sm={6}>
+            <Grid size={{ xs: 12, sm: 6 }}>
               <TextField
                 fullWidth
                 label="Current Email"
@@ -72,7 +71,7 @@ const ChangeEmail = ({ user }: { user: User }) => {
               />
             </Grid>
           )}
-          <Grid item xs={12} sm={user.email ? 6 : 12}>
+          <Grid size={{ xs: 12, sm: user.email ? 6 : 12 }}>
             <TextField
               autoFocus
               required
@@ -84,21 +83,23 @@ const ChangeEmail = ({ user }: { user: User }) => {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={() => setShowPassword((current) => !current)}
-                    >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword((current) => !current)}
+                      >
+                        {showPassword ? <Visibility /> : <VisibilityOff />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid size={12}>
             <TextField
               required
               fullWidth

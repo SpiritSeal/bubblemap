@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 
 import { localNode as nodeType } from '../../types';
+import { ROOT_NODE_ID } from '../../nodeOps';
 import './MindMap.css';
 
 const radius = 15;
@@ -84,7 +85,7 @@ const Bubble = ({
         : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
           // Other native context menus might behave different.
           // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
-          null
+          null,
     );
   };
 
@@ -152,12 +153,13 @@ const Bubble = ({
     if (selected && locked) return theme.palette.error.dark;
     if (selected) return theme.palette.secondary.main;
     if (locked) return theme.palette.warning.main;
-    if (node.id === 0) return theme.palette.primary.main;
+    if (node.id === ROOT_NODE_ID) return theme.palette.primary.main;
     return theme.palette.primary.dark;
   };
 
   return (
     // <HotKeys handlers={shortcutHandlers}>
+    // </HotKeys>
     <g
       onContextMenu={handleContextMenu}
       // style={{ cursor: 'context-menu' }}
@@ -165,7 +167,7 @@ const Bubble = ({
         (node.y ?? 0) - radius
       })`}
       style={
-        node.id === 0
+        node.id === ROOT_NODE_ID
           ? { cursor: 'no-drop' }
           : { cursor: dragging ? 'grabbing' : 'grab' }
       }
@@ -214,9 +216,11 @@ const Bubble = ({
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
             : undefined
         }
-        PaperProps={{
-          sx: {
-            maxWidth: '100%',
+        slotProps={{
+          paper: {
+            sx: {
+              maxWidth: '100%',
+            },
           },
         }}
       >
@@ -225,17 +229,19 @@ const Bubble = ({
             handleSetNodeLockState();
             handleInheritedHandles(e, () => {});
           }}
-          disabled={node.id === 0}
+          disabled={node.id === ROOT_NODE_ID}
         >
           <ListItemIcon>
-            {!locked && !(node.id === 0) ? (
+            {!locked && !(node.id === ROOT_NODE_ID) ? (
               <Lock fontSize="small" />
             ) : (
               <LockOpen fontSize="small" />
             )}
           </ListItemIcon>
           <ListItemText>
-            {!locked && !(node.id === 0) ? `Lock Bubble` : `Unlock Bubble`}
+            {!locked && !(node.id === ROOT_NODE_ID)
+              ? `Lock Bubble`
+              : `Unlock Bubble`}
           </ListItemText>
           <Typography variant="body2" color="text.secondary" sx={{ ml: 2 }}>
             <kbd>Space</kbd>
@@ -253,7 +259,7 @@ const Bubble = ({
         </MenuItem>
         <MenuItem
           onClick={(e) => handleInheritedHandles(e, handleDeleteNode)}
-          disabled={node.id === 0}
+          disabled={node.id === ROOT_NODE_ID}
         >
           <ListItemIcon>
             <RemoveCircle fontSize="small" />
@@ -278,7 +284,7 @@ const Bubble = ({
         cy={radius}
         r={radius}
         fill={
-          node.id === 0
+          node.id === ROOT_NODE_ID
             ? theme.palette.primary.dark
             : theme.palette.primary.main
         }
@@ -308,7 +314,6 @@ const Bubble = ({
         </text>
       )}
     </g>
-    // </HotKeys>
   );
 };
 export default Bubble;
