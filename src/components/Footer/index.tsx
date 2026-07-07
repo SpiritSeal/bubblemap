@@ -27,7 +27,14 @@ const Footer = () => (
         </Link>
       </Typography>
       <Typography variant="body2" color="text.secondary" align="center">
-        Winner of the 2022 Congressional App Challenge (AZ-06)
+        <Link
+          href="https://www.congressionalappchallenge.us/22-AZ06/"
+          color="inherit"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Winner of the 2022 Congressional App Challenge (AZ-06)
+        </Link>
       </Typography>
     </Container>
   </Box>

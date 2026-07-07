@@ -19,6 +19,7 @@ import {
   ExpandMore,
   FileDownload,
   Groups,
+  PlayCircle,
   RocketLaunch,
 } from '@mui/icons-material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
@@ -275,10 +276,63 @@ const HomePage = () => {
             }}
           >
             <EmojiEvents fontSize="small" aria-hidden />
-            Winner of the 2022 Congressional App Challenge (AZ-06)
+            <Link
+              href="https://www.congressionalappchallenge.us/22-AZ06/"
+              color="inherit"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Winner of the 2022 Congressional App Challenge (AZ-06)
+            </Link>
           </Typography>
         </div>
       </Content>
+
+      <Container
+        component="section"
+        maxWidth="md"
+        sx={{ py: { xs: 6, md: 8 } }}
+      >
+        <SectionHeading>Watch the official release video</SectionHeading>
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            pt: '56.25%',
+            borderRadius: 2,
+            overflow: 'hidden',
+            boxShadow: 4,
+          }}
+        >
+          <Box
+            component="iframe"
+            src="https://www.youtube-nocookie.com/embed/cZlp4Fd1lNQ"
+            title="Bubble Map official release video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowFullScreen
+            sx={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              border: 0,
+            }}
+          />
+        </Box>
+        <Box sx={{ mt: 2, textAlign: 'center' }}>
+          <Button
+            component={Link}
+            href="https://youtu.be/cZlp4Fd1lNQ"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="outlined"
+            startIcon={<PlayCircle />}
+          >
+            Watch on YouTube
+          </Button>
+        </Box>
+      </Container>
 
       <Container
         component="section"
