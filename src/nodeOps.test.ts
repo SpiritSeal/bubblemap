@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
   createRootNode,
+  diffNodes,
   mintNodeID,
   normalizeNodes,
   ROOT_NODE_ID,
+  withChangesUndone,
   withNodeAdded,
   withNodeDeleted,
   withNodeUpdated,
@@ -152,5 +154,110 @@ describe('withNodeDeleted', () => {
 
   it('is a no-op when the node is already gone', () => {
     expect(withNodeDeleted(tree, 'gone')).toEqual(tree);
+  });
+});
+
+describe('diffNodes', () => {
+  it('records adds, deletes, and updates as before/after pairs', () => {
+    const before = tree;
+    const added = { id: 'd', parent: 'a', text: 'd' };
+    const after = withNodeAdded(
+      withNodeUpdated(withNodeDeleted(before, 'c'), {
+        id: 'b',
+        parent: 'a',
+        text: 'renamed',
+      }),
+      added,
+    );
+    const changes = diffNodes(before, after);
+    expect(changes).toContainEqual({
+      before: { id: 'c', parent: 'b', text: 'c' },
+    });
+    expect(changes).toContainEqual({
+      before: { id: 'b', parent: 'a', text: 'b' },
+      after: { id: 'b', parent: 'a', text: 'renamed' },
+    });
+    expect(changes).toContainEqual({ after: added });
+    expect(changes).toHaveLength(3);
+  });
+
+  it('returns an empty list when nothing changed', () => {
+    expect(diffNodes(tree, [...tree])).toEqual([]);
+  });
+});
+
+describe('withChangesUndone', () => {
+  it('inverts an add by deleting the node', () => {
+    const added = { id: 'd', parent: 'a', text: 'd' };
+    const after = withNodeAdded(tree, added);
+    const undone = withChangesUndone(after, diffNodes(tree, after));
+    expect(undone).toEqual(tree);
+  });
+
+  it('inverts an update by restoring the old node', () => {
+    const after = withNodeUpdated(tree, {
+      id: 'b',
+      parent: 'a',
+      text: 'renamed',
+    });
+    const undone = withChangesUndone(after, diffNodes(tree, after));
+    expect(undone).toEqual(tree);
+  });
+
+  it('inverts a delete by re-adding the node and re-parenting its children back', () => {
+    // Deleting b reparents c from b to a; undo must restore both.
+    const after = withNodeDeleted(tree, 'b');
+    const undone = withChangesUndone(after, diffNodes(tree, after));
+    expect(undone.find((o) => o.id === 'b')).toEqual({
+      id: 'b',
+      parent: 'a',
+      text: 'b',
+    });
+    expect(undone.find((o) => o.id === 'c')?.parent).toBe('b');
+  });
+
+  it('skips undoing an update the remote side has since overwritten', () => {
+    const mine = withNodeUpdated(tree, { id: 'b', parent: 'a', text: 'mine' });
+    const changes = diffNodes(tree, mine);
+    const remote = withNodeUpdated(mine, {
+      id: 'b',
+      parent: 'a',
+      text: 'theirs',
+    });
+    // The remote edit wins; undo must not resurrect the pre-'mine' text.
+    expect(withChangesUndone(remote, changes)).toBe(remote);
+  });
+
+  it('skips undoing an add whose node was since edited remotely', () => {
+    const added = { id: 'd', parent: 'a', text: 'd' };
+    const mine = withNodeAdded(tree, added);
+    const changes = diffNodes(tree, mine);
+    const remote = withNodeUpdated(mine, { ...added, text: 'edited' });
+    expect(withChangesUndone(remote, changes)).toBe(remote);
+  });
+
+  it('re-adds a deleted node to the root when its old parent is gone too', () => {
+    const after = withNodeDeleted(tree, 'c');
+    const changes = diffNodes(tree, after);
+    // c's parent b is deleted remotely before the undo runs.
+    const remote = withNodeDeleted(after, 'b');
+    const undone = withChangesUndone(remote, changes);
+    expect(undone.find((o) => o.id === 'c')?.parent).toBe(ROOT_NODE_ID);
+  });
+
+  it('applies the non-conflicting pieces of a partially conflicted entry', () => {
+    // One transaction can touch several nodes (delete = remove + reparent).
+    const after = withNodeDeleted(tree, 'b');
+    const changes = diffNodes(tree, after);
+    // Remotely, c is reparented elsewhere before the undo runs.
+    const remote = withNodeUpdated(after, {
+      id: 'c',
+      parent: ROOT_NODE_ID,
+      text: 'c',
+    });
+    const undone = withChangesUndone(remote, changes);
+    // b comes back, but c keeps its newer remote parent.
+    expect(undone.find((o) => o.id === 'b')).toBeDefined();
+    expect(undone.find((o) => o.id === 'c')?.parent).toBe(ROOT_NODE_ID);
   });
 });

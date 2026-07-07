@@ -5,6 +5,8 @@ const keyBindings = {
   ADD_NODE: 'ctrl+enter',
   DELETE_NODE: 'delete, backspace',
   EDIT_NODE_TEXT: 'shift+enter',
+  // 'mod' is cmd on macOS, ctrl elsewhere.
+  UNDO: 'mod+z',
   GENERATE_IDEAS: 'ctrl+shift+enter',
   TOGGLE_SIDE_MENU: 'ctrl+shift+s',
   // Not Implemented

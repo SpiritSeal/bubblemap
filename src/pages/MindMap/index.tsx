@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   doc,
   arrayUnion,
@@ -13,9 +13,12 @@ import { SimulationNodeDatum } from 'd3-force';
 import { useFirestore, useFirestoreDocData, useUser } from '../../firebase';
 import { MindMap as MindMapType, node, WithID } from '../../types';
 import {
+  diffNodes,
   mintNodeID,
+  NodeChange,
   normalizeNodes,
   ROOT_NODE_ID,
+  withChangesUndone,
   withNodeAdded,
   withNodeDeleted,
   withNodeUpdated,
@@ -24,6 +27,9 @@ import MindMapSimulation from './MindMapSimulation';
 import GenIdeaPanel from './overlays/GenIdeaPanel';
 import Loading from '../../components/Loading';
 import keyBindings from './keybindings';
+
+// Undo entries kept per session; oldest entries fall off past this depth.
+const MAX_UNDO_DEPTH = 100;
 
 const LoadedMindMap = ({ mindmap }: { mindmap: WithID<MindMapType> }) => {
   const navigate = useNavigate();
@@ -49,27 +55,62 @@ const LoadedMindMap = ({ mindmap }: { mindmap: WithID<MindMapType> }) => {
     console.log('Toggle Settings');
   });
 
-  if (!rootNode) {
-    throw new Error('Root node not found!');
-  }
+  // Session-local undo: one entry per committed transaction, newest last.
+  // Deliberately a ref, not state — nothing renders from it, and pushes
+  // happen from async transaction callbacks. Cleared on refresh/navigation.
+  const undoStackRef = useRef<NodeChange[][]>([]);
 
   // All node ops go through a transaction: read a fresh copy of the doc,
   // transform its (normalized) node list, write the whole list back. This
   // avoids the arrayRemove/arrayUnion failure modes where a stale local
   // copy silently duplicated or resurrected nodes under concurrent edits.
-  const commitNodes = (transform: (currentNodes: node[]) => node[]) => {
+  const commitNodes = (
+    transform: (currentNodes: node[]) => node[],
+    recordUndo = true,
+  ) => {
     if (!user) return;
+    // The transaction body can retry; only the last run's diff is kept, and
+    // it is pushed onto the undo stack only after the commit succeeds.
+    let committedChanges: NodeChange[] = [];
     runTransaction(firestore, async (transaction) => {
       const snapshot = await transaction.get(mindMapRef);
       if (!snapshot.exists()) throw new Error('MindMap no longer exists');
+      const currentNodes = normalizeNodes(snapshot.data().nodes);
+      const nextNodes = transform(currentNodes);
+      committedChanges = recordUndo ? diffNodes(currentNodes, nextNodes) : [];
       transaction.update(mindMapRef, {
-        nodes: transform(normalizeNodes(snapshot.data().nodes)),
+        nodes: nextNodes,
         'metadata.updatedAt': serverTimestamp(),
         'metadata.updatedBy': user.uid,
         'metadata.everUpdatedBy': arrayUnion(user.uid),
       });
-    }).catch((error) => console.error('Failed to save mindmap change', error));
+    })
+      .then(() => {
+        if (committedChanges.length === 0) return;
+        undoStackRef.current.push(committedChanges);
+        if (undoStackRef.current.length > MAX_UNDO_DEPTH) {
+          undoStackRef.current.shift();
+        }
+      })
+      .catch((error) => console.error('Failed to save mindmap change', error));
   };
+
+  const undo = () => {
+    const entry = undoStackRef.current.pop();
+    if (!entry) return;
+    // Conflicted pieces no-op inside withChangesUndone; a fully-conflicted
+    // entry is simply dropped rather than resurrecting stale content.
+    commitNodes(
+      (currentNodes) => withChangesUndone(currentNodes, entry),
+      false,
+    );
+  };
+
+  useHotkeys(keyBindings.UNDO, undo, { preventDefault: true });
+
+  if (!rootNode) {
+    throw new Error('Root node not found!');
+  }
 
   const addNode = ({ parent, text }: { parent: string; text: string }) => {
     if (!user) return;

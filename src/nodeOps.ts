@@ -65,3 +65,66 @@ export const withNodeDeleted = (nodes: node[], nodeID: string): node[] => {
       o.parent === nodeID ? { ...o, parent: nodeToDelete.parent } : o,
     );
 };
+
+// One node's part in a committed transaction: `before` only = deleted,
+// `after` only = added, both = updated. A committed transaction records a
+// list of these, and undo inverts them against the then-current doc.
+export interface NodeChange {
+  before?: node;
+  after?: node;
+}
+
+const sameNode = (a: node, b: node): boolean =>
+  a.id === b.id && a.parent === b.parent && a.text === b.text;
+
+export const diffNodes = (before: node[], after: node[]): NodeChange[] => {
+  const changes: NodeChange[] = [];
+  const afterByID = new Map(after.map((o) => [o.id, o]));
+  before.forEach((prev) => {
+    const next = afterByID.get(prev.id);
+    if (!next) changes.push({ before: prev });
+    else if (!sameNode(prev, next)) changes.push({ before: prev, after: next });
+  });
+  const beforeIDs = new Set(before.map((o) => o.id));
+  after.forEach((next) => {
+    if (!beforeIDs.has(next.id)) changes.push({ after: next });
+  });
+  return changes;
+};
+
+// Inverts one recorded change set against the current node list. Each piece
+// applies only if the affected node still looks the way the recorded
+// operation left it, so undo never clobbers or resurrects over a newer
+// remote edit — conflicting pieces are skipped, not merged. Returns the
+// input array unchanged (same reference) when nothing applies.
+export const withChangesUndone = (
+  nodes: node[],
+  changes: NodeChange[],
+): node[] => {
+  let result = nodes;
+  // Re-add deleted nodes first, so children the delete reparented get their
+  // old parent back before their parent pointers are restored below.
+  changes.forEach(({ before, after }) => {
+    if (before && !after && !result.some((o) => o.id === before.id)) {
+      result = withNodeAdded(result, before);
+    }
+  });
+  changes.forEach(({ before, after }) => {
+    if (!before || !after) return;
+    const current = result.find((o) => o.id === after.id);
+    if (!current || !sameNode(current, after)) return;
+    const parentExists = result.some((o) => o.id === before.parent);
+    result = withNodeUpdated(
+      result,
+      parentExists ? before : { ...before, parent: ROOT_NODE_ID },
+    );
+  });
+  changes.forEach(({ before, after }) => {
+    if (before || !after) return;
+    const current = result.find((o) => o.id === after.id);
+    if (current && sameNode(current, after)) {
+      result = withNodeDeleted(result, after.id);
+    }
+  });
+  return result;
+};

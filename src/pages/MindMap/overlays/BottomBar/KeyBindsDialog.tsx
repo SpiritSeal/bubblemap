@@ -111,6 +111,10 @@ const KeyBindsDialog = ({
             '<kbd>Shift</kbd> + <kbd>Enter</kbd>',
             'Edit Selected Bubble',
           )}
+          {mapEntry(
+            '<kbd>Ctrl</kbd> + <kbd>Z</kbd>&nbsp&nbspor&nbsp&nbsp<kbd>⌘</kbd> + <kbd>Z</kbd>',
+            'Undo Your Last Change (this session)',
+          )}
         </TableBody>
         <TableHead>
           <TableRow>
