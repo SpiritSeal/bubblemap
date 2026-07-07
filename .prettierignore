@@ -196,3 +196,5 @@ tsconfig.json
 tsconfig.tsbuildinfo
 
 .vscode/
+
+.claude/
