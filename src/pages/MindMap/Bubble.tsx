@@ -159,6 +159,7 @@ const Bubble = ({
 
   return (
     // <HotKeys handlers={shortcutHandlers}>
+    // </HotKeys>
     <g
       onContextMenu={handleContextMenu}
       // style={{ cursor: 'context-menu' }}
@@ -215,9 +216,11 @@ const Bubble = ({
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
             : undefined
         }
-        PaperProps={{
-          sx: {
-            maxWidth: '100%',
+        slotProps={{
+          paper: {
+            sx: {
+              maxWidth: '100%',
+            },
           },
         }}
       >
@@ -311,7 +314,6 @@ const Bubble = ({
         </text>
       )}
     </g>
-    // </HotKeys>
   );
 };
 export default Bubble;

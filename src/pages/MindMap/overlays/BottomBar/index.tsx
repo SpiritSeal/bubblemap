@@ -123,7 +123,7 @@ const BottomBar = ({
         >
           <StyledInputBase
             placeholder="Untitled MindMap"
-            inputProps={{ 'aria-label': 'title' }}
+            slotProps={{ input: { 'aria-label': 'title' } }}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             sx={{

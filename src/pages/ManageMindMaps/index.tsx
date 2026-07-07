@@ -363,7 +363,6 @@ const ManageMindMaps = () => {
                 open={snackbarOpen}
                 autoHideDuration={3000}
                 onClose={handleSnackbarClose}
-                TransitionProps={{ onExited: handleSnackbarExited }}
                 message="Link copied to clipboard"
                 // position bottom right
                 anchorOrigin={{
@@ -380,6 +379,9 @@ const ManageMindMaps = () => {
                     <Close />
                   </IconButton>
                 }
+                slotProps={{
+                  transition: { onExited: handleSnackbarExited },
+                }}
               />
               <IconButton
                 type="button"

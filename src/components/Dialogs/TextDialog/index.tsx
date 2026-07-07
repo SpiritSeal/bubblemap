@@ -62,9 +62,11 @@ const TextDialog = ({
             sx={{ m: 2 }}
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            inputProps={{ autoFocus: true }}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...textFieldProps}
+            slotProps={{
+              htmlInput: { autoFocus: true },
+            }}
           />
         </DialogContent>
         <DialogActions>

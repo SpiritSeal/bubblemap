@@ -636,7 +636,7 @@ const MindMapSimulation = ({
   >(undefined);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const childRef = useRef<any>();
+  const childRef = useRef<any>(null);
 
   const resetCanvas = () => {
     const context = childRef.current.getContext();

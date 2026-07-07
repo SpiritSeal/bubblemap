@@ -37,13 +37,13 @@ const KeyBindsDialog = ({
 
   const aboutPanel = (
     <Grid container spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="body1">
           This is a mind map editor designed and built by Saketh Reddy and Eric
           Podol.
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="body1">
           This project is open source. You can find the source code on{' '}
           <a
@@ -55,7 +55,7 @@ const KeyBindsDialog = ({
           .
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="body1">
           If you have any questions or suggestions, feel free to contact us at{' '}
           <a
@@ -69,7 +69,7 @@ const KeyBindsDialog = ({
           .
         </Typography>
       </Grid>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="body1">
           This project is built with React, TypeScript, and Material-UI.
         </Typography>

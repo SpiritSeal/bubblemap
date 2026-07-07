@@ -175,6 +175,7 @@ const PersistentDrawerRight = ({
   });
 
   return (
+    // </Box>
     <div>
       <Fab
         variant="extended"
@@ -189,9 +190,6 @@ const PersistentDrawerRight = ({
         Idea Menu
       </Fab>
       <Drawer
-        PaperProps={{
-          elevation: 0,
-        }}
         sx={{
           width: drawerWidth,
           flexShrink: 0,
@@ -202,6 +200,11 @@ const PersistentDrawerRight = ({
         variant="persistent"
         anchor="right"
         open={open}
+        slotProps={{
+          paper: {
+            elevation: 0,
+          },
+        }}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawerClose}>
@@ -215,11 +218,13 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary={input}
-              primaryTypographyProps={{
-                variant: 'h5',
-                align: 'center',
-                color: 'textPrimary',
-                style: { fontStyle: 'italic' },
+              slotProps={{
+                primary: {
+                  variant: 'h5',
+                  align: 'center',
+                  color: 'textPrimary',
+                  style: { fontStyle: 'italic' },
+                },
               }}
             />
           </ListItem>
@@ -228,9 +233,11 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary="Datamuse"
-              primaryTypographyProps={{
-                variant: 'h6',
-                color: 'textPrimary',
+              slotProps={{
+                primary: {
+                  variant: 'h6',
+                  color: 'textPrimary',
+                },
               }}
             />
             {/* PART ONE */}
@@ -247,10 +254,12 @@ const PersistentDrawerRight = ({
             >
               <ListItemText
                 primary={idea}
-                primaryTypographyProps={{
-                  align: 'center',
-                  color: 'textPrimary',
-                  style: { fontStyle: 'italic' },
+                slotProps={{
+                  primary: {
+                    align: 'center',
+                    color: 'textPrimary',
+                    style: { fontStyle: 'italic' },
+                  },
                 }}
               />
             </ListItemButton>
@@ -263,11 +272,13 @@ const PersistentDrawerRight = ({
                 <ListItem key={value + index}>
                   <ListItemText
                     primary="Loading..."
-                    primaryTypographyProps={{
-                      //   variant: 'h6',
-                      align: 'center',
-                      color: 'textPrimary',
-                      style: { fontStyle: 'italic' },
+                    slotProps={{
+                      primary: {
+                        //   variant: 'h6',
+                        align: 'center',
+                        color: 'textPrimary',
+                        style: { fontStyle: 'italic' },
+                      },
                     }}
                   />
                 </ListItem>
@@ -278,9 +289,11 @@ const PersistentDrawerRight = ({
           <ListItem>
             <ListItemText
               primary="AI Ideas"
-              primaryTypographyProps={{
-                variant: 'h6',
-                color: 'textPrimary',
+              slotProps={{
+                primary: {
+                  variant: 'h6',
+                  color: 'textPrimary',
+                },
               }}
             />
             {/* PART ONE */}
@@ -297,11 +310,13 @@ const PersistentDrawerRight = ({
             >
               <ListItemText
                 primary={idea}
-                primaryTypographyProps={{
-                  //   variant: 'h6',
-                  align: 'center',
-                  color: 'textPrimary',
-                  style: { fontStyle: 'italic' },
+                slotProps={{
+                  primary: {
+                    //   variant: 'h6',
+                    align: 'center',
+                    color: 'textPrimary',
+                    style: { fontStyle: 'italic' },
+                  },
                 }}
               />
             </ListItemButton>
@@ -315,10 +330,12 @@ const PersistentDrawerRight = ({
                 <ListItem key={index}>
                   <ListItemText
                     primary="Loading..."
-                    primaryTypographyProps={{
-                      align: 'center',
-                      color: 'textPrimary',
-                      style: { fontStyle: 'italic' },
+                    slotProps={{
+                      primary: {
+                        align: 'center',
+                        color: 'textPrimary',
+                        style: { fontStyle: 'italic' },
+                      },
                     }}
                   />
                 </ListItem>
@@ -326,7 +343,6 @@ const PersistentDrawerRight = ({
         </List>
       </Drawer>
     </div>
-    // </Box>
   );
 };
 
