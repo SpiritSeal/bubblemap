@@ -13,7 +13,9 @@ import ManageMindMaps from '../../pages/ManageMindMaps';
 import SignIn from '../../pages/SignIn';
 import MindMap from '../../pages/MindMap';
 import CreateAccount from '../../pages/CreateAccount';
+import PrivacyPolicy from '../../pages/PrivacyPolicy';
 import Navigation from '../Navigation';
+import Footer from '../Footer';
 import Account from '../../pages/Account';
 import ClaimAccount from '../ClaimAccount';
 import AnonymousAuth from './AnonymousAuth';
@@ -32,6 +34,7 @@ const Routing = () => {
                 <Navigation />
                 <Home />
                 {signinCheck.signedIn && <ClaimAccount />}
+                <Footer />
               </>
             }
           />
@@ -42,6 +45,17 @@ const Routing = () => {
                 <Navigation />
                 <About />
                 {signinCheck.signedIn && <ClaimAccount />}
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="privacy"
+            element={
+              <>
+                <Navigation />
+                <PrivacyPolicy />
+                <Footer />
               </>
             }
           />
@@ -53,6 +67,7 @@ const Routing = () => {
                   <>
                     <Navigation />
                     <SignIn />
+                    <Footer />
                   </>
                 }
               />
@@ -62,6 +77,7 @@ const Routing = () => {
                   <>
                     <Navigation />
                     <CreateAccount />
+                    <Footer />
                   </>
                 }
               />
@@ -74,6 +90,7 @@ const Routing = () => {
                 <Navigation />
                 <Account />
                 {signinCheck.signedIn && <ClaimAccount />}
+                <Footer />
               </AnonymousAuth>
             }
           />
@@ -85,6 +102,7 @@ const Routing = () => {
                   <Navigation />
                   <ManageMindMaps />
                   {signinCheck.signedIn && <ClaimAccount />}
+                  <Footer />
                 </AnonymousAuth>
               }
             />
