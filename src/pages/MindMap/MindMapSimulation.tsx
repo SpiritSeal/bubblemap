@@ -60,6 +60,7 @@ const MindMapSimulationWithTransform = forwardRef(
     },
     ref,
   ) => {
+    const svgRef = useRef<SVGSVGElement>(null);
     const [simulation, setSimulation] = useState<Simulation<
       SimulationNodeDatum & node,
       undefined
@@ -471,6 +472,9 @@ const MindMapSimulationWithTransform = forwardRef(
         if (selectedNode && selectedNode.id !== ROOT_NODE_ID)
           handleToggleNodeLock(selectedNode);
       },
+      getSvgElement() {
+        return svgRef.current;
+      },
       getContext() {
         // Shim matching the shape resetCanvas expects (the old fork exposed
         // state/setTransform directly on the context)
@@ -549,6 +553,7 @@ const MindMapSimulationWithTransform = forwardRef(
             suggestedAction="approve"
           />
           <svg
+            ref={svgRef}
             style={{
               overflow: 'visible',
             }}
@@ -751,6 +756,7 @@ const MindMapSimulation = ({
         handleAddNode={() => childRef.current.handleAddNode()}
         selectedNode={selectedNode}
         resetCanvas={resetCanvas}
+        getSvgElement={() => childRef.current?.getSvgElement() ?? null}
       />
     </>
   );

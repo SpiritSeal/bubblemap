@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { styled } from '@mui/material/styles';
+import { styled, useTheme } from '@mui/material/styles';
 import {
   AppBar,
   Box,
@@ -8,12 +8,22 @@ import {
   Fab,
   alpha,
   InputBase,
+  Menu,
+  MenuItem,
 } from '@mui/material';
-import { Add, Help, MyLocation } from '@mui/icons-material';
+import { Add, Download, Help, MyLocation } from '@mui/icons-material';
 import { doc, updateDoc } from 'firebase/firestore';
 import { SimulationNodeDatum } from 'd3-force';
 import { useFirestore } from '../../../../firebase';
 import { MindMap, node, WithID } from '../../../../types';
+import { normalizeNodes } from '../../../../nodeOps';
+import {
+  buildSvgExport,
+  downloadBlob,
+  mindMapToMarkdown,
+  sanitizeFilename,
+  svgToPngBlob,
+} from '../../export';
 import KeyBindsDialog from './KeyBindsDialog';
 
 const StyledFab = styled(Fab)({
@@ -61,15 +71,21 @@ const BottomBar = ({
   handleAddNode,
   selectedNode,
   resetCanvas,
+  getSvgElement,
 }: {
   data: WithID<MindMap>;
   handleAddNode: (parentNode: SimulationNodeDatum & node) => void;
   selectedNode: SimulationNodeDatum & node;
   resetCanvas: () => void;
+  getSvgElement: () => SVGSVGElement | null;
 }) => {
   const [isKeyBindsDialogOpen, setIsKeyBindsDialogOpen] = useState(false);
   const [title, setTitle] = useState<string>(data.title ?? 'Untitled MindMap');
+  const [exportMenuAnchor, setExportMenuAnchor] = useState<HTMLElement | null>(
+    null,
+  );
   const firestore = useFirestore();
+  const theme = useTheme();
 
   const titleRef = useRef(title);
   titleRef.current = title;
@@ -97,6 +113,36 @@ const BottomBar = ({
     }, 1500);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [title]);
+
+  const handleExport = (format: 'png' | 'svg' | 'markdown') => {
+    setExportMenuAnchor(null);
+    const mapTitle = data.title || 'Untitled MindMap';
+    const filename = sanitizeFilename(mapTitle);
+    if (format === 'markdown') {
+      const markdown = mindMapToMarkdown(normalizeNodes(data.nodes), mapTitle);
+      downloadBlob(
+        new Blob([markdown], { type: 'text/markdown;charset=utf-8' }),
+        `${filename}.md`,
+      );
+      return;
+    }
+    const svgElement = getSvgElement();
+    if (!svgElement) return;
+    const { svgString, width, height } = buildSvgExport(
+      svgElement,
+      theme.palette.background.default,
+    );
+    if (format === 'svg') {
+      downloadBlob(
+        new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' }),
+        `${filename}.svg`,
+      );
+      return;
+    }
+    svgToPngBlob(svgString, width, height)
+      .then((blob) => downloadBlob(blob, `${filename}.png`))
+      .catch((error) => console.error('PNG export failed', error));
+  };
 
   return (
     <AppBar
@@ -147,6 +193,24 @@ const BottomBar = ({
           <Add />
         </StyledFab>
         <Box sx={{ flexGrow: 1 }} />
+        <IconButton
+          color="inherit"
+          aria-label="export mindmap"
+          onClick={(e) => setExportMenuAnchor(e.currentTarget)}
+        >
+          <Download />
+        </IconButton>
+        <Menu
+          anchorEl={exportMenuAnchor}
+          open={Boolean(exportMenuAnchor)}
+          onClose={() => setExportMenuAnchor(null)}
+        >
+          <MenuItem onClick={() => handleExport('png')}>Export as PNG</MenuItem>
+          <MenuItem onClick={() => handleExport('svg')}>Export as SVG</MenuItem>
+          <MenuItem onClick={() => handleExport('markdown')}>
+            Export as Markdown outline
+          </MenuItem>
+        </Menu>
         <IconButton color="inherit" onClick={resetCanvas}>
           <MyLocation />
         </IconButton>
