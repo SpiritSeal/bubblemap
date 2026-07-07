@@ -11,8 +11,8 @@ import {
 } from '@mui/material';
 import { Add, Help, MyLocation } from '@mui/icons-material';
 import { doc, updateDoc } from 'firebase/firestore';
-import { useFirestore } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
+import { useFirestore } from '../../../../firebase';
 import { MindMap, node, WithID } from '../../../../types';
 import KeyBindsDialog from './KeyBindsDialog';
 

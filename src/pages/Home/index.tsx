@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Button, Container, styled, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { useAuth, useFirestore, useSigninCheck } from 'reactfire';
 import { signInAnonymously, UserCredential } from 'firebase/auth';
 import {
   addDoc,
@@ -9,6 +8,7 @@ import {
   serverTimestamp,
   Timestamp,
 } from 'firebase/firestore';
+import { useAuth, useFirestore, useSigninCheck } from '../../firebase';
 import { MindMap } from '../../types';
 import { createRootNode } from '../../nodeOps';
 

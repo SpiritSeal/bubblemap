@@ -8,8 +8,6 @@ import {
   Divider,
 } from '@mui/material';
 
-import { useAuth } from 'reactfire';
-
 import {
   setPersistence,
   indexedDBLocalPersistence,
@@ -21,6 +19,7 @@ import {
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
 import { Google } from '@mui/icons-material';
+import { useAuth } from '../../firebase';
 
 const CreateAccount = () => {
   const auth = useAuth();

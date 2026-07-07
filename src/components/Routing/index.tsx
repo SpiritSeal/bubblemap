@@ -5,7 +5,7 @@ import {
   Route,
   Navigate,
 } from 'react-router-dom';
-import { useSigninCheck } from 'reactfire';
+import { useSigninCheck } from '../../firebase';
 
 import Home from '../../pages/Home';
 import About from '../../pages/About';

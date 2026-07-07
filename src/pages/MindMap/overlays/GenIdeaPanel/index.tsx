@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { httpsCallable } from 'firebase/functions';
-import { useFunctions } from 'reactfire';
 import { SimulationNodeDatum } from 'd3-force';
 import { useHotkeys } from 'react-hotkeys-hook';
+import { useFunctions } from '../../../../firebase';
 import { MindMap, node } from '../../../../types';
 import keyBindings from '../../keybindings';
 

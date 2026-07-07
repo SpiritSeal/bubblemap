@@ -6,9 +6,9 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { useFirestore, useUser } from 'reactfire';
 import { doc, serverTimestamp, setDoc, Timestamp } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { useFirestore, useUser } from '../../../firebase';
 import { MindMap, RecursivePartial, WithID } from '../../../types';
 
 const ShareDialog = ({

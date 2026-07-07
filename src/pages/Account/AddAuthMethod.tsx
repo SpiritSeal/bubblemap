@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button, TextField, Divider } from '@mui/material';
 import { Google } from '@mui/icons-material';
-import { useUser } from 'reactfire';
 import {
   sendEmailVerification,
   GoogleAuthProvider,
@@ -9,6 +8,7 @@ import {
   EmailAuthProvider,
   linkWithCredential,
 } from 'firebase/auth';
+import { useUser } from '../../firebase';
 
 const AddAuthMethod = () => {
   const user = useUser().data;

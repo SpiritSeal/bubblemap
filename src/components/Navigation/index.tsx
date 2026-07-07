@@ -10,7 +10,6 @@ import {
   Toolbar,
   useTheme,
 } from '@mui/material';
-import { useAuth, useSigninCheck, useUser } from 'reactfire';
 import {
   AccountCircle,
   BubbleChart,
@@ -21,6 +20,7 @@ import {
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { deleteUser } from 'firebase/auth';
+import { useAuth, useSigninCheck, useUser } from '../../firebase';
 
 import ThemeContext from '../../contexts/MUITheme';
 import { useDoesUserHaveMindMaps } from '../ClaimAccount';
@@ -38,6 +38,10 @@ const AuthMenuItems = () => {
     (EventTarget & HTMLButtonElement) | null
   >(null);
   const open = Boolean(anchorEl);
+
+  // Still resolving whether this account owns any mindmaps; don't flash the
+  // wrong control in the meantime.
+  if (doesUserHaveMindMaps === undefined) return null;
 
   if (!doesUserHaveMindMaps && user.isAnonymous)
     return (

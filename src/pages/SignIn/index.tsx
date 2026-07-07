@@ -13,8 +13,6 @@ import {
 } from '@mui/material';
 import { Google } from '@mui/icons-material';
 
-import { useAuth } from 'reactfire';
-
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
@@ -25,6 +23,7 @@ import {
   signInWithPopup,
 } from 'firebase/auth';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../firebase';
 
 const SignIn = () => {
   const auth = useAuth();

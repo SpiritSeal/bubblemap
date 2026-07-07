@@ -1,211 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import React, { Suspense, Component, useEffect } from 'react';
-import {
-  useFirebaseApp,
-  useInitFirestore,
-  useInitFunctions,
-  useInitStorage,
-  useInitAuth,
-  useInitRemoteConfig,
-  FirebaseAppProvider,
-  FirestoreProvider,
-  FunctionsProvider,
-  StorageProvider,
-  AuthProvider,
-  RemoteConfigProvider,
-} from 'reactfire';
-
-import {
-  Firestore,
-  connectFirestoreEmulator,
-  initializeFirestore,
-} from 'firebase/firestore';
-import {
-  FirebaseStorage,
-  connectStorageEmulator,
-  getStorage,
-} from 'firebase/storage';
-import { Auth, connectAuthEmulator, getAuth } from 'firebase/auth';
-import {
-  Functions,
-  connectFunctionsEmulator,
-  getFunctions,
-} from 'firebase/functions';
-import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check';
-import {
-  RemoteConfig,
-  fetchAndActivate,
-  getRemoteConfig,
-} from 'firebase/remote-config';
-import { getPerformance } from 'firebase/performance';
-import { getAnalytics } from 'firebase/analytics';
+import React, { Component } from 'react';
 
 import CssBaseline from '@mui/material/CssBaseline';
 
 import { ThemeContextProvider } from './contexts/MUITheme';
+import { FirebaseUserProvider } from './firebase';
 
 import Routing from './components/Routing';
-import Loading from './components/Loading';
-
-const isDev = import.meta.env.MODE !== 'production';
-const isPreview = !(window.location.host === 'bubblemap.app');
-
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
-};
-
-const firebaseConfigPreview = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY_DEV,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN_DEV,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID_DEV,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET_DEV,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID_DEV,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID_DEV,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID_DEV,
-};
-
-const useInitFirebaseSDKs = (): {
-  loading: boolean;
-  auth: Auth | null;
-  firestore: Firestore | null;
-  functions: Functions | null;
-  storage: FirebaseStorage | null;
-  remoteConfig: RemoteConfig | null;
-} => {
-  const { status: useInitFirestoreStatus, data: firestore } = useInitFirestore(
-    async (firebaseApp) => {
-      const firestoreInit = initializeFirestore(firebaseApp, {
-        host: undefined,
-      });
-      if (isDev) connectFirestoreEmulator(firestoreInit, 'localhost', 8080);
-      return firestoreInit;
-    },
-    { suspense: false },
-  );
-
-  const { status: useInitFunctionsStatus, data: functions } = useInitFunctions(
-    async (firebaseApp) => {
-      const functionsInit = getFunctions(firebaseApp, 'us-west2');
-      if (isDev) connectFunctionsEmulator(functionsInit, 'localhost', 5001);
-      return functionsInit;
-    },
-    { suspense: false },
-  );
-
-  const { status: useInitStorageStatus, data: storage } = useInitStorage(
-    async (firebaseApp) => {
-      const storageInit = getStorage(firebaseApp);
-      if (isDev) connectStorageEmulator(storageInit, 'localhost', 9199);
-      return storageInit;
-    },
-    { suspense: false },
-  );
-
-  const { status: useInitAuthStatus, data: auth } = useInitAuth(
-    async (firebaseApp) => {
-      const authInit = getAuth(firebaseApp);
-      if (isDev)
-        connectAuthEmulator(authInit, 'http://localhost:9099/', {
-          disableWarnings: true,
-        });
-      return authInit;
-    },
-    { suspense: false },
-  );
-
-  const { status: useInitRemoteConfigStatus, data: remoteConfig } =
-    useInitRemoteConfig(
-      async (firebaseApp) => {
-        const remoteConfigInit = getRemoteConfig(firebaseApp);
-        remoteConfigInit.settings = {
-          minimumFetchIntervalMillis: 10000,
-          fetchTimeoutMillis: 10000,
-        };
-
-        if (!isDev)
-          await fetchAndActivate(remoteConfigInit).catch(console.error);
-        return remoteConfigInit;
-      },
-      { suspense: false },
-    );
-
-  const app = useFirebaseApp();
-
-  useEffect(() => {
-    if (!isDev) {
-      if (import.meta.env.VITE_RECAPTCHA_PUBLIC_KEY)
-        initializeAppCheck(app, {
-          provider: new ReCaptchaV3Provider(
-            import.meta.env.VITE_RECAPTCHA_PUBLIC_KEY,
-          ),
-          isTokenAutoRefreshEnabled: true,
-        });
-      getAnalytics(app);
-      getPerformance(app);
-    }
-  }, [app]);
-
-  if (
-    useInitFirestoreStatus === 'loading' ||
-    useInitFunctionsStatus === 'loading' ||
-    useInitStorageStatus === 'loading' ||
-    useInitAuthStatus === 'loading' ||
-    useInitRemoteConfigStatus === 'loading'
-  )
-    return {
-      loading: true,
-      auth: null,
-      firestore: null,
-      functions: null,
-      storage: null,
-      remoteConfig: null,
-    };
-  return {
-    loading: false,
-    auth,
-    firestore,
-    functions,
-    storage,
-    remoteConfig,
-  };
-};
-
-const AppWithFirebase = () => {
-  const { loading, auth, firestore, functions, storage, remoteConfig } =
-    useInitFirebaseSDKs();
-  if (
-    loading ||
-    auth === null ||
-    firestore === null ||
-    functions === null ||
-    storage === null ||
-    remoteConfig === null
-  )
-    return <Loading />;
-
-  return (
-    <ThemeContextProvider>
-      <CssBaseline />
-      <AuthProvider sdk={auth}>
-        <FirestoreProvider sdk={firestore}>
-          <FunctionsProvider sdk={functions}>
-            <StorageProvider sdk={storage}>
-              <RemoteConfigProvider sdk={remoteConfig}>
-                <Routing />
-              </RemoteConfigProvider>
-            </StorageProvider>
-          </FunctionsProvider>
-        </FirestoreProvider>
-      </AuthProvider>
-    </ThemeContextProvider>
-  );
-};
 
 // Have to use class because componentDidCatch is not supported in hooks
 class ErrorBoundary extends Component {
@@ -288,16 +89,12 @@ class ErrorBoundary extends Component {
 
 const App = () => (
   <ErrorBoundary>
-    <Suspense fallback={<Loading />}>
-      <FirebaseAppProvider
-        firebaseConfig={isPreview ? firebaseConfigPreview : firebaseConfig}
-        suspense
-      >
-        <Suspense fallback={<Loading />}>
-          <AppWithFirebase />
-        </Suspense>
-      </FirebaseAppProvider>
-    </Suspense>
+    <ThemeContextProvider>
+      <CssBaseline />
+      <FirebaseUserProvider>
+        <Routing />
+      </FirebaseUserProvider>
+    </ThemeContextProvider>
   </ErrorBoundary>
 );
 

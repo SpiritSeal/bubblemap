@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect } from 'react';
 import { signInAnonymously } from 'firebase/auth';
-import { useAuth, useUser } from 'reactfire';
+import { useAuth, useUser } from '../../firebase';
 import Loading from '../Loading';
 
 const AnonymousAuth = ({ children }: { children: ReactNode }) => {

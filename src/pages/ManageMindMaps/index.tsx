@@ -29,7 +29,6 @@ import {
   useSearchParams,
   Link as RouterLink,
 } from 'react-router-dom';
-import { useFirestore, useFirestoreCollectionData, useUser } from 'reactfire';
 import {
   addDoc,
   collection,
@@ -42,11 +41,17 @@ import {
   Timestamp,
   where,
 } from 'firebase/firestore';
+import {
+  useFirestore,
+  useFirestoreCollectionData,
+  useUser,
+} from '../../firebase';
 import { MindMap, RecursivePartial, WithID } from '../../types';
 import { createRootNode } from '../../nodeOps';
 import ShareDialog from './ShareDialog';
 import ConfirmationDialog from '../../components/Dialogs/ConfirmationDialog';
 import TextDialog from '../../components/Dialogs/TextDialog';
+import Loading from '../../components/Loading';
 
 const ManageMindMaps = () => {
   const user = useUser().data;
@@ -75,14 +80,14 @@ const ManageMindMaps = () => {
     where('permissions.isPublic', '==', true),
   );
 
-  const mindmaps: WithID<MindMap>[] = useFirestoreCollectionData(
+  const { data: mindmaps } = useFirestoreCollectionData<WithID<MindMap>>(
     searchParams.get('filter') === 'shared'
       ? sharedMindMapsQuery
       : ownedMindMapsQuery,
     {
       idField: 'ID',
     },
-  ).data as WithID<MindMap>[];
+  );
 
   const [isCreateMindMapDialogOpen, setIsCreateMindMapDialogOpen] =
     useState<boolean>(false);
@@ -150,6 +155,8 @@ const ManageMindMaps = () => {
   const handleSnackbarExited = () => {
     setMessageInfo(undefined);
   };
+
+  if (!mindmaps) return <Loading />;
 
   return (
     <Paper
