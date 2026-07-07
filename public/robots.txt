@@ -1,0 +1,7 @@
+# Mind maps and account pages are user-specific; keep crawlers on the
+# marketing pages.
+User-agent: *
+Disallow: /mindmaps
+Disallow: /account
+
+Sitemap: https://bubblemap.app/sitemap.xml
